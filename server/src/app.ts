@@ -1,9 +1,12 @@
-const express = require("express");
-const requestNative = require("request-promise-native");
+import express, { Request, Response } from "express";
+import requestNative from "request-promise-native";
+import cors from "cors";
+import puppeteer from "puppeteer";
+import cheerio from "cheerio";
+
+import ModelCore from "./core/model.js";
+
 const request = requestNative.defaults({ jar: true });
-const cors = require("cors");
-const { default: puppeteer } = require("puppeteer");
-const cheerio = require("cheerio");
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -13,12 +16,14 @@ app.use(
     origin: "*",
   })
 );
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.listen(port, () => {
   console.log(`server is listening at localhost:${port}`);
 });
 
-app.get("/", (req, res) => {
+app.get("/", (req: Request, res: Response) => {
   res.send({
     title: "Hello World",
   });
@@ -31,7 +36,7 @@ app.get("/", (req, res) => {
  * - cortarNo (동Code)
  * - 3020014700
  */
-app.get("/naver", async (req, res) => {
+app.get("/naver", async (req: Request, res: Response) => {
   /**
    * * SUCCESS
    * * cortarNo (지번 동 합친 코드 같음.. 특정 위치) 근처에 있는 아파트 매물 목록을 반환합니다.
@@ -138,27 +143,27 @@ app.get("/naver", async (req, res) => {
  * * dabang API 정리
  * * API 수집은 불가능 && 브라우저 자동화 도구 사용
  */
-app.get("/dabang", async (req, res) => {
-  const browser = await puppeteer.launch({
-    headless: false,
-  });
+app.get("/dabang", async (req: Request, res: Response) => {
+  // const browser = await puppeteer.launch({
+  //   headless: false,
+  // });
 
-  // 새로운 페이지 열기
-  const page = await browser.newPage();
+  // // 새로운 페이지 열기
+  // const page = await browser.newPage();
 
-  // 원하는 URL로 이동
-  await page.goto(
-    `https://www.dabangapp.com/map/apt?m_lat=36.3050403&m_lng=127.3458911&m_zoom=13`
-  );
+  // // 원하는 URL로 이동
+  // await page.goto(
+  //   `https://www.dabangapp.com/map/apt?m_lat=36.3050403&m_lng=127.3458911&m_zoom=13`
+  // );
 
-  // 페이지의 HTML 가져오기
-  const html = await page.content();
-  const $ = cheerio.load(html);
+  // // 페이지의 HTML 가져오기
+  // const html = await page.content();
+  // const $ = cheerio.load(html);
 
-  // ".styled__RoomItem-sc-1lx6b5d-0" 클래스를 가진 모든 li 요소를 선택
-  const elements = await page.$$(".styled__RoomItem-sc-1lx6b5d-0");
+  // // ".styled__RoomItem-sc-1lx6b5d-0" 클래스를 가진 모든 li 요소를 선택
+  // const elements = await page.$$(".styled__RoomItem-sc-1lx6b5d-0");
 
-  console.log(elements);
+  // console.log(elements);
 
   // for (let index = 0; index < elements.length; index++) {
   //   const element = elements[index]; // 각 li 요소
@@ -199,55 +204,97 @@ app.get("/dabang", async (req, res) => {
   //   });
 
   // await request({
-  //   url: "https://www.dabangapp.com/api/v5/room-list/category/apt/bbox",
+  //   url: "https://www.dabangapp.com/api/v5/markers/category/one-two",
   //   qs: {
-  //     bbox: JSON.stringify({
-  //       sw: { lat: 36.3040504, lng: 127.1550624 },
-  //       ne: { lat: 36.4602174, lng: 127.5117747 },
-  //     }),
-  //     filters: JSON.stringify({
-  //       sellingTypeList: ["MONTHLY_RENT", "LEASE", "SELL"],
-  //       tradeRange: { min: 0, max: 999999 },
-  //       depositRange: { min: 0, max: 999999 },
-  //       priceRange: { min: 0, max: 999999 },
-  //       isIncludeMaintenance: false,
-  //       pyeongRange: { min: 0, max: 999999 },
-  //       useApprovalDateRange: { min: 0, max: 999999 },
-  //       dealTypeList: ["AGENT", "DIRECT"],
-  //       householdNumRange: { min: 0, max: 999999 },
-  //       parkingNumRange: { min: 0, max: 999999 },
-  //       isShortLease: false,
-  //       hasTakeTenant: false,
-  //     }),
-  //     page: 1,
+  //     bbox: '{"sw":{"lat":36.1668355,"lng":126.8397204},"ne":{"lat":36.5969161,"lng":127.8271167}}',
+  //     filters:
+  //       '{"sellingTypeList":["MONTHLY_RENT","LEASE"],"depositRange":{"min":0,"max":11000},"priceRange":{"min":0,"max":999999},"isIncludeMaintenance":false,"pyeongRange":{"min":20,"max":59},"useApprovalDateRange":{"min":0,"max":999999},"roomFloorList":["GROUND_FIRST","GROUND_SECOND_OVER","SEMI_BASEMENT","ROOFTOP"],"roomTypeList":["ONE_ROOM","TWO_ROOM"],"dealTypeList":["AGENT","DIRECT"],"canParking":false,"isShortLease":false,"hasElevator":false,"hasPano":false,"isDivision":false,"isDuplex":false}',
   //     useMap: "naver",
-  //     zoom: 16,
+  //     zoom: 11,
   //   },
   //   headers: {
-  //     accept: "application/json",
-  //     "User-Agent":
-  //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-  //     referer:
-  //       "https://www.dabangapp.com/map/apt?m_lat=36.3821731&m_lng=127.3334185&m_zoom=13",
-  //     authority: "www.dabangapp.com",
-  //     method: "GET",
-  //     path: "/api/v5/room-list/category/apt/bbox?bbox=%7B%22sw%22%3A%7B%22lat%22%3A37.4842661%2C%22lng%22%3A126.6445048%7D%2C%22ne%22%3A%7B%22lat%22%3A37.6380325%2C%22lng%22%3A127.0012171%7D%7D&filters=%7B%22sellingTypeList%22%3A%5B%22MONTHLY_RENT%22%2C%22LEASE%22%2C%22SELL%22%5D%2C%22tradeRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22depositRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22priceRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22isIncludeMaintenance%22%3Afalse%2C%22pyeongRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22useApprovalDateRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22dealTypeList%22%3A%5B%22AGENT%22%2C%22DIRECT%22%5D%2C%22householdNumRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22parkingNumRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22isShortLease%22%3Afalse%2C%22hasTakeTenant%22%3Afalse%7D&page=1&useMap=naver&zoom=13",
-  //     scheme: "https",
-  //     csrf: "token",
-  //     "D-api-version": "5.0.0",
-  //     "D-app-version": 1,
-  //     "D-call-type": "web",
-  //     expires: -1,
-  //     cookie:
-  //       '_fwb=248Y7dtnMrMv9WUaWwvWkUX.1731919934499; _gcl_aw=GCL.1733979205.CjwKCAiAjeW6BhBAEiwAdKltMrkyPEtPxdBB7X1FOO5ZN8_pPuidP13ZyW_CLEYm7LZR-ypWcvOV3RoCamwQAvD_BwE; _gcl_gs=2.1.k1$i1733979198$u55137598; _fcOM={"k":"3a4328879c2fa611-8be831193993f91595c9","i":"211.238.133.4.621795","r":1733979204667}; _gid=GA1.2.741548308.1733979206; _gac_UA-59111157-1=1.1733979206.CjwKCAiAjeW6BhBAEiwAdKltMrkyPEtPxdBB7X1FOO5ZN8_pPuidP13ZyW_CLEYm7LZR-ypWcvOV3RoCamwQAvD_BwE; ring-session=27ce0bc9-770d-428e-a1d1-9046b95101c0; wcs_bt=s_3d10ff175f87:1734048106; cto_bundle=xeCB818lMkJ0VFVpUmRlRXoyRkQzT0olMkI2SzUxV2lKUFl5c0tPSWx3UFAzc1hqSEJ4RTdhMWxGTG5XN0t6VzlXS3ElMkJjTGFWcnpJbzclMkJFOUdQY1oyRVBRQ2hZcExWUTBVQjFrZGtpSXd1NzVWeHFqamxHclNCWW9aeHQzViUyRlA3d0tDU1ozQ2E5alk0anBTa2ZKUTVNM1dZWTJRalVhaVo2blk3YUlZa0FXRHVjTEdrN01DbGc1TldQdExhME1YYlQycyUyRnA5ckxLYUYzZ3NZbld4TFJ1ak9PRlB0RXBBJTNEJTNE; _ga=GA1.2.855940127.1731919935; _gat_gtag_UA_59111157_1=1; _ga_QMSMS2LS99=GS1.1.1734046591.6.1.1734048137.30.0.0',
+  //     ":authority": "www.dabangapp.com",
+  //     ":method": "GET",
+  //     ":scheme": "https",
   //     accept: "application/json, text/plain, */*",
   //     "accept-encoding": "gzip, deflate, br, zstd",
   //     "accept-language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7",
   //     "cache-control": "no-cache",
+  //     cookie:
+  //       "_fwb=197sqskZRLrXFB71pV7D4tL.1734149047111; _fbp=fb.1.1734249080225.584441398513556368; _gid=GA1.2.1050745681.1734698875; wcs_bt=s_3d10ff175f87:1734765425; cto_bundle=...",
+  //     csrf: "token",
+  //     "d-api-version": "5.0.0",
+  //     "d-app-version": "1",
+  //     "d-call-type": "web",
+  //     pragma: "no-cache",
+  //     referer:
+  //       "https://www.dabangapp.com/map/onetwo?depositRangeMax=11000&pyeongRangeMin=30&pyeongRangeMax=60&m_lat=36.3821731&m_lng=127.3334185&m_zoom=11",
+  //     "sec-ch-ua":
+  //       '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+  //     "sec-ch-ua-mobile": "?0",
+  //     "sec-ch-ua-platform": '"Windows"',
+  //     "sec-fetch-dest": "empty",
+  //     "sec-fetch-mode": "cors",
+  //     "sec-fetch-site": "same-origin",
+  //     "user-agent":
+  //       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
   //   },
   // }).then((res) => {
   //   console.log(res);
   // });
+
+  const browser = await puppeteer.launch({
+    headless: false,
+  });
+  const page = await browser.newPage();
+
+  // 헤더 설정
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+  );
+
+  // URL 이동 및 쿠키 가져오기
+  await page.goto(
+    "https://www.dabangapp.com/map/onetwo?depositRangeMax=11000&pyeongRangeMin=30&pyeongRangeMax=60&m_lat=36.3821731&m_lng=127.3334185&m_zoom=11"
+  );
+
+  // API 호출
+  const data = await page.evaluate(async () => {
+    const response = await fetch(
+      "/api/v5/markers/category/one-two?bbox=%7B%22sw%22%3A%7B%22lat%22%3A36.1668355%2C%22lng%22%3A126.8397204%7D%2C%22ne%22%3A%7B%22lat%22%3A36.5969161%2C%22lng%22%3A127.8271167%7D%7D&filters=%7B%22sellingTypeList%22%3A%5B%22MONTHLY_RENT%22%2C%22LEASE%22%5D%2C%22depositRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A11000%7D%2C%22priceRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22isIncludeMaintenance%22%3Afalse%2C%22pyeongRange%22%3A%7B%22min%22%3A20%2C%22max%22%3A59%7D%2C%22useApprovalDateRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22roomFloorList%22%3A%5B%22GROUND_FIRST%22%2C%22GROUND_SECOND_OVER%22%2C%22SEMI_BASEMENT%22%2C%22ROOFTOP%22%5D%2C%22roomTypeList%22%3A%5B%22ONE_ROOM%22%2C%22TWO_ROOM%22%5D%2C%22dealTypeList%22%3A%5B%22AGENT%22%2C%22DIRECT%22%5D%2C%22canParking%22%3Afalse%2C%22isShortLease%22%3Afalse%2C%22hasElevator%22%3Afalse%2C%22hasPano%22%3Afalse%2C%22isDivision%22%3Afalse%2C%22isDuplex%22%3Afalse%7D&useMap=naver&zoom=11",
+      {
+        headers: {
+          "d-api-version": "5.0.0",
+          "d-call-type": "web",
+          csrf: "token",
+          accept: "application/json, text/plain, */*",
+        },
+      }
+    );
+    return await response.json();
+  });
+
+  console.log(data);
+
+  // await browser.close();
+
+  res.send({});
+});
+
+/**
+ * * http://localhost:4000/soojip
+ */
+app.get("/soojip", async (req: Request, res: Response) => {
+  /**
+   * NAVER 시/구/동 수집
+   *
+   */
+  const Model = new ModelCore();
+
+  const all = await Model.excute({
+    sql: "SELECT * FROM ban.game",
+    type: "all",
+  });
 
   res.send({});
 });
