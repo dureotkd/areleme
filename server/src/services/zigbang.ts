@@ -4,9 +4,9 @@ import { Service } from "typedi";
 export default class ZigbangService {
   constructor() {}
 
-  public async collectLocal() {}
+  public async local() {}
 
-  public async collectRegion() {}
+  public async region() {}
 
-  public async collectDong() {}
+  public async dong() {}
 }

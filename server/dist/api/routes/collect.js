@@ -9,9 +9,20 @@ const collect_1 = __importDefault(require("../../services/collect"));
 const route = (0, express_1.Router)();
 exports.default = (app) => {
     app.use("/collect", route);
-    route.get("/local", (req, res) => {
+    route.get("/local", async (req, res) => {
         const { type = "" } = req.query;
         const collectService = typedi_1.default.get(collect_1.default);
+        await collectService.local();
+        return res.status(200).json({ message: "Success" });
+    });
+    route.get("/region", async (req, res) => {
+        const collectService = typedi_1.default.get(collect_1.default);
+        await collectService.region();
+        return res.status(200).json({ message: "Success" });
+    });
+    route.get("/dong", async (req, res) => {
+        const collectService = typedi_1.default.get(collect_1.default);
+        await collectService.dong();
         return res.status(200).json({ message: "Success" });
     });
 };

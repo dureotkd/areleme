@@ -1,6 +1,6 @@
 import mysql, { PoolCluster } from "mysql2";
 
-import config from "../config";
+import config from "../../config";
 
 const database: PoolCluster = mysql.createPoolCluster();
 

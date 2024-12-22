@@ -1,5 +1,6 @@
 import { PoolConnection, QueryError, RowDataPacket } from "mysql2";
-import db from "./database.js";
+import db from "./database";
+import { Service } from "typedi";
 
 type InsertParams = {
   table: string;
@@ -22,9 +23,11 @@ type ExcuteParams = {
   database?: string;
   sql: string;
   type: "all" | "row" | "one" | "exec";
+  debug?: boolean;
 };
 
-export default class Core {
+@Service()
+export default class ModelService {
   /**
    * * MAKE MYSQL INSERT 쿼리문
    */
@@ -96,7 +99,12 @@ export default class Core {
    * ? Promise 객체에 대해서 자세히 공부해보기
    * ? Callback 함수에 대해서 자세히 공부해보기
    */
-  excute({ database = "areleme", sql, type }: ExcuteParams): Promise<any> {
+  excute({
+    database = "areleme",
+    sql,
+    type,
+    debug = false,
+  }: ExcuteParams): Promise<any> {
     return new Promise(function (resolve, reject) {
       db.getConnection(
         database,
@@ -104,6 +112,13 @@ export default class Core {
           err: NodeJS.ErrnoException | null,
           connection: PoolConnection
         ) {
+          if (debug === true) {
+            console.log(sql);
+            resolve(true);
+            connection.release();
+            return;
+          }
+
           if (err) {
             console.log(JSON.stringify(err));
           } else {
@@ -122,7 +137,7 @@ export default class Core {
                       if (data && data.length > 0) {
                         resolve(data[0]);
                       } else {
-                        reject(new Error("No data found"));
+                        resolve([]);
                       }
 
                       break;
@@ -131,7 +146,7 @@ export default class Core {
                       if (data && data.insertId !== undefined) {
                         resolve(data.insertId);
                       } else {
-                        reject(new Error("Insert ID not available"));
+                        reject(null);
                       }
 
                       break;

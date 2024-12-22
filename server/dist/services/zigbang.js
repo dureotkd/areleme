@@ -12,9 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typedi_1 = require("typedi");
 let ZigbangService = class ZigbangService {
     constructor() { }
-    async collectLocal() { }
-    async collectRegion() { }
-    async collectDong() { }
+    async local() { }
+    async region() { }
+    async dong() { }
 };
 ZigbangService = __decorate([
     (0, typedi_1.Service)(),
