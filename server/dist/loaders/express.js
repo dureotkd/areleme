@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const routes_1 = __importDefault(require("../api/routes"));
+const config_1 = __importDefault(require("../config"));
 exports.default = async ({ app }) => {
     app.use((0, cors_1.default)({
         origin: "*",
@@ -13,7 +14,7 @@ exports.default = async ({ app }) => {
     app.enable("trust proxy");
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: true }));
-    app.use("/api", (0, routes_1.default)());
+    app.use(config_1.default.api.prefix, (0, routes_1.default)());
     return app;
 };
 //# sourceMappingURL=express.js.map

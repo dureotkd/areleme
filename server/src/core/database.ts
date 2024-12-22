@@ -1,12 +1,14 @@
 import mysql, { PoolCluster } from "mysql2";
 
+import config from "../config";
+
 const database: PoolCluster = mysql.createPoolCluster();
 
 database.add("areleme", {
-  host: "211.238.133.10",
-  user: "root",
-  password: "@slsksh33@",
-  database: "areleme",
+  host: config.db.host,
+  user: config.db.id,
+  password: config.db.pw,
+  database: config.db.name,
   port: 3306,
 });
 
