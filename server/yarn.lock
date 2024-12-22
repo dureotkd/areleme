@@ -1769,6 +1769,11 @@ readable-stream@^2.0.2:
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
 
+reflect-metadata@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.2.2.tgz#400c845b6cba87a21f2c65c4aeb158f4fa4d9c5b"
+  integrity sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q==
+
 request-promise-core@1.1.4:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/request-promise-core/-/request-promise-core-1.1.4.tgz#3eedd4223208d419867b78ce815167d10593a22f"
@@ -2133,6 +2138,11 @@ typed-query-selector@^2.12.0:
   version "2.12.0"
   resolved "https://registry.yarnpkg.com/typed-query-selector/-/typed-query-selector-2.12.0.tgz#92b65dbc0a42655fccf4aeb1a08b1dddce8af5f2"
   integrity sha512-SbklCd1F0EiZOyPiW192rrHZzZ5sBijB6xM+cpmrwDqObvdtunOHHIk9fCGsoK5JVIYXoyEp4iEdE3upFH3PAg==
+
+typedi@^0.10.0:
+  version "0.10.0"
+  resolved "https://registry.yarnpkg.com/typedi/-/typedi-0.10.0.tgz#e8f9a5ee100b84addbdfb57fe90d8d9ed2a21dea"
+  integrity sha512-v3UJF8xm68BBj6AF4oQML3ikrfK2c9EmZUyLOfShpJuItAqVBHWP/KtpGinkSsIiP6EZyyb6Z3NXyW9dgS9X1w==
 
 typescript@^5.7.2:
   version "5.7.2"

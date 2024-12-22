@@ -1,9 +1,9 @@
 import { Router } from "express";
-import soojip from "./soojip";
+import collect from "./collect";
 
 export default () => {
   const app = Router();
-  soojip(app);
+  collect(app);
 
   return app;
 };

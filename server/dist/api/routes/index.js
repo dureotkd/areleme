@@ -4,10 +4,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const soojip_1 = __importDefault(require("./soojip"));
+const collect_1 = __importDefault(require("./collect"));
 exports.default = () => {
     const app = (0, express_1.Router)();
-    (0, soojip_1.default)(app);
+    (0, collect_1.default)(app);
     return app;
 };
 //# sourceMappingURL=index.js.map
