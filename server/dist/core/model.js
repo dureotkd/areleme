@@ -1,5 +1,10 @@
-import db from "./database.js";
-export default class Core {
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const database_js_1 = __importDefault(require("./database.js"));
+class Core {
     /**
      * * MAKE MYSQL INSERT 쿼리문
      */
@@ -55,7 +60,7 @@ export default class Core {
      */
     excute({ database = "areleme", sql, type }) {
         return new Promise(function (resolve, reject) {
-            db.getConnection(database, function (err, connection) {
+            database_js_1.default.getConnection(database, function (err, connection) {
                 if (err) {
                     console.log(JSON.stringify(err));
                 }
@@ -99,3 +104,5 @@ export default class Core {
         });
     }
 }
+exports.default = Core;
+//# sourceMappingURL=model.js.map

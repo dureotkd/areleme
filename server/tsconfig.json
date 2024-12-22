@@ -4,11 +4,21 @@
     "outDir": "./dist", // 컴파일된 파일을 저장할 폴더
     "esModuleInterop": true, // CommonJS와 ES 모듈의 상호운용성 활성화
     "moduleResolution": "node", // Node.js 모듈 해석
-    "module": "ESNext", // ESNext 모듈 형식을 사용
     "target": "ESNext", // 최신 JavaScript 기능을 사용
     "rootDir": "./src",
     "strict": true,
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "forceConsistentCasingInFileNames": true,
+    "module": "commonjs",
+    "pretty": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": [
     "src/**/*", // TypeScript 코드의 디렉토리
