@@ -20,14 +20,15 @@ exports.default = (app) => {
     // http://localhost:5000/api/collect/region
     route.get('/region', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
-        // await collectService.naverRegion();
+        await collectService.naverRegion();
         await collectService.dabangRegion();
         return res.status(200).json({ message: 'Success' });
     });
     // http://localhost:5000/api/collect/dong
     route.get('/dong', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
-        await collectService.naverDong();
+        // await collectService.naverDong();
+        await collectService.dabangDong();
         return res.status(200).json({ message: 'Success' });
     });
 };

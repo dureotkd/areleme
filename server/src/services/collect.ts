@@ -15,7 +15,6 @@ export default class CollectService {
     private readonly naverService: NaverService,
     private readonly dabangService: DabangService,
     private readonly zigbangService: ZigbangService,
-    private readonly kakaoService: KaKaoService,
     private readonly modelService: ModelService,
   ) {}
 
@@ -186,9 +185,6 @@ export default class CollectService {
 [1]       hou
    */
   public async dabangRegion() {
-    await this.naverService.searchLocation();
-
-    return;
     const regions = await this.dabangService.region();
     const list = [];
 
@@ -200,27 +196,26 @@ export default class CollectService {
      */
     for await (const row of regions) {
       const naverRegion = await this.modelService.excute({
-        sql: `SELECT * , (SELECT name FROM areleme.naver_local WHERE a.localCode = code LIMIT 1) AS 'localName' FROM areleme.naver_region a WHERE a.name='${row.name}'`,
+        sql: `SELECT * FROM areleme.naver_region a WHERE a.name='${row.name}'`,
         type: 'row',
       });
 
-      // 무조건 네이버부동산 기준으로
+      // * 무조건 네이버부동산 기준으로
       if (empty(naverRegion)) {
         console.log(`name : ${row.name}❌`);
         continue;
       }
 
-      const address = await this.kakaoService.searchLocation(row.location.lat, row.location.lng);
-
-      console.log(address);
+      const addressInfos = await this.naverService.searchLocation(row.location.lat, row.location.lng);
+      const address = addressInfos[0]?.region?.area1 || {};
 
       const dabangLocal = await this.modelService.excute({
-        sql: `SELECT * FROM areleme.dabang_local WHERE name LIKE '${address.region_2depth_name}%'`,
+        sql: `SELECT * FROM areleme.dabang_local WHERE name = '${address.name}'`,
         type: 'row',
       });
 
       if (empty(dabangLocal)) {
-        console.log(`localname : ${naverRegion.localName}❌`);
+        console.log(`존재하지 않는 지역구입니다 EX) 서구,중구,동구 등`, row);
         continue;
       }
 
@@ -233,8 +228,6 @@ export default class CollectService {
         nLng: row.nextCenter.lng,
         name: row.name,
       });
-
-      break;
     }
 
     for await (const row of list) {
@@ -243,7 +236,9 @@ export default class CollectService {
         type: 'row',
       });
 
-      if (empty(regionRow)) {
+      if (!empty(regionRow)) {
+        console.log(`이미 존재하는 Region입니다. (다방)❗`, row.name);
+      } else {
         const insertQuery = this.modelService.getInsertQuery({
           table: 'areleme.dabang_region',
           data: {
@@ -256,8 +251,80 @@ export default class CollectService {
           type: 'exec',
           debug: false,
         });
+      }
+    }
+  }
+
+  /**
+   * 현재 매물이 없는 동일 경우
+   * 위치를 제공 하지 않음..
+   *
+   */
+  public async dabangDong() {
+    const dongs = await this.dabangService.dong();
+
+    for await (const row of dongs) {
+      const naverDong = await this.modelService.excute({
+        sql: `SELECT * FROM areleme.naver_dong a WHERE a.name='${row.name}'`,
+        type: 'row',
+      });
+
+      // * 무조건 네이버부동산 기준으로
+      if (empty(naverDong)) {
+        console.log(`name : ${row.name}❌`);
+        continue;
+      }
+
+      const addressInfos = await this.naverService.searchLocation(row.location.lat, row.location.lng);
+      const localName = addressInfos[0]?.region?.area1?.name || '';
+      const regionName = addressInfos[0]?.region?.area2?.name || '';
+      const dongName = addressInfos[0]?.region?.area3?.name || '';
+
+      const localRow = await this.modelService.excute({
+        sql: `SELECT * FROM areleme.dabang_local WHERE name = '${localName}'`,
+        type: 'row',
+      });
+
+      if (empty(localRow)) {
+        console.log(`존재하지 않는 시입니다 EX) 대전광역시,서울특별시 등`, row.name, row.location);
+        continue;
+      }
+
+      const regionRow = await this.modelService.excute({
+        sql: `SELECT * FROM areleme.dabang_region WHERE name = '${regionName}'`,
+        type: 'row',
+      });
+
+      if (empty(regionRow)) {
+        console.log(`존재하지 않는 지역구입니다 EX) 서구,중구,동구 `, regionName, row.name, row.location);
+        continue;
+      }
+
+      const dabangDong = await this.modelService.excute({
+        sql: `SELECT * FROM areleme.dabang_dong WHERE code = '${row.code}' AND localCode = '${localRow.code}' AND regionCode = '${regionRow.code}'`,
+        type: 'row',
+      });
+
+      if (!empty(dabangDong)) {
+        console.log(`이미 존재하는 Dong입니다. (다방)❗`, row.name);
       } else {
-        console.log(`이미 존재하는 Region입니다. (다방)❗`, row);
+        const insertQuery = this.modelService.getInsertQuery({
+          table: 'areleme.dabang_dong',
+          data: {
+            localCode: localRow.code,
+            regionCode: regionRow.code,
+            code: row.code,
+            lat: row.location.lat,
+            lng: row.location.lng,
+            name: row.name,
+          },
+        });
+
+        await this.modelService.excute({
+          sql: insertQuery,
+          type: 'exec',
+          debug: false,
+        });
       }
     }
   }

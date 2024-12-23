@@ -95,17 +95,21 @@ export default class NaverService {
   /**
    * https://api.ncloud-docs.com/docs/ai-naver-mapsreversegeocoding-gc
    */
-  public async searchLocation() {
-    await request(
-      'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=127.585%2C34.9765&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr',
+  public async searchLocation(lat: number, lng: number) {
+    const locations = await request(
+      `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=${lng}%2C${lat}&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr`,
       {
         headers: {
-          'X-NCP-APIGW-API-KEY-ID': config.naver.access_key, // Naver API Key ID
-          'X-NCP-APIGW-API-KEY': config.naver.secret_key, // Naver API Key
+          'X-NCP-APIGW-API-KEY-ID': config.naver.secret_key, // Naver API Key ID
+          'X-NCP-APIGW-API-KEY': config.naver.access_key, // Naver API Key
         },
       },
     ).then((res) => {
-      console.log(res);
+      const { results } = JSON.parse(res);
+
+      return results;
     });
+
+    return locations;
   }
 }

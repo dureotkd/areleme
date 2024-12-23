@@ -93,15 +93,17 @@ let NaverService = class NaverService {
     /**
      * https://api.ncloud-docs.com/docs/ai-naver-mapsreversegeocoding-gc
      */
-    async searchLocation() {
-        await (0, request_promise_native_1.default)('https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=127.585%2C34.9765&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr', {
+    async searchLocation(lat, lng) {
+        const locations = await (0, request_promise_native_1.default)(`https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=${lng}%2C${lat}&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr`, {
             headers: {
-                'X-NCP-APIGW-API-KEY-ID': config_1.default.naver.access_key, // Naver API Key ID
-                'X-NCP-APIGW-API-KEY': config_1.default.naver.secret_key, // Naver API Key
+                'X-NCP-APIGW-API-KEY-ID': config_1.default.naver.secret_key, // Naver API Key ID
+                'X-NCP-APIGW-API-KEY': config_1.default.naver.access_key, // Naver API Key
             },
         }).then((res) => {
-            console.log(res);
+            const { results } = JSON.parse(res);
+            return results;
         });
+        return locations;
     }
 };
 NaverService = __decorate([

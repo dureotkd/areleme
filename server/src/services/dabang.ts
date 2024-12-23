@@ -78,7 +78,55 @@ export default class DabangService {
     return cityList;
   }
 
-  public async dong() {}
+  public async dong() {
+    const bbox = {
+      sw: { lat: 29, lng: 120 },
+      ne: { lat: 40, lng: 135 },
+    };
+
+    const filters = {
+      sellingTypeList: ['MONTHLY_RENT', 'LEASE'],
+      depositRange: { min: 0, max: 11000 },
+      priceRange: { min: 0, max: 999999 },
+      isIncludeMaintenance: false,
+      pyeongRange: { min: 20, max: 59 },
+      useApprovalDateRange: { min: 0, max: 999999 },
+      roomFloorList: ['GROUND_FIRST', 'GROUND_SECOND_OVER', 'SEMI_BASEMENT', 'ROOFTOP'],
+      roomTypeList: ['ONE_ROOM', 'TWO_ROOM'],
+      dealTypeList: ['AGENT', 'DIRECT'],
+      canParking: false,
+      isShortLease: false,
+      hasElevator: false,
+      hasPano: false,
+      isDivision: false,
+      isDuplex: false,
+    };
+
+    const dongList = await request({
+      uri: 'https://www.dabangapp.com/api/v5/markers/category/one-two',
+      qs: {
+        bbox: JSON.stringify(bbox),
+        filters: JSON.stringify(filters),
+        useMap: 'naver',
+        zoom: 13,
+      },
+      method: 'GET',
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'd-api-version': '5.0.0',
+        'd-call-type': 'web',
+        csrf: 'token',
+        accept: 'application/json, text/plain, */*',
+      },
+    }).then((res) => {
+      const data = JSON.parse(res);
+
+      return data.result.dongList;
+    });
+
+    return dongList;
+  }
 
   private async setCookie() {
     const browser = await puppeteer.launch({
