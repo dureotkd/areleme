@@ -10,7 +10,7 @@ import config from '../config';
 export default class NaverService {
   constructor(private readonly modelService: ModelService) {}
 
-  public async local() {
+  public async fetchLocal() {
     try {
       const data = await request({
         uri: 'https://new.land.naver.com/api/regions/list?cortarNo=0000000000',
@@ -29,7 +29,7 @@ export default class NaverService {
     } catch (error) {}
   }
 
-  public async region() {
+  public async fetchRegion() {
     const localAll = await this.modelService.excute({
       sql: 'SELECT * FROM areleme.naver_local',
       type: 'all',
@@ -59,7 +59,7 @@ export default class NaverService {
     return regions;
   }
 
-  public async dong() {
+  public async fetchDong() {
     const regionAll = await this.modelService.excute({
       sql: 'SELECT * FROM areleme.naver_region',
       type: 'all',
@@ -95,7 +95,7 @@ export default class NaverService {
   /**
    * https://api.ncloud-docs.com/docs/ai-naver-mapsreversegeocoding-gc
    */
-  public async searchLocation(lat: number, lng: number) {
+  public async fetchLocationToGeocode(lat: number, lng: number) {
     const locations = await request(
       `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=${lng}%2C${lat}&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr`,
       {

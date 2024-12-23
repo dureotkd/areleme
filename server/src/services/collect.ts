@@ -18,8 +18,8 @@ export default class CollectService {
     private readonly modelService: ModelService,
   ) {}
 
-  public async naverLocal() {
-    const data = await this.naverService.local();
+  public async saveNaverLocal() {
+    const data = await this.naverService.fetchLocal();
 
     const list = data.map((item: any) => ({
       code: item.cortarNo,
@@ -51,8 +51,8 @@ export default class CollectService {
     }
   }
 
-  public async naverRegion() {
-    const data = await this.naverService.region();
+  public async saveNaverRegion() {
+    const data = await this.naverService.fetchRegion();
     const list = data.map((item) => {
       return {
         code: item.cortarNo,
@@ -88,8 +88,8 @@ export default class CollectService {
     }
   }
 
-  public async naverDong() {
-    const data = await this.naverService.dong();
+  public async saveNaverDong() {
+    const data = await this.naverService.fetchDong();
     const list = data.map((item) => {
       return {
         code: item.cortarNo,
@@ -127,8 +127,8 @@ export default class CollectService {
     }
   }
 
-  public async dabangLocal() {
-    const data = await this.dabangService.local();
+  public async saveDabangLocal() {
+    const data = await this.dabangService.fetchLocal();
 
     const list = data.map((item: any) => ({
       code: item.code,
@@ -184,8 +184,8 @@ export default class CollectService {
 [1]       useApprovalYear: null,
 [1]       hou
    */
-  public async dabangRegion() {
-    const regions = await this.dabangService.region();
+  public async saveDabangRegion() {
+    const regions = await this.dabangService.fetchRegion();
     const list = [];
 
     /**
@@ -206,7 +206,7 @@ export default class CollectService {
         continue;
       }
 
-      const addressInfos = await this.naverService.searchLocation(row.location.lat, row.location.lng);
+      const addressInfos = await this.naverService.fetchLocationToGeocode(row.location.lat, row.location.lng);
       const address = addressInfos[0]?.region?.area1 || {};
 
       const dabangLocal = await this.modelService.excute({
@@ -260,8 +260,8 @@ export default class CollectService {
    * 위치를 제공 하지 않음..
    *
    */
-  public async dabangDong() {
-    const dongs = await this.dabangService.dong();
+  public async saveDabangDong() {
+    const dongs = await this.dabangService.fetchDong();
 
     for await (const row of dongs) {
       const naverDong = await this.modelService.excute({
@@ -275,7 +275,7 @@ export default class CollectService {
         continue;
       }
 
-      const addressInfos = await this.naverService.searchLocation(row.location.lat, row.location.lng);
+      const addressInfos = await this.naverService.fetchLocationToGeocode(row.location.lat, row.location.lng);
       const localName = addressInfos[0]?.region?.area1?.name || '';
       const regionName = addressInfos[0]?.region?.area2?.name || '';
       const dongName = addressInfos[0]?.region?.area3?.name || '';

@@ -11,7 +11,7 @@ import ModelService from './core/model';
 export default class DabangService {
   constructor(private readonly modelService: ModelService) {}
 
-  public async local() {
+  public async fetchLocal() {
     const {
       result: { stateList },
     } = await request({
@@ -32,7 +32,7 @@ export default class DabangService {
     return stateList;
   }
 
-  public async region() {
+  public async fetchRegion() {
     const bbox = {
       sw: { lat: 31, lng: 123 },
       ne: { lat: 38, lng: 130 },
@@ -78,7 +78,7 @@ export default class DabangService {
     return cityList;
   }
 
-  public async dong() {
+  public async fetchDong() {
     const bbox = {
       sw: { lat: 29, lng: 120 },
       ne: { lat: 40, lng: 135 },

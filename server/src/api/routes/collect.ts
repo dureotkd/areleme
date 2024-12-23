@@ -13,8 +13,8 @@ export default (app: Router) => {
     const { type = '' } = req.query;
 
     const collectService = Container.get(CollectServiceInstance);
-    await collectService.naverLocal();
-    await collectService.dabangLocal();
+    await collectService.saveNaverLocal();
+    await collectService.saveDabangLocal();
 
     return res.status(200).json({ message: 'Success' });
   });
@@ -22,8 +22,8 @@ export default (app: Router) => {
   // http://localhost:5000/api/collect/region
   route.get('/region', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
-    await collectService.naverRegion();
-    await collectService.dabangRegion();
+    await collectService.saveNaverRegion();
+    await collectService.saveDabangRegion();
 
     return res.status(200).json({ message: 'Success' });
   });
@@ -31,9 +31,8 @@ export default (app: Router) => {
   // http://localhost:5000/api/collect/dong
   route.get('/dong', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
-    // await collectService.naverDong();
-
-    await collectService.dabangDong();
+    await collectService.saveNaverDong();
+    await collectService.saveDabangDong();
 
     return res.status(200).json({ message: 'Success' });
   });
