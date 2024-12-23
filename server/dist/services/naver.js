@@ -90,6 +90,9 @@ let NaverService = class NaverService {
         }
         return dongs;
     }
+    /**
+     * https://api.ncloud-docs.com/docs/ai-naver-mapsreversegeocoding-gc
+     */
     async searchLocation() {
         await (0, request_promise_native_1.default)('https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=127.585%2C34.9765&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr', {
             headers: {
