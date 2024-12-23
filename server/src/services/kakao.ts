@@ -10,10 +10,6 @@ import config from '../config';
 export default class KaKaoService {
   constructor() {}
 
-  /**
-   *
-   *
-   */
   public async searchLocation(lat: number, lng: number) {
     const { address } = await request('https://dapi.kakao.com/v2/local/geo/coord2address', {
       qs: {
@@ -30,4 +26,6 @@ export default class KaKaoService {
 
     return address;
   }
+
+  public async login() {}
 }

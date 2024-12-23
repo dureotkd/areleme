@@ -105,6 +105,7 @@ let NaverService = class NaverService {
         });
         return locations;
     }
+    async login() { }
 };
 NaverService = __decorate([
     (0, typedi_1.Service)(),

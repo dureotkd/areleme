@@ -112,4 +112,6 @@ export default class NaverService {
 
     return locations;
   }
+
+  public async login() {}
 }
