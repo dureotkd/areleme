@@ -1,33 +1,38 @@
-import { Router, Request, Response } from "express";
-import Container from "typedi";
+import { Router, Request, Response } from 'express';
+import Container from 'typedi';
 
-import CollectServiceInstance from "../../services/collect";
+import CollectServiceInstance from '../../services/collect';
 
 const route = Router();
 
 export default (app: Router) => {
-  app.use("/collect", route);
+  app.use('/collect', route);
 
-  route.get("/local", async (req: Request, res: Response) => {
-    const { type = "" } = req.query;
+  // http://localhost:5000/api/collect/local
+  route.get('/local', async (req: Request, res: Response) => {
+    const { type = '' } = req.query;
 
     const collectService = Container.get(CollectServiceInstance);
-    await collectService.local();
+    await collectService.naverLocal();
+    await collectService.dabangLocal();
 
-    return res.status(200).json({ message: "Success" });
+    return res.status(200).json({ message: 'Success' });
   });
 
-  route.get("/region", async (req: Request, res: Response) => {
+  // http://localhost:5000/api/collect/region
+  route.get('/region', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
-    await collectService.region();
+    // await collectService.naverRegion();
+    await collectService.dabangRegion();
 
-    return res.status(200).json({ message: "Success" });
+    return res.status(200).json({ message: 'Success' });
   });
 
-  route.get("/dong", async (req: Request, res: Response) => {
+  // http://localhost:5000/api/collect/dong
+  route.get('/dong', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
-    await collectService.dong();
+    await collectService.naverDong();
 
-    return res.status(200).json({ message: "Success" });
+    return res.status(200).json({ message: 'Success' });
   });
 };

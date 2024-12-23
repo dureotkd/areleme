@@ -1,9 +1,10 @@
-import { Service } from "typedi";
-import request from "request-promise-native";
+import { Service } from 'typedi';
+import request from 'request-promise-native';
 
-import ModelService from "./core/model";
+import ModelService from './core/model';
 
-import { wait } from "../utils/time";
+import { wait } from '../utils/time';
+import config from '../config';
 
 @Service()
 export default class NaverService {
@@ -12,11 +13,11 @@ export default class NaverService {
   public async local() {
     try {
       const data = await request({
-        uri: "https://new.land.naver.com/api/regions/list?cortarNo=0000000000",
-        method: "GET",
+        uri: 'https://new.land.naver.com/api/regions/list?cortarNo=0000000000',
+        method: 'GET',
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
         },
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res);
@@ -30,35 +31,38 @@ export default class NaverService {
 
   public async region() {
     const localAll = await this.modelService.excute({
-      sql: "SELECT * FROM areleme.local WHERE type='naver'",
-      type: "all",
+      sql: 'SELECT * FROM areleme.naver_local',
+      type: 'all',
     });
 
-    const res: { [key: string]: [] } = {};
+    const regions: any[] = [];
 
     for await (const row of localAll) {
-      const data = await request({
+      await request({
         uri: `https://new.land.naver.com/api/regions/list?cortarNo=${row.code}`,
-        method: "GET",
+        method: 'GET',
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
         },
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res); // regionList
-        return regionList;
+        regionList.forEach((item: any) => {
+          regions.push({
+            ...item,
+            localCode: row.code,
+          });
+        });
       });
-
-      res[row.code] = data;
     }
 
-    return res;
+    return regions;
   }
 
   public async dong() {
     const regionAll = await this.modelService.excute({
-      sql: "SELECT * FROM areleme.region WHERE type='naver'",
-      type: "all",
+      sql: 'SELECT * FROM areleme.naver_region',
+      type: 'all',
     });
 
     const dongs: any[] = [];
@@ -66,10 +70,10 @@ export default class NaverService {
     for await (const row of regionAll) {
       await request({
         uri: `https://new.land.naver.com/api/regions/list?cortarNo=${row.code}`,
-        method: "GET",
+        method: 'GET',
         headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36",
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
         },
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res); // regionList
@@ -85,8 +89,20 @@ export default class NaverService {
       await wait(1500);
     }
 
-    console.log(dongs);
-
     return dongs;
+  }
+
+  public async searchLocation() {
+    await request(
+      'https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=127.585%2C34.9765&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr',
+      {
+        headers: {
+          'X-NCP-APIGW-API-KEY-ID': config.naver.access_key, // Naver API Key ID
+          'X-NCP-APIGW-API-KEY': config.naver.secret_key, // Naver API Key
+        },
+      },
+    ).then((res) => {
+      console.log(res);
+    });
   }
 }

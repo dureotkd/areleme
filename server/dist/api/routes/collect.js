@@ -8,22 +8,27 @@ const typedi_1 = __importDefault(require("typedi"));
 const collect_1 = __importDefault(require("../../services/collect"));
 const route = (0, express_1.Router)();
 exports.default = (app) => {
-    app.use("/collect", route);
-    route.get("/local", async (req, res) => {
-        const { type = "" } = req.query;
+    app.use('/collect', route);
+    // http://localhost:5000/api/collect/local
+    route.get('/local', async (req, res) => {
+        const { type = '' } = req.query;
         const collectService = typedi_1.default.get(collect_1.default);
-        await collectService.local();
-        return res.status(200).json({ message: "Success" });
+        await collectService.naverLocal();
+        await collectService.dabangLocal();
+        return res.status(200).json({ message: 'Success' });
     });
-    route.get("/region", async (req, res) => {
+    // http://localhost:5000/api/collect/region
+    route.get('/region', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
-        await collectService.region();
-        return res.status(200).json({ message: "Success" });
+        // await collectService.naverRegion();
+        await collectService.dabangRegion();
+        return res.status(200).json({ message: 'Success' });
     });
-    route.get("/dong", async (req, res) => {
+    // http://localhost:5000/api/collect/dong
+    route.get('/dong', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
-        await collectService.dong();
-        return res.status(200).json({ message: "Success" });
+        await collectService.naverDong();
+        return res.status(200).json({ message: 'Success' });
     });
 };
 //# sourceMappingURL=collect.js.map

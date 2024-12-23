@@ -16,7 +16,7 @@ type CommonLocalData = {
   lat: number;
   lng: number;
   name: string;
-  type: "naver" | "dabang" | "zigbang";
+  type: 'naver' | 'dabang' | 'zigbang';
 };
 
 type CommonRegionData = CommonLocalData & {
@@ -34,28 +34,21 @@ export const transformNaverLocal = (data: NaverData[]): CommonLocalData[] => {
     lat: item.centerLat,
     lng: item.centerLon,
     name: item.cortarName,
-    type: "naver",
+    type: 'naver',
   }));
 };
 
-export const transformNaverRegion = (
-  data: Record<string, any[]>
-): Record<string, CommonLocalData[]> => {
-  const res: Record<string, any> = {};
-
-  for (const [localCode, regions] of Object.entries(data)) {
-    const regionList = regions.map((item) => {
-      return {
-        code: item.cortarNo,
-        lat: item.centerLat,
-        lng: item.centerLon,
-        name: item.cortarName,
-        type: "naver",
-      };
-    });
-
-    res[localCode] = regionList;
-  }
+export const transformNaverRegion = (data: any[]): any[] => {
+  const res = data.map((item) => {
+    return {
+      code: item.cortarNo,
+      lat: item.centerLat,
+      lng: item.centerLon,
+      name: item.cortarName,
+      type: 'naver',
+      localCode: item.localCode,
+    };
+  });
 
   return res;
 };
@@ -67,7 +60,7 @@ export const transformNaverDong = (data: any[]): any[] => {
       lat: item.centerLat,
       lng: item.centerLon,
       name: item.cortarName,
-      type: "naver",
+      type: 'naver',
       localCode: item.localCode,
       regionCode: item.regionCode,
     };
@@ -82,8 +75,26 @@ export const transformDabangLocal = (data: DabangData[]): CommonLocalData[] => {
     lat: item.location.lat,
     lng: item.location.lng,
     name: item.name,
-    type: "dabang",
+    type: 'dabang',
   }));
 };
 
-export const transformDabangRegion = () => {};
+export const transformDabangRegion = (data: Record<string, any[]>): Record<string, CommonLocalData[]> => {
+  const res: Record<string, any> = {};
+
+  for (const [localCode, regions] of Object.entries(data)) {
+    const regionList = regions.map((item) => {
+      return {
+        code: item.code,
+        lat: item.location.lat,
+        lng: item.location.lng,
+        name: item.name,
+        type: 'dabang',
+      };
+    });
+
+    res[localCode] = regionList;
+  }
+
+  return res;
+};
