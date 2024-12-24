@@ -128,6 +128,48 @@ export default class DabangService {
     return dongList;
   }
 
+  public async getLocals() {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.dabang_local a WHERE 1`,
+      type: 'all',
+    });
+  }
+
+  public async getLocal(code: string) {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.dabang_local a WHERE a.code = '${code}'`,
+      type: 'row',
+    });
+  }
+
+  public async getRegions() {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.dabang_region a WHERE 1`,
+      type: 'all',
+    });
+  }
+
+  public async getRegion(code: string) {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.dabang_region a WHERE a.code = '${code}'`,
+      type: 'row',
+    });
+  }
+
+  public async getDongs(code: string) {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.dabang_dong a WHERE a.code = '${code}'`,
+      type: 'all',
+    });
+  }
+
+  public async getDong(code: string) {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.dabang_dong a WHERE a.code = '${code}'`,
+      type: 'row',
+    });
+  }
+
   private async setCookie() {
     const browser = await puppeteer.launch({
       headless: false,

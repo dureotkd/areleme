@@ -1,9 +1,30 @@
-import { NextPage } from "next";
+import { NextPage } from 'next';
 
-interface Props {}
+type Local = {
+  seq: number;
+  code: number;
+  lat: string;
+  lng: string;
+  name: string;
+};
 
-const Page: NextPage<Props> = ({}) => {
-  return <div>온보딩 Page</div>;
+async function fetchLocalList() {
+  const { data } = await fetch('http://localhost:4000/api/address/local').then((res) => res.json());
+
+  return data;
+}
+
+const Page: NextPage = async ({}) => {
+  const localList: Local[] = await fetchLocalList();
+
+  return (
+    <div>
+      {localList.length > 0 &&
+        localList.map((item) => {
+          return <div key={item.seq}>{item.name}</div>;
+        })}
+    </div>
+  );
 };
 
 export default Page;

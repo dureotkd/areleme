@@ -13,22 +13,22 @@ exports.default = (app) => {
     route.get('/local', async (req, res) => {
         const { type = '' } = req.query;
         const collectService = typedi_1.default.get(collect_1.default);
-        await collectService.naverLocal();
-        await collectService.dabangLocal();
+        await collectService.saveNaverLocal();
+        await collectService.saveDabangLocal();
         return res.status(200).json({ message: 'Success' });
     });
     // http://localhost:5000/api/collect/region
     route.get('/region', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
-        await collectService.naverRegion();
-        await collectService.dabangRegion();
+        await collectService.saveNaverRegion();
+        await collectService.saveDabangRegion();
         return res.status(200).json({ message: 'Success' });
     });
     // http://localhost:5000/api/collect/dong
     route.get('/dong', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
-        // await collectService.naverDong();
-        await collectService.dabangDong();
+        await collectService.saveNaverDong();
+        await collectService.saveDabangDong();
         return res.status(200).json({ message: 'Success' });
     });
 };

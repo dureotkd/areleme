@@ -1,6 +1,6 @@
-import { PoolConnection, QueryError, RowDataPacket } from "mysql2";
-import db from "./database";
-import { Service } from "typedi";
+import { PoolConnection, QueryError, RowDataPacket } from 'mysql2';
+import db from './database';
+import { Service } from 'typedi';
 
 type InsertParams = {
   table: string;
@@ -22,7 +22,7 @@ type DuplicateParams = {
 type ExcuteParams = {
   database?: string;
   sql: string;
-  type: "all" | "row" | "one" | "exec";
+  type: 'all' | 'row' | 'one' | 'exec';
   debug?: boolean;
 };
 
@@ -36,10 +36,10 @@ export default class ModelService {
     const values = Object.values(data);
 
     if (column.length !== values.length) {
-      new Error("Error Object Key Value!");
+      new Error('Error Object Key Value!');
     }
 
-    const c = column.join(",");
+    const c = column.join(',');
     const v = values.join("','");
 
     return `INSERT INTO ${table}(${c}) VALUES ('${v}');`;
@@ -49,14 +49,14 @@ export default class ModelService {
    * * MAKE MYSQL UPDATE 쿼리문
    */
   getUpdateQuery({ table, data, where }: UpdateParams) {
-    let c = "";
+    let c = '';
 
     for (const [column, value] of Object.entries(data)) {
       c += `${column}='${value}',`;
     }
 
     const rc = c.slice(0, -1);
-    const rw = where.join(" AND ");
+    const rw = where.join(' AND ');
 
     return `UPDATE ${table} SET ${rc} WHERE ${rw};`;
   }
@@ -66,22 +66,19 @@ export default class ModelService {
     const i_values = Object.values(insertData);
 
     if (i_column.length !== i_values.length) {
-      new Error("Error Object Key Value!");
+      new Error('Error Object Key Value!');
     }
 
-    const c = i_column.join(",");
+    const c = i_column.join(',');
     const v = i_values.join("','");
 
-    let update = "";
+    let update = '';
 
     for (const [column, value] of Object.entries(updateData)) {
       update += `${column}='${value}',`;
     }
 
-    return `INSERT INTO ${table} (${c}) VALUES ('${v}') ON DUPLICATE KEY UPDATE ${update.slice(
-      0,
-      -1
-    )};`;
+    return `INSERT INTO ${table} (${c}) VALUES ('${v}') ON DUPLICATE KEY UPDATE ${update.slice(0, -1)};`;
   }
 
   /**
@@ -99,72 +96,58 @@ export default class ModelService {
    * ? Promise 객체에 대해서 자세히 공부해보기
    * ? Callback 함수에 대해서 자세히 공부해보기
    */
-  excute({
-    database = "areleme",
-    sql,
-    type,
-    debug = false,
-  }: ExcuteParams): Promise<any> {
+  excute({ database = 'areleme', sql, type, debug = false }: ExcuteParams): Promise<any> {
     return new Promise(function (resolve, reject) {
-      db.getConnection(
-        database,
-        function (
-          err: NodeJS.ErrnoException | null,
-          connection: PoolConnection
-        ) {
-          if (debug === true) {
-            console.log(sql);
-            resolve(true);
-            connection.release();
-            return;
-          }
-
-          if (err) {
-            console.log(JSON.stringify(err));
-          } else {
-            connection.query(
-              sql,
-              function (err: QueryError | null, data: RowDataPacket) {
-                if (err) {
-                  console.log("DB 쿼리 오류", err);
-                  reject(new Error("query error"));
-                } else {
-                  switch (type) {
-                    case "all":
-                      resolve(data);
-                      break;
-                    case "row":
-                      if (data && data.length > 0) {
-                        resolve(data[0]);
-                      } else {
-                        resolve([]);
-                      }
-
-                      break;
-
-                    case "exec":
-                      if (data && data.insertId !== undefined) {
-                        resolve(data.insertId);
-                      } else {
-                        reject(null);
-                      }
-
-                      break;
-
-                    default:
-                      reject(new Error("type error"));
-
-                      break;
-                  }
-                }
-
-                // When done with the connection, release it.
-                connection.release();
-              }
-            );
-          }
+      db.getConnection(database, function (err: NodeJS.ErrnoException | null, connection: PoolConnection) {
+        if (debug === true) {
+          console.log(sql);
+          resolve(true);
+          connection.release();
+          return;
         }
-      );
+
+        if (err) {
+          console.log(JSON.stringify(err));
+        } else {
+          connection.query(sql, function (err: QueryError | null, data: RowDataPacket) {
+            if (err) {
+              console.log('DB 쿼리 오류', err);
+              reject(new Error('query error'));
+            } else {
+              switch (type) {
+                case 'all':
+                  resolve(data);
+                  break;
+                case 'row':
+                  if (data && data.length > 0) {
+                    resolve(data[0]);
+                  } else {
+                    resolve([]);
+                  }
+
+                  break;
+
+                case 'exec':
+                  if (data && data.insertId !== undefined) {
+                    resolve(data.insertId);
+                  } else {
+                    reject(null);
+                  }
+
+                  break;
+
+                default:
+                  reject(new Error('type error'));
+
+                  break;
+              }
+            }
+
+            // When done with the connection, release it.
+            connection.release();
+          });
+        }
+      });
     });
   }
 }

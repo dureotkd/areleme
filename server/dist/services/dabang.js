@@ -21,7 +21,7 @@ let DabangService = class DabangService {
     constructor(modelService) {
         this.modelService = modelService;
     }
-    async local() {
+    async fetchLocal() {
         const { result: { stateList }, } = await (0, request_promise_native_1.default)({
             uri: 'https://www.dabangapp.com/api/v5/markers/category/one-two?bbox=%7B%22sw%22%3A%7B%22lat%22%3A33.1460636%2C%22lng%22%3A121.5391567%7D%2C%22ne%22%3A%7B%22lat%22%3A38.9502276%2C%22lng%22%3A136.0356167%7D%7D&filters=%7B%22sellingTypeList%22%3A%5B%22MONTHLY_RENT%22%2C%22LEASE%22%5D%2C%22depositRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22priceRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22isIncludeMaintenance%22%3Afalse%2C%22pyeongRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22useApprovalDateRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22roomFloorList%22%3A%5B%22GROUND_FIRST%22%2C%22GROUND_SECOND_OVER%22%2C%22SEMI_BASEMENT%22%2C%22ROOFTOP%22%5D%2C%22roomTypeList%22%3A%5B%22ONE_ROOM%22%2C%22TWO_ROOM%22%5D%2C%22dealTypeList%22%3A%5B%22AGENT%22%2C%22DIRECT%22%5D%2C%22canParking%22%3Afalse%2C%22isShortLease%22%3Afalse%2C%22hasElevator%22%3Afalse%2C%22hasPano%22%3Afalse%2C%22isDivision%22%3Afalse%2C%22isDuplex%22%3Afalse%7D&useMap=naver&zoom=9',
             method: 'GET',
@@ -37,7 +37,7 @@ let DabangService = class DabangService {
         });
         return stateList;
     }
-    async region() {
+    async fetchRegion() {
         const bbox = {
             sw: { lat: 31, lng: 123 },
             ne: { lat: 38, lng: 130 },
@@ -77,7 +77,7 @@ let DabangService = class DabangService {
         });
         return cityList;
     }
-    async dong() {
+    async fetchDong() {
         const bbox = {
             sw: { lat: 29, lng: 120 },
             ne: { lat: 40, lng: 135 },
@@ -120,6 +120,42 @@ let DabangService = class DabangService {
             return data.result.dongList;
         });
         return dongList;
+    }
+    async getLocals() {
+        return await this.modelService.excute({
+            sql: `SELECT * FROM areleme.dabang_local a WHERE 1`,
+            type: 'all',
+        });
+    }
+    async getLocal(code) {
+        return await this.modelService.excute({
+            sql: `SELECT * FROM areleme.dabang_local a WHERE a.code = '${code}'`,
+            type: 'row',
+        });
+    }
+    async getRegions() {
+        return await this.modelService.excute({
+            sql: `SELECT * FROM areleme.dabang_region a WHERE 1`,
+            type: 'all',
+        });
+    }
+    async getRegion(code) {
+        return await this.modelService.excute({
+            sql: `SELECT * FROM areleme.dabang_region a WHERE a.code = '${code}'`,
+            type: 'row',
+        });
+    }
+    async getDongs(code) {
+        return await this.modelService.excute({
+            sql: `SELECT * FROM areleme.dabang_dong a WHERE a.code = '${code}'`,
+            type: 'all',
+        });
+    }
+    async getDong(code) {
+        return await this.modelService.excute({
+            sql: `SELECT * FROM areleme.dabang_dong a WHERE a.code = '${code}'`,
+            type: 'row',
+        });
     }
     async setCookie() {
         const browser = await puppeteer_1.default.launch({

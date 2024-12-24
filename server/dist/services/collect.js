@@ -29,8 +29,8 @@ let CollectService = class CollectService {
         this.zigbangService = zigbangService;
         this.modelService = modelService;
     }
-    async naverLocal() {
-        const data = await this.naverService.local();
+    async saveNaverLocal() {
+        const data = await this.naverService.fetchLocal();
         const list = data.map((item) => ({
             code: item.cortarNo,
             lat: item.centerLat,
@@ -58,8 +58,8 @@ let CollectService = class CollectService {
             }
         }
     }
-    async naverRegion() {
-        const data = await this.naverService.region();
+    async saveNaverRegion() {
+        const data = await this.naverService.fetchRegion();
         const list = data.map((item) => {
             return {
                 code: item.cortarNo,
@@ -92,8 +92,8 @@ let CollectService = class CollectService {
             }
         }
     }
-    async naverDong() {
-        const data = await this.naverService.dong();
+    async saveNaverDong() {
+        const data = await this.naverService.fetchDong();
         const list = data.map((item) => {
             return {
                 code: item.cortarNo,
@@ -129,8 +129,8 @@ let CollectService = class CollectService {
             }
         }
     }
-    async dabangLocal() {
-        const data = await this.dabangService.local();
+    async saveDabangLocal() {
+        const data = await this.dabangService.fetchLocal();
         const list = data.map((item) => ({
             code: item.code,
             lat: item.location.lat,
@@ -182,8 +182,8 @@ let CollectService = class CollectService {
   [1]       useApprovalYear: null,
   [1]       hou
      */
-    async dabangRegion() {
-        const regions = await this.dabangService.region();
+    async saveDabangRegion() {
+        const regions = await this.dabangService.fetchRegion();
         const list = [];
         /**
          * !문제점
@@ -201,7 +201,7 @@ let CollectService = class CollectService {
                 console.log(`name : ${row.name}❌`);
                 continue;
             }
-            const addressInfos = await this.naverService.searchLocation(row.location.lat, row.location.lng);
+            const addressInfos = await this.naverService.fetchLocationToGeocode(row.location.lat, row.location.lng);
             const address = addressInfos[0]?.region?.area1 || {};
             const dabangLocal = await this.modelService.excute({
                 sql: `SELECT * FROM areleme.dabang_local WHERE name = '${address.name}'`,
@@ -249,8 +249,8 @@ let CollectService = class CollectService {
      * 위치를 제공 하지 않음..
      *
      */
-    async dabangDong() {
-        const dongs = await this.dabangService.dong();
+    async saveDabangDong() {
+        const dongs = await this.dabangService.fetchDong();
         for await (const row of dongs) {
             const naverDong = await this.modelService.excute({
                 sql: `SELECT * FROM areleme.naver_dong a WHERE a.name='${row.name}'`,
@@ -261,7 +261,7 @@ let CollectService = class CollectService {
                 console.log(`name : ${row.name}❌`);
                 continue;
             }
-            const addressInfos = await this.naverService.searchLocation(row.location.lat, row.location.lng);
+            const addressInfos = await this.naverService.fetchLocationToGeocode(row.location.lat, row.location.lng);
             const localName = addressInfos[0]?.region?.area1?.name || '';
             const regionName = addressInfos[0]?.region?.area2?.name || '';
             const dongName = addressInfos[0]?.region?.area3?.name || '';

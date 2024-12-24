@@ -92,6 +92,41 @@ export default class NaverService {
     return dongs;
   }
 
+  public async getLocals() {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.naver_local a WHERE 1`,
+      type: 'all',
+    });
+  }
+
+  public async getLocal(code: string) {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.naver_local a WHERE a.code = '${code}'`,
+      type: 'row',
+    });
+  }
+
+  public async getRegionsOfLocal(localCode: string) {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.naver_region a WHERE a.localCode = '${localCode}'`,
+      type: 'all',
+    });
+  }
+
+  public async getDongsOfRegion(regionCode: string) {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.naver_dong a WHERE a.regionCode = '${regionCode}'`,
+      type: 'all',
+    });
+  }
+
+  public async getDong(code: string) {
+    return await this.modelService.excute({
+      sql: `SELECT * FROM areleme.naver_dong a WHERE a.code = '${code}'`,
+      type: 'row',
+    });
+  }
+
   /**
    * https://api.ncloud-docs.com/docs/ai-naver-mapsreversegeocoding-gc
    */
