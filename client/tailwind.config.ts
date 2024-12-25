@@ -4,13 +4,18 @@ export default {
   content: ['./app/**/*.{js,ts,jsx,tsx,mdx}'],
   theme: {
     extend: {
+      translate: {
+        center: '-50%',
+      },
       textColor: () => ({
         primary: '#fff',
+        silver: '#d9d5d5',
         secondary: '#ffed4a',
         danger: '#BE4D31',
       }),
       backgroundColor: () => ({
         primary: '#3a3660',
+        silver: '#E4E4E4',
         danger: '#BE4D31',
       }),
       margin: {

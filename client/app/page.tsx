@@ -28,7 +28,7 @@ export default async function Home() {
           height={200}
         />
         <h3 className="text-lg mt-md">3대 플랫폼, 하나의 설정으로 알림 끝</h3>
-        <Link href="onboarding" className="block mt-xl w-[300px] bg-primary p-md text-primary rounded-lg">
+        <Link href="onboarding/1" className="block mt-xl w-[300px] bg-primary p-md text-primary rounded-lg">
           바로 시작하기
         </Link>
       </main>

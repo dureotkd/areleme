@@ -9,45 +9,38 @@
 
 /* Thin */
 @font-face {
-  font-family: "Pretendard";
+  font-family: 'Pretendard';
   font-weight: 100; /* Thin */
   font-style: normal;
-  src: url("https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff2/Pretendard-Thin.woff2")
-      format("woff2"),
-    url("https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff/Pretendard-Thin.woff")
-      format("woff");
+  src: url('https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff2/Pretendard-Thin.woff2')
+      format('woff2'),
+    url('https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff/Pretendard-Thin.woff')
+      format('woff');
   font-display: swap;
 }
 
 /* Regular */
 @font-face {
-  font-family: "Pretendard";
+  font-family: 'Pretendard';
   font-weight: 400; /* Regular */
   font-style: normal;
-  src: url("https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff2/Pretendard-Regular.woff2")
-      format("woff2"),
-    url("https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff/Pretendard-Regular.woff")
-      format("woff");
+  src: url('https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff2/Pretendard-Regular.woff2')
+      format('woff2'),
+    url('https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff/Pretendard-Regular.woff')
+      format('woff');
   font-display: swap;
 }
 
 /* Bold */
 @font-face {
-  font-family: "Pretendard";
+  font-family: 'Pretendard';
   font-weight: 700; /* Bold */
   font-style: normal;
-  src: url("https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff2/Pretendard-Bold.woff2")
-      format("woff2"),
-    url("https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff/Pretendard-Bold.woff")
-      format("woff");
+  src: url('https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff2/Pretendard-Bold.woff2')
+      format('woff2'),
+    url('https://cdn.jsdelivr.net/npm/pretendard@latest/dist/web/static/woff/Pretendard-Bold.woff')
+      format('woff');
   font-display: swap;
-}
-
-@media (prefers-color-scheme: dark) {
-  /* :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  } */
 }
 
 body {
