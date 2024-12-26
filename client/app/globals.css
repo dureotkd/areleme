@@ -48,3 +48,9 @@ body {
   background: var(--background);
   font-family: Pretendard;
 }
+
+.selected {
+  border: 1px solid #5e7ef0 !important;
+  background-color: #5e7ef0 !important;
+  color: #fff !important;
+}

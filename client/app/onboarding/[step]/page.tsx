@@ -5,6 +5,7 @@ import SellingTypeList from '../components/SellingTypeList';
 import RegionList from '../components/RegionList';
 import DongList from '../components/DongList';
 import LocalList from '../components/LocalList';
+import SendTypes from '../components/SendTypes';
 import FetchLoading from '../../components/FetchLoading';
 import DetailList from '../components/DetailList';
 
@@ -17,6 +18,7 @@ export default function Page({ params: { step } }: { params: { step: string } })
     '4': <RegionList page="4" />,
     '5': <DongList page="5" />,
     '6': <DetailList page="6" />,
+    '7': <SendTypes page="7" />,
   };
   const Onboarding = renders[step] ?? <div>Not Found</div>;
 

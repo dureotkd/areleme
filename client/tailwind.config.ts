@@ -10,6 +10,7 @@ export default {
       textColor: () => ({
         primary: '#fff',
         silver: '#d9d5d5',
+        silver100: '#ededed',
         secondary: '#ffed4a',
         danger: '#BE4D31',
       }),

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import * as React from 'react';
@@ -11,7 +12,8 @@ type Props = {
   max?: number;
   value: number[];
   setValue: any;
-  onChange?: React.MouseEventHandler;
+  marks?: [{ value: number; label: string }];
+  onChange: React.MouseEventHandler;
 };
 
 export default function RangeSlider(props: Props) {
@@ -21,16 +23,17 @@ export default function RangeSlider(props: Props) {
       style={{ ...props.style }}
       getAriaLabel={() => 'Temperature range'}
       value={props.value}
-      onChange={(event, value) => {
-        props.setValue(value as number[]);
+      onChange={(event, value: number[]) => {
+        // props.setValue(value as number[]);
+        props.onChange(value);
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-        props?.onChange && props.onChange(value);
       }}
       valueLabelDisplay="auto"
       step={props?.step || 1}
       min={props?.min || 0}
       max={props.max}
       disableSwap
+      marks={props.marks}
       sx={{
         '& .MuiSlider-thumb': {
           width: 14, // thumb 너비 변경
