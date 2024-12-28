@@ -49,8 +49,14 @@ body {
   font-family: Pretendard;
 }
 
+div,
+button,
+select,
+input {
+  box-sizing: border-box !important;
+}
+
 .selected {
-  border: 1px solid #5e7ef0 !important;
   background-color: #5e7ef0 !important;
   color: #fff !important;
 }

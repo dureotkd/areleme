@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const typedi_1 = require("typedi");
 const request_promise_native_1 = __importDefault(require("request-promise-native"));
-const model_1 = __importDefault(require("./core/model"));
+const model_1 = __importDefault(require("./model/model"));
 const time_1 = require("../utils/time");
 const config_1 = __importDefault(require("../config"));
 let NaverService = class NaverService {

@@ -1,13 +1,11 @@
 import { Service } from 'typedi';
-import util from 'util';
 
-import DabangService from './dabang';
-import NaverService from './naver';
-import ZigbangService from './zigbang';
-import ModelService from './core/model';
+import DabangService from '../core/dabang';
+import NaverService from '../core/naver';
+import ZigbangService from '../core/zigbang';
+import ModelService from '../model/model';
 
-import { empty } from '../utils/valid';
-import KaKaoService from './kakao';
+import { empty } from '../../utils/valid';
 
 @Service()
 export default class CollectService {
@@ -29,7 +27,7 @@ export default class CollectService {
     }));
 
     for await (const row of list) {
-      const localRow = await this.modelService.excute({
+      const localRow = await this.modelService.execute({
         sql: `SELECT * FROM areleme.naver_local WHERE code = '${row.code}'`,
         type: 'row',
       });
@@ -40,7 +38,7 @@ export default class CollectService {
           data: row,
         });
 
-        await this.modelService.excute({
+        await this.modelService.execute({
           sql: insertQuery,
           type: 'exec',
           debug: false,
@@ -64,7 +62,7 @@ export default class CollectService {
     });
 
     for await (const row of list) {
-      const regionRow = await this.modelService.excute({
+      const regionRow = await this.modelService.execute({
         sql: `SELECT * FROM areleme.naver_region WHERE code = '${row.code}' AND localCode = '${row.localCode}'`,
         type: 'row',
       });
@@ -77,7 +75,7 @@ export default class CollectService {
           },
         });
 
-        await this.modelService.excute({
+        await this.modelService.execute({
           sql: insertQuery,
           type: 'exec',
           debug: false,
@@ -102,7 +100,7 @@ export default class CollectService {
     });
 
     for await (const row of list) {
-      const regionRow = await this.modelService.excute({
+      const regionRow = await this.modelService.execute({
         sql: `SELECT * FROM areleme.naver_dong WHERE code = '${row.code}' AND localCode = '${row.localCode}' AND regionCode = '${row.regionCode}'`,
         type: 'row',
       });
@@ -116,7 +114,7 @@ export default class CollectService {
           },
         });
 
-        await this.modelService.excute({
+        await this.modelService.execute({
           sql: insertQuery,
           type: 'exec',
           debug: false,
@@ -140,7 +138,7 @@ export default class CollectService {
     }));
 
     for await (const row of list) {
-      const localRow = await this.modelService.excute({
+      const localRow = await this.modelService.execute({
         sql: `SELECT * FROM areleme.dabang_local WHERE code = '${row.code}'`,
         type: 'row',
       });
@@ -153,7 +151,7 @@ export default class CollectService {
           },
         });
 
-        await this.modelService.excute({
+        await this.modelService.execute({
           sql: insertQuery,
           type: 'exec',
           debug: false,
@@ -195,7 +193,7 @@ export default class CollectService {
      * * 이게 어떤 Local의 영속되어있는 Region인지 판단 불가
      */
     for await (const row of regions) {
-      const naverRegion = await this.modelService.excute({
+      const naverRegion = await this.modelService.execute({
         sql: `SELECT * FROM areleme.naver_region a WHERE a.name='${row.name}'`,
         type: 'row',
       });
@@ -209,7 +207,7 @@ export default class CollectService {
       const addressInfos = await this.naverService.fetchLocationToGeocode(row.location.lat, row.location.lng);
       const address = addressInfos[0]?.region?.area1 || {};
 
-      const dabangLocal = await this.modelService.excute({
+      const dabangLocal = await this.modelService.execute({
         sql: `SELECT * FROM areleme.dabang_local WHERE name = '${address.name}'`,
         type: 'row',
       });
@@ -231,7 +229,7 @@ export default class CollectService {
     }
 
     for await (const row of list) {
-      const regionRow = await this.modelService.excute({
+      const regionRow = await this.modelService.execute({
         sql: `SELECT * FROM areleme.dabang_region WHERE code = '${row.code}' AND localCode='${row.localCode}'`,
         type: 'row',
       });
@@ -246,7 +244,7 @@ export default class CollectService {
           },
         });
 
-        await this.modelService.excute({
+        await this.modelService.execute({
           sql: insertQuery,
           type: 'exec',
           debug: false,
@@ -264,7 +262,7 @@ export default class CollectService {
     const dongs = await this.dabangService.fetchDong();
 
     for await (const row of dongs) {
-      const naverDong = await this.modelService.excute({
+      const naverDong = await this.modelService.execute({
         sql: `SELECT * FROM areleme.naver_dong a WHERE a.name='${row.name}'`,
         type: 'row',
       });
@@ -280,7 +278,7 @@ export default class CollectService {
       const regionName = addressInfos[0]?.region?.area2?.name || '';
       const dongName = addressInfos[0]?.region?.area3?.name || '';
 
-      const localRow = await this.modelService.excute({
+      const localRow = await this.modelService.execute({
         sql: `SELECT * FROM areleme.dabang_local WHERE name = '${localName}'`,
         type: 'row',
       });
@@ -290,7 +288,7 @@ export default class CollectService {
         continue;
       }
 
-      const regionRow = await this.modelService.excute({
+      const regionRow = await this.modelService.execute({
         sql: `SELECT * FROM areleme.dabang_region WHERE name = '${regionName}'`,
         type: 'row',
       });
@@ -300,7 +298,7 @@ export default class CollectService {
         continue;
       }
 
-      const dabangDong = await this.modelService.excute({
+      const dabangDong = await this.modelService.execute({
         sql: `SELECT * FROM areleme.dabang_dong WHERE code = '${row.code}' AND localCode = '${localRow.code}' AND regionCode = '${regionRow.code}'`,
         type: 'row',
       });
@@ -320,7 +318,7 @@ export default class CollectService {
           },
         });
 
-        await this.modelService.excute({
+        await this.modelService.execute({
           sql: insertQuery,
           type: 'exec',
           debug: false,

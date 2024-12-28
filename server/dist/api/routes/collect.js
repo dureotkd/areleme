@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const typedi_1 = __importDefault(require("typedi"));
-const collect_1 = __importDefault(require("../../services/collect"));
+const collect_1 = __importDefault(require("../../services/collect/collect"));
 const route = (0, express_1.Router)();
 exports.default = (app) => {
     app.use('/collect', route);

@@ -15,7 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const typedi_1 = require("typedi");
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const request_promise_native_1 = __importDefault(require("request-promise-native"));
-const model_1 = __importDefault(require("./core/model"));
+const model_1 = __importDefault(require("./model/model"));
 let DabangService = class DabangService {
     modelService;
     constructor(modelService) {

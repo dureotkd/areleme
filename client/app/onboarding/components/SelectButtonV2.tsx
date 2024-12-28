@@ -1,10 +1,11 @@
 import React from 'react';
 
-type Items<T> = {
-  [K in keyof T]: T[K];
+type Items = {
+  code: string;
+  name: string;
 };
 
-function SelectButtonV2(props: { items: Items<[]>; multiple?: boolean; onClick: React.MouseEventHandler }) {
+function SelectButtonV2(props: { items: Items[]; multiple?: boolean; onClick: any }) {
   const [selectValue, setSelectValue] = React.useState<string[]>([]);
 
   const handleOnClick = React.useCallback(
@@ -16,9 +17,6 @@ function SelectButtonV2(props: { items: Items<[]>; multiple?: boolean; onClick: 
       switch (actionType) {
         case 'INSERT':
           cloneSelectValue.push(value);
-
-          console.log(cloneSelectValue);
-
           setSelectValue(cloneSelectValue);
 
           break;
@@ -45,7 +43,17 @@ function SelectButtonV2(props: { items: Items<[]>; multiple?: boolean; onClick: 
             } bg-silver pl-md pr-md pt-sm pb-sm mr-md mb-md rounded-md text-base`}
             type="button"
             value={code}
-            onClick={props.onClick ? props.onClick.bind(this, code) : handleOnClick.bind(this, code)}
+            onClick={async () => {
+              if (props?.onClick) {
+                const r = await props.onClick(code);
+
+                console.log(r);
+
+                if (r !== false) {
+                  handleOnClick(code);
+                }
+              }
+            }}
           >
             {name}
           </button>

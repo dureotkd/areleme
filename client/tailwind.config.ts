@@ -7,6 +7,11 @@ export default {
       translate: {
         center: '-50%',
       },
+      borderColor: () => ({
+        primary: '#3a3660',
+        silver: '#E4E4E4',
+        danger: '#BE4D31',
+      }),
       textColor: () => ({
         primary: '#fff',
         silver: '#d9d5d5',
@@ -17,6 +22,7 @@ export default {
       backgroundColor: () => ({
         primary: '#3a3660',
         silver: '#E4E4E4',
+        silver100: '#ededed',
         danger: '#BE4D31',
       }),
       margin: {

@@ -25,6 +25,8 @@ export default {
   naver: {
     access_key: process.env.NAVER_ACCESS_KEY,
     secret_key: process.env.NAVER_SECRET_KEY,
+    user_id: process.env.NAVER_USER_ID,
+    user_pw: process.env.NAVER_USER_PW,
   },
   db: {
     host: process.env.DB_HOST,

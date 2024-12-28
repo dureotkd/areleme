@@ -1,10 +1,10 @@
 import { Service } from 'typedi';
 import request from 'request-promise-native';
 
-import ModelService from './core/model';
+import ModelService from '../model/model';
 
-import { wait } from '../utils/time';
-import config from '../config';
+import { wait } from '../../utils/time';
+import config from '../../config';
 
 @Service()
 export default class NaverService {
@@ -30,7 +30,7 @@ export default class NaverService {
   }
 
   public async fetchRegion() {
-    const localAll = await this.modelService.excute({
+    const localAll = await this.modelService.execute({
       sql: 'SELECT * FROM areleme.naver_local',
       type: 'all',
     });
@@ -60,7 +60,7 @@ export default class NaverService {
   }
 
   public async fetchDong() {
-    const regionAll = await this.modelService.excute({
+    const regionAll = await this.modelService.execute({
       sql: 'SELECT * FROM areleme.naver_region',
       type: 'all',
     });
@@ -93,35 +93,35 @@ export default class NaverService {
   }
 
   public async getLocals() {
-    return await this.modelService.excute({
+    return await this.modelService.execute({
       sql: `SELECT * FROM areleme.naver_local a WHERE 1`,
       type: 'all',
     });
   }
 
   public async getLocal(code: string) {
-    return await this.modelService.excute({
+    return await this.modelService.execute({
       sql: `SELECT * FROM areleme.naver_local a WHERE a.code = '${code}'`,
       type: 'row',
     });
   }
 
   public async getRegionsOfLocal(localCode: string) {
-    return await this.modelService.excute({
+    return await this.modelService.execute({
       sql: `SELECT * FROM areleme.naver_region a WHERE a.localCode = '${localCode}'`,
       type: 'all',
     });
   }
 
   public async getDongsOfRegion(regionCode: string) {
-    return await this.modelService.excute({
+    return await this.modelService.execute({
       sql: `SELECT * FROM areleme.naver_dong a WHERE a.regionCode = '${regionCode}'`,
       type: 'all',
     });
   }
 
   public async getDong(code: string) {
-    return await this.modelService.excute({
+    return await this.modelService.execute({
       sql: `SELECT * FROM areleme.naver_dong a WHERE a.code = '${code}'`,
       type: 'row',
     });

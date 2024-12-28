@@ -11,12 +11,13 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 const typedi_1 = require("typedi");
-const dabang_1 = __importDefault(require("./dabang"));
-const naver_1 = __importDefault(require("./naver"));
+const dabang_1 = __importDefault(require("./core/dabang"));
+const naver_1 = __importDefault(require("./core/naver"));
 const zigbang_1 = __importDefault(require("./zigbang"));
-const model_1 = __importDefault(require("./core/model"));
+const model_1 = __importDefault(require("./model/model"));
 const valid_1 = require("../utils/valid");
 let CollectService = class CollectService {
     naverService;
@@ -312,9 +313,7 @@ let CollectService = class CollectService {
 CollectService = __decorate([
     (0, typedi_1.Service)(),
     __metadata("design:paramtypes", [naver_1.default,
-        dabang_1.default,
-        zigbang_1.default,
-        model_1.default])
+        dabang_1.default, typeof (_a = typeof zigbang_1.default !== "undefined" && zigbang_1.default) === "function" ? _a : Object, model_1.default])
 ], CollectService);
 exports.default = CollectService;
 //# sourceMappingURL=collect.js.map

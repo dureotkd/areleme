@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import Container from 'typedi';
 
-import CollectServiceInstance from '../../services/collect';
+import CollectServiceInstance from '../../services/collect/collect';
 
 const route = Router();
 

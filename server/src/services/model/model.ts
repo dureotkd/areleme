@@ -1,6 +1,8 @@
 import { PoolConnection, QueryError, RowDataPacket } from 'mysql2';
+
 import db from './database';
 import { Service } from 'typedi';
+import { empty } from '../../utils/valid';
 
 type InsertParams = {
   table: string;
@@ -10,7 +12,7 @@ type InsertParams = {
 type UpdateParams = {
   table: string;
   data: {};
-  where: [];
+  where: string[];
 };
 
 type DuplicateParams = {
@@ -19,7 +21,7 @@ type DuplicateParams = {
   updateData: {};
 };
 
-type ExcuteParams = {
+type executeParams = {
   database?: string;
   sql: string;
   type: 'all' | 'row' | 'one' | 'exec';
@@ -39,7 +41,7 @@ export default class ModelService {
       new Error('Error Object Key Value!');
     }
 
-    const c = column.join(',');
+    const c = '`' + column.join('`,`') + '`';
     const v = values.join("','");
 
     return `INSERT INTO ${table}(${c}) VALUES ('${v}');`;
@@ -96,7 +98,7 @@ export default class ModelService {
    * ? Promise 객체에 대해서 자세히 공부해보기
    * ? Callback 함수에 대해서 자세히 공부해보기
    */
-  excute({ database = 'areleme', sql, type, debug = false }: ExcuteParams): Promise<any> {
+  execute({ database = 'areleme', sql, type, debug = false }: executeParams): Promise<any> {
     return new Promise(function (resolve, reject) {
       db.getConnection(database, function (err: NodeJS.ErrnoException | null, connection: PoolConnection) {
         if (debug === true) {
@@ -127,6 +129,10 @@ export default class ModelService {
 
                   break;
 
+                case 'one':
+                  resolve(!empty(data[0]['cnt']) ? data[0]['cnt'] : 0);
+                  break;
+
                 case 'exec':
                   if (data && data.insertId !== undefined) {
                     resolve(data.insertId);
@@ -137,7 +143,7 @@ export default class ModelService {
                   break;
 
                 default:
-                  reject(new Error('type error'));
+                  reject(new Error('execute type error'));
 
                   break;
               }

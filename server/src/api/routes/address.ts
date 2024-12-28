@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express';
 import Container from 'typedi';
 
-import NaverServiceInstance from '../../services/naver';
-import DabangServiceInstance from '../../services/dabang';
+import NaverServiceInstance from '../../services/core/naver';
+import DabangServiceInstance from '../../services/core/dabang';
 
 const route = Router();
 
