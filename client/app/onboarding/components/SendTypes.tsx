@@ -81,6 +81,8 @@ export default function SendTypes(props: { page: string }) {
             [type]: true,
           };
         });
+
+        $(`input[name='email`)?.focus();
       }
 
       if (msg) {
@@ -120,8 +122,84 @@ export default function SendTypes(props: { page: string }) {
     }
 
     // SUCCESS (LOGIN 등.. & 알림 서비스 시작...)
-    console.log('SUCCESS', selectCodes, inputs);
-  }, [selectCodes, okInputs]);
+    const cloneInputs = { ...inputs };
+
+    console.log('SUCCESS', cloneInputs);
+
+    const estateType = window.localStorage.getItem('on_data_1');
+    const tradeType = window.localStorage.getItem('on_data_2');
+    const local = window.localStorage.getItem('on_data_3');
+    const region = window.localStorage.getItem('on_data_4');
+    const dong = window.localStorage.getItem('on_data_5');
+    const details = window.localStorage.getItem('on_data_6');
+
+    let isHaveSMS = false;
+
+    if (selectCodes.includes('talk') || selectCodes.includes('sms')) {
+      isHaveSMS = true;
+    }
+
+    if (!isHaveSMS) {
+      delete cloneInputs['sms'];
+    }
+
+    if (!selectCodes.includes('email')) {
+      delete cloneInputs['email'];
+    }
+
+    console.log(selectCodes, cloneInputs);
+
+    const params = {
+      estateType: estateType,
+      tradeType: tradeType,
+      local: local,
+      region: region,
+      dong: dong,
+      details: JSON.parse(details),
+      selectCodes: selectCodes,
+      inputs: cloneInputs,
+    };
+
+    const apiRes1 = await fetch(`http://localhost:4000/api/user`, {
+      method: 'POST',
+      body: JSON.stringify({
+        selectCodes: selectCodes,
+        inputs: cloneInputs,
+      }),
+      headers: {
+        'Content-Type': 'application/json', // JSON 데이터임을 명시
+      },
+    })
+      .then((res) => res.json())
+      .finally(() => {});
+
+    if (!apiRes1.ok) {
+      alert(apiRes1.msg);
+      return;
+    }
+
+    const userSeq = apiRes1.id;
+
+    const apiRes2 = await fetch(`http://localhost:4000/api/alaram/setting`, {
+      method: 'POST',
+      body: JSON.stringify({
+        userSeq: userSeq,
+        params: params,
+      }),
+      headers: {
+        'Content-Type': 'application/json', // JSON 데이터임을 명시
+      },
+    })
+      .then((res) => res.json())
+      .finally(() => {});
+
+    if (!apiRes2.ok) {
+      alert(apiRes2.msg);
+      return;
+    }
+
+    router.push(`/onboarding/complete`);
+  }, [selectCodes, okInputs, inputs]);
 
   return (
     <Layout
@@ -134,6 +212,7 @@ export default function SendTypes(props: { page: string }) {
         </>
       }
       isNext
+      nextName="알림 받기"
       nextOnClick={completedAlarmSetting}
     >
       <p className="text-silver mb-md -mt-sm">(중복 선택 가능)</p>
@@ -270,7 +349,7 @@ export default function SendTypes(props: { page: string }) {
                 />
                 <button
                   type="button"
-                  className="w-1/4 bg-silver100 h-10 p-sm"
+                  className="w-1/4 bg-silver100 h-10 p-sm text-tiny"
                   onClick={sendAuthCode.bind(this, 'email')}
                 >
                   인증번호 전송
@@ -289,7 +368,7 @@ export default function SendTypes(props: { page: string }) {
                     name="code[email]"
                     value={inputCodes.email}
                     className="border-silver border  p-sm w-3/4 h-10"
-                    maxLength={7}
+                    maxLength={6}
                     placeholder="인증번호를 입력해주세요"
                     onChange={(event) => {
                       number.maxLengthCheck(event.target);

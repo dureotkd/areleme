@@ -13,7 +13,7 @@ const RENT_MAX_COST = 2000000;
 const RENT_STEP = 10000;
 
 const MIN_PYEONG = 10;
-const MAX_PYEONG = 60;
+const MAX_PYEONG = 61;
 
 export default function DetailList(props: { page: string }) {
   const router = useRouter();
@@ -113,7 +113,7 @@ export default function DetailList(props: { page: string }) {
                   min={costRange[0]}
                   max={costRange[1]}
                   onChange={(value) => {
-                    setCost(value as number[]);
+                    setCost(value as any);
                   }}
                 />
               </div>
@@ -136,7 +136,7 @@ export default function DetailList(props: { page: string }) {
                       min={RENT_MIN_COST}
                       max={RENT_MAX_COST}
                       onChange={(value) => {
-                        setRentCost(value as number[]);
+                        setRentCost(value as any);
                       }}
                     />
                   </div>
@@ -162,7 +162,7 @@ export default function DetailList(props: { page: string }) {
                   min={MIN_PYEONG}
                   max={MAX_PYEONG}
                   onChange={(value) => {
-                    setPyeong(value as number[]);
+                    setPyeong(value as any);
                   }}
                 />
               </div>

@@ -7,10 +7,12 @@ type Props = {
   des: React.ReactNode;
   children: React.ReactNode;
   isNext?: boolean;
+  isOnlyNext?: boolean;
+  nextName?: string;
   nextOnClick?: React.MouseEventHandler;
 };
 
-const Layout = ({ des, children, isNext, nextOnClick }: Props) => {
+const Layout = ({ des, children, isNext, isOnlyNext = false, nextName = '다음', nextOnClick }: Props) => {
   const router = useRouter();
 
   return (
@@ -19,21 +21,25 @@ const Layout = ({ des, children, isNext, nextOnClick }: Props) => {
       <div className="w-full h-full mt-md text-left justify-start">{children}</div>
       {isNext ? (
         <div className="w-full fixed bottom-0 flex h-12 text-primary max-w-[540px] translate-x-center left-1/2">
+          {!isOnlyNext && (
+            <button
+              className="w-1/4 h-full flex justify-center items-center bg-danger"
+              type="button"
+              onClick={() => {
+                router.back();
+              }}
+            >
+              이전
+            </button>
+          )}
           <button
-            className="w-1/4 h-full flex justify-center items-center bg-danger"
-            type="button"
-            onClick={() => {
-              router.back();
-            }}
-          >
-            이전
-          </button>
-          <button
-            className="w-3/4 h-full flex justify-center items-center bg-primary"
+            className={`${
+              isOnlyNext ? 'w-full' : 'w-3/4'
+            } h-full flex justify-center items-center bg-primary`}
             type="button"
             onClick={nextOnClick}
           >
-            다음
+            {nextName}
           </button>
         </div>
       ) : (

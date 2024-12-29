@@ -3,8 +3,6 @@ import puppeteer from 'puppeteer';
 import { response } from 'express';
 import request from 'request-promise-native';
 
-import { wait } from '../../utils/time';
-import { empty } from '../../utils/valid';
 import ModelService from '../model/model';
 
 @Service()

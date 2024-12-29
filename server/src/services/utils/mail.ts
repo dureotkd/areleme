@@ -19,7 +19,7 @@ export default class mailService {
     });
 
     const res = await mailer.sendMail({
-      from: 'dureotkd123@naver.com',
+      from: `${config.naver.user_id}@naver.com`,
       to: to,
       subject: '[매물 알리미] 인증코드 안내',
       html: `<div><h3>${msg}</h3></div>`,

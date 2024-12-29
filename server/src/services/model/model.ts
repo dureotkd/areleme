@@ -102,6 +102,7 @@ export default class ModelService {
     return new Promise(function (resolve, reject) {
       db.getConnection(database, function (err: NodeJS.ErrnoException | null, connection: PoolConnection) {
         if (debug === true) {
+          console.log('zz');
           console.log(sql);
           resolve(true);
           connection.release();
@@ -109,7 +110,8 @@ export default class ModelService {
         }
 
         if (err) {
-          console.log(JSON.stringify(err));
+          console.log(err);
+          reject(err);
         } else {
           connection.query(sql, function (err: QueryError | null, data: RowDataPacket) {
             if (err) {

@@ -2,9 +2,36 @@ import { Service } from 'typedi';
 import request from 'request-promise-native';
 
 import ModelService from '../model/model';
+import config from '../../config';
 
 import { wait } from '../../utils/time';
-import config from '../../config';
+import { empty } from '../../utils/valid';
+
+/**
+ *       cortarNo: dong, // * dong [code]
+      priceType: 'RETAIL', // ??
+      realEstateType: 'APT:PRE', // ??
+      tradeType: '', // * 거래유형 (EX : A1:B2)
+      priceMin: 0, // * 최소가격
+      priceMax: 0, // * 최대가격
+      rentPriceMin: 0, // * 최소가격 (월세)
+      rentPriceMax: 0, // * 최대가격 (월세)
+      areMin: 0, // * 최소면적
+      areMax: 0, // * 최대면적
+ */
+type ComplexesQs = {
+  cortarNo: string;
+  priceType: string;
+  realEstateType: string;
+  tradeType: string;
+  priceMin: number;
+  priceMax: number;
+  rentPriceMin: number;
+  rentPriceMax: number;
+  areaMin: number;
+  areaMax: number;
+  order: string;
+};
 
 @Service()
 export default class NaverService {
@@ -92,6 +119,57 @@ export default class NaverService {
     return dongs;
   }
 
+  public async fetchComplexes(qs: ComplexesQs) {
+    return await request({
+      uri: `https://new.land.naver.com/api/regions/complexes`,
+      method: 'GET',
+      qs: qs,
+      headers: this.getHeaders(),
+    }).then((res) => {
+      const data = JSON.parse(res);
+
+      return data.complexList;
+    });
+  }
+
+  public async fetchComplexDetail(complexNo: string, qs: ComplexesQs) {
+    return await request({
+      uri: `https://new.land.naver.com/api/articles/complex/${complexNo}`,
+      method: 'GET',
+      qs: {
+        // 쿼리 스트링을 객체로 전달
+        ...qs,
+        complexNo: complexNo,
+      },
+      headers: this.getHeaders(),
+    }).then((res) => {
+      const data = JSON.parse(res);
+
+      return data.articleList;
+    });
+  }
+
+  /**
+   * https://api.ncloud-docs.com/docs/ai-naver-mapsreversegeocoding-gc
+   */
+  public async fetchLocationToGeocode(lat: number, lng: number) {
+    const locations = await request(
+      `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=${lng}%2C${lat}&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr`,
+      {
+        headers: {
+          'X-NCP-APIGW-API-KEY-ID': config.naver.secret_key, // Naver API Key ID
+          'X-NCP-APIGW-API-KEY': config.naver.access_key, // Naver API Key
+        },
+      },
+    ).then((res) => {
+      const { results } = JSON.parse(res);
+
+      return results;
+    });
+
+    return locations;
+  }
+
   public async getLocals() {
     return await this.modelService.execute({
       sql: `SELECT * FROM areleme.naver_local a WHERE 1`,
@@ -128,25 +206,70 @@ export default class NaverService {
   }
 
   /**
-   * https://api.ncloud-docs.com/docs/ai-naver-mapsreversegeocoding-gc
+   * 네이버 부동산 쿼리에 맞게 Setting을 변경합니다.
+   * 
+   * [1] {
+[1]   estateType: 'apt',
+[1]   tradeType: 'sell',
+[1]   local: '1100000000',
+[1]   region: '1174000000',
+[1]   dong: '1174010200',
+[1]   details: {
+[1]     cost: [ 0, 1000000001 ],      
+[1]     rentCost: [ 100000, 2000000 ],
+[1]     pyeong: [ 10, 61 ]
+[1]   },
+[1]   selectCodes: [ 'talk' ],        
+[1]   inputs: { sms: '01056539944' }  
+[1] }
    */
-  public async fetchLocationToGeocode(lat: number, lng: number) {
-    const locations = await request(
-      `https://naveropenapi.apigw.ntruss.com/map-reversegeocode/v2/gc?coords=${lng}%2C${lat}&output=json&orders=legalcode%2Cadmcode%2Caddr%2Croadaddr`,
-      {
-        headers: {
-          'X-NCP-APIGW-API-KEY-ID': config.naver.secret_key, // Naver API Key ID
-          'X-NCP-APIGW-API-KEY': config.naver.access_key, // Naver API Key
-        },
-      },
-    ).then((res) => {
-      const { results } = JSON.parse(res);
+  public converyToQuery({ estateType, tradeType, dong, details }: any) {
+    const tradeTypeVo: any = {
+      sell: 'A1', // 매매,
+      lease: 'B1', // 전세,
+      monthlyRent: 'B2', // 월세
+    };
 
-      return results;
-    });
+    const qs: ComplexesQs = {
+      cortarNo: dong, // * dong [code]
+      priceType: 'RETAIL', // ??
+      realEstateType: 'APT:PRE', // ??
+      tradeType: '', // * 거래유형 (EX : A1:B2)
+      priceMin: 0, // * 최소가격
+      priceMax: 0, // * 최대가격
+      rentPriceMin: 0, // * 최소가격 (월세)
+      rentPriceMax: 0, // * 최대가격 (월세)
+      areaMin: 0, // * 최소면적
+      areaMax: 0, // * 최대면적
+    };
 
-    return locations;
+    qs.tradeType = tradeTypeVo[tradeType];
+
+    qs.priceMin = details.cost[0] === 0 ? 0 : details.cost[0];
+    qs.priceMax = details.cost[1] === 1000000001 ? 900000000 : details.cost[1];
+
+    qs.rentPriceMin = details.rentCost[0] === 100000 ? 1 : details.rentCost[0];
+    qs.rentPriceMax = details.rentCost[1] === 2000000 ? 900000000 : details.rentCost[1];
+
+    qs.areaMin = details.pyeong[0] === 10 ? 0 : details.pyeong[0];
+    qs.areaMax = details.pyeong[1] === 61 ? 900000000 : details.pyeong[1];
+
+    return qs;
   }
 
-  public async login() {}
+  private getHeaders() {
+    return {
+      authorization:
+        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IlJFQUxFU1RBVEUiLCJpYXQiOjE3MzM5OTE0MTgsImV4cCI6MTczNDAwMjIxOH0.OecLbUoVZtwQ-NAwfY0Jjz5DNxJg1Ai-76l1EVXe6BE',
+      referer: 'https://new.land.naver.com/complexes/25256',
+      'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+      'sec-ch-ua-mobile': '?0',
+      'sec-ch-ua-platform': '"Windows"',
+      'sec-fetch-dest': 'empty',
+      'sec-fetch-mode': 'cors',
+      'sec-fetch-site': 'same-origin',
+      'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+    };
+  }
 }

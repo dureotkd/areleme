@@ -8,9 +8,9 @@ import LocalList from '../components/LocalList';
 import SendTypes from '../components/SendTypes';
 import FetchLoading from '../../components/FetchLoading';
 import DetailList from '../components/DetailList';
+import CompletedAlarmSetting from '../components/CompletedAlarmSetting';
 
 export default function Page({ params: { step } }: { params: { step: string } }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renders: any = {
     '1': <GovTypeList page="1" />,
     '2': <SellingTypeList page="2" />,
@@ -19,7 +19,9 @@ export default function Page({ params: { step } }: { params: { step: string } })
     '5': <DongList page="5" />,
     '6': <DetailList page="6" />,
     '7': <SendTypes page="7" />,
+    complete: <CompletedAlarmSetting />,
   };
+
   const Onboarding = renders[step] ?? <div>Not Found</div>;
 
   return (

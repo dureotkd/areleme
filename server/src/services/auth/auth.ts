@@ -83,8 +83,6 @@ export default class AuthService {
         type: 'row',
       });
 
-      console.log(authRow);
-
       if (empty(authRow)) {
         ok = false;
         break;
@@ -117,7 +115,7 @@ export default class AuthService {
   }
 
   private makeCode() {
-    const code = Math.floor(1000000 + Math.random() * 9000000);
+    const code = Math.floor(100000 + Math.random() * 900000);
     return code.toString();
   }
 }

@@ -11,7 +11,6 @@ type Props = {
   min?: number;
   max?: number;
   value: number[];
-  setValue: any;
   marks?: [{ value: number; label: string }];
   onChange: React.MouseEventHandler;
 };
@@ -25,7 +24,7 @@ export default function RangeSlider(props: Props) {
       value={props.value}
       onChange={(event, value: number[]) => {
         // props.setValue(value as number[]);
-        props.onChange(value);
+        props.onChange(value as any);
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       }}
       valueLabelDisplay="auto"
