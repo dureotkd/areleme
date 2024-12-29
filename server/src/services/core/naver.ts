@@ -30,7 +30,7 @@ type ComplexesQs = {
   rentPriceMax: number;
   areaMin: number;
   areaMax: number;
-  order: string;
+  order?: string;
 };
 
 @Service()
@@ -169,6 +169,8 @@ export default class NaverService {
 
     return locations;
   }
+
+  public async fetchNowLastEstate(params: any) {}
 
   public async getLocals() {
     return await this.modelService.execute({

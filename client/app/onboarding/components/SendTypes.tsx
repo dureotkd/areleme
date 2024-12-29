@@ -180,7 +180,7 @@ export default function SendTypes(props: { page: string }) {
 
     const userSeq = apiRes1.id;
 
-    const apiRes2 = await fetch(`http://localhost:4000/api/alaram/setting`, {
+    const apiRes2 = await fetch(`http://localhost:4000/api/alarm/setting`, {
       method: 'POST',
       body: JSON.stringify({
         userSeq: userSeq,
@@ -198,7 +198,7 @@ export default function SendTypes(props: { page: string }) {
       return;
     }
 
-    router.push(`/onboarding/complete`);
+    // router.push(`/onboarding/complete`);
   }, [selectCodes, okInputs, inputs]);
 
   return (
@@ -231,14 +231,6 @@ export default function SendTypes(props: { page: string }) {
 
           if (isHave) {
             cloneSelectCodes = cloneSelectCodes.filter((item) => item !== code);
-
-            // 인증번호 엘리먼트 초기화
-
-            // if (!isVertify) {
-            //   setInputCodes(types);
-            //   setShowInputCodes(types);
-            //   setOkInputs(types);
-            // }
           } else {
             cloneSelectCodes.push(code);
           }

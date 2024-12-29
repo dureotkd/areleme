@@ -4,7 +4,7 @@ import collect from './collect';
 import address from './address';
 import auth from './auth';
 import user from './user';
-import alaram from './alaram';
+import alarm from './alarm';
 
 export default () => {
   const app = Router();
@@ -12,7 +12,7 @@ export default () => {
   address(app);
   auth(app);
   user(app);
-  alaram(app);
+  alarm(app);
 
   return app;
 };

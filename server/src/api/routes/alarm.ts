@@ -38,9 +38,9 @@ type Params = {
 };
 
 export default (app: Router) => {
-  app.use('/alaram', route);
+  app.use('/alarm', route);
 
-  // http://localhost:5000/api/auth/sms
+  // http://localhost:5000/api/alarm,
   route.post('/setting', async (req: Request, res: Response) => {
     const AlarmService = Container.get(AlarmInstance);
 
@@ -101,10 +101,12 @@ export default (app: Router) => {
         break;
       }
 
+      const params = req.body.params;
+
       try {
         const settingSeq = await AlarmService.makeSetting({
           userSeq: userSeq,
-          params: req.body.params,
+          params: params,
           sendTypes: selectCodes,
         });
 
@@ -113,6 +115,8 @@ export default (app: Router) => {
           apiRes.msg = '알수없는 오류가 발생하였습니다';
           break;
         }
+
+        await AlarmService.makeNowLastEstate(params);
       } catch (error) {
         console.log(error);
         apiRes.ok = false;

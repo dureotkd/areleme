@@ -126,6 +126,10 @@ export default class DabangService {
     return dongList;
   }
 
+  public async fetchNowLastEstate(params: any) {
+    console.log(params);
+  }
+
   public async getLocals() {
     return await this.modelService.execute({
       sql: `SELECT * FROM areleme.dabang_local a WHERE 1`,
