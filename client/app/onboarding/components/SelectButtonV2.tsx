@@ -63,4 +63,4 @@ function SelectButtonV2(props: { items: Items[]; multiple?: boolean; onClick: an
   );
 }
 
-export default React.memo(SelectButtonV2);
+export default SelectButtonV2;

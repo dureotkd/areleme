@@ -140,12 +140,13 @@ export default function DetailList(props: { page: string }) {
                       }}
                     />
                   </div>
+
+                  <div className="flex justify-between text-tiny">
+                    <span className="text-silver">최소</span>
+                    <span className="text-silver">최대</span>
+                  </div>
                 </>
               )}
-              <div className="flex justify-between text-tiny">
-                <span className="text-silver">최소</span>
-                <span className="text-silver">최대</span>
-              </div>
             </div>
             <div className="mt-lg">
               <h3 className="font-semibold">방크기</h3>

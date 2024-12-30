@@ -31,10 +31,6 @@ type Params = {
     pyeong: number[];
   };
   selectCodes: string[];
-  inputs: {
-    sms: string;
-    email: string;
-  };
 };
 
 export default (app: Router) => {
@@ -45,7 +41,7 @@ export default (app: Router) => {
     const AlarmService = Container.get(AlarmInstance);
 
     const userSeq = (req?.body?.userSeq || []) as number;
-    const { estateType, tradeType, local, region, dong, details, selectCodes, inputs } = (req?.body?.params ||
+    const { estateType, tradeType, local, region, dong, details, selectCodes } = (req?.body?.params ||
       {}) as Params;
 
     const apiRes = {
@@ -95,13 +91,10 @@ export default (app: Router) => {
         apiRes.msg = '알림유형이 없습니다';
         break;
       }
-      if (empty(inputs)) {
-        apiRes.ok = false;
-        apiRes.msg = 'SMS또는 이메일이 없습니다';
-        break;
-      }
 
       const params = req.body.params;
+
+      console.log(params);
 
       try {
         const settingSeq = await AlarmService.makeSetting({

@@ -124,15 +124,6 @@ export default function SendTypes(props: { page: string }) {
     // SUCCESS (LOGIN 등.. & 알림 서비스 시작...)
     const cloneInputs = { ...inputs };
 
-    console.log('SUCCESS', cloneInputs);
-
-    const estateType = window.localStorage.getItem('on_data_1');
-    const tradeType = window.localStorage.getItem('on_data_2');
-    const local = window.localStorage.getItem('on_data_3');
-    const region = window.localStorage.getItem('on_data_4');
-    const dong = window.localStorage.getItem('on_data_5');
-    const details = window.localStorage.getItem('on_data_6');
-
     let isHaveSMS = false;
 
     if (selectCodes.includes('talk') || selectCodes.includes('sms')) {
@@ -146,19 +137,6 @@ export default function SendTypes(props: { page: string }) {
     if (!selectCodes.includes('email')) {
       delete cloneInputs['email'];
     }
-
-    console.log(selectCodes, cloneInputs);
-
-    const params = {
-      estateType: estateType,
-      tradeType: tradeType,
-      local: local,
-      region: region,
-      dong: dong,
-      details: JSON.parse(details),
-      selectCodes: selectCodes,
-      inputs: cloneInputs,
-    };
 
     const apiRes1 = await fetch(`http://localhost:4000/api/user`, {
       method: 'POST',
@@ -179,26 +157,10 @@ export default function SendTypes(props: { page: string }) {
     }
 
     const userSeq = apiRes1.id;
+    window.localStorage.setItem('on_data_7', JSON.stringify(selectCodes));
+    window.localStorage.setItem('on_data_user_seq', userSeq);
 
-    const apiRes2 = await fetch(`http://localhost:4000/api/alarm/setting`, {
-      method: 'POST',
-      body: JSON.stringify({
-        userSeq: userSeq,
-        params: params,
-      }),
-      headers: {
-        'Content-Type': 'application/json', // JSON 데이터임을 명시
-      },
-    })
-      .then((res) => res.json())
-      .finally(() => {});
-
-    if (!apiRes2.ok) {
-      alert(apiRes2.msg);
-      return;
-    }
-
-    // router.push(`/onboarding/complete`);
+    router.push(`/onboarding/complete`);
   }, [selectCodes, okInputs, inputs]);
 
   return (
@@ -212,7 +174,7 @@ export default function SendTypes(props: { page: string }) {
         </>
       }
       isNext
-      nextName="알림 받기"
+      nextName="다음"
       nextOnClick={completedAlarmSetting}
     >
       <p className="text-silver mb-md -mt-sm">(중복 선택 가능)</p>
@@ -265,12 +227,11 @@ export default function SendTypes(props: { page: string }) {
                   value={inputs.sms}
                   className="border-silver border  p-sm w-3/4 h-10"
                   onChange={(event) => {
-                    setInputs((prev) => {
-                      return {
-                        ...prev,
-                        sms: event.target.value,
-                      };
-                    });
+                    const value = event.target.value;
+                    setInputs((prev) => ({
+                      ...prev,
+                      sms: value,
+                    }));
                   }}
                 />
                 <button

@@ -44,11 +44,25 @@ export default class AlarmService {
 
   /**
    * 기준점을 만들어줍니다
-   * 현재 기준으로 마지막 매물을 INSERT 해줍니다..
+   * 현재 기준으로 마지막 매물을 INSERT 해줍니다
    */
   public async makeNowLastEstate(params: any) {
     const naverQs = this.naverService.converyToQuery(params);
-    const lastEstate1 = this.naverService.fetchNowLastEstate(naverQs);
+    const complexes = await this.naverService.fetchComplexes(naverQs);
+
+    console.log(naverQs);
+
+    console.log(complexes);
+
+    for await (const { complexNo, complexName } of complexes) {
+      // if (complexName !== '녹원') {
+      //   continue;
+      // }
+      // naverQs.order = 'dateDesc';
+      // const complexDetails = await this.naverService.fetchComplexDetails(complexNo, naverQs);
+      // console.log(complexDetails);
+      // for await ()
+    }
 
     return true;
   }

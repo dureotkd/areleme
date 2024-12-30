@@ -132,7 +132,7 @@ export default class NaverService {
     });
   }
 
-  public async fetchComplexDetail(complexNo: string, qs: ComplexesQs) {
+  public async fetchComplexDetails(complexNo: string, qs: ComplexesQs) {
     return await request({
       uri: `https://new.land.naver.com/api/articles/complex/${complexNo}`,
       method: 'GET',
@@ -235,7 +235,7 @@ export default class NaverService {
     const qs: ComplexesQs = {
       cortarNo: dong, // * dong [code]
       priceType: 'RETAIL', // ??
-      realEstateType: 'APT:PRE', // ??
+      realEstateType: '', // ??
       tradeType: '', // * 거래유형 (EX : A1:B2)
       priceMin: 0, // * 최소가격
       priceMax: 0, // * 최대가격

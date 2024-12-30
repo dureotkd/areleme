@@ -105,4 +105,6 @@ export default (app: Router) => {
 
     return res.status(200).json({ message: 'Success' });
   });
+
+  route.get('/dabang/test');
 };
