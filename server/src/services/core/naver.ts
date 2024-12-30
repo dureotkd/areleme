@@ -132,6 +132,12 @@ export default class NaverService {
     });
   }
 
+  /**
+   *
+   * 아파트 & 오피스텔 정보를 불러오는 API ...
+   *
+   * * https://new.land.naver.com/api/articles?cortarNo=3020015200 // 원룸 투룸 & 상가 토지 & 빌라 주택은 해당 URL을 사용합니다
+   */
   public async fetchComplexDetails(complexNo: string, qs: ComplexesQs) {
     return await request({
       uri: `https://new.land.naver.com/api/articles/complex/${complexNo}`,
