@@ -31,6 +31,7 @@ type ComplexesQs = {
   areaMin: number;
   areaMax: number;
   order?: string;
+  tag?: string;
 };
 
 @Service()
@@ -119,7 +120,59 @@ export default class NaverService {
     return dongs;
   }
 
+  public async fetchOneTowRooms(qs: ComplexesQs) {
+    qs.realEstateType = 'APT:OPST:ABYG:OBYG:GM:OR:VL:DDDGG:JWJT:SGJT:HOJT';
+    qs.tag = ' :::::::SMALLSPCRENT';
+
+    return await request({
+      uri: `https://new.land.naver.com/api/articles`,
+      method: 'GET',
+      qs: qs,
+      headers: this.getHeaders(),
+    }).then((res) => {
+      const data = JSON.parse(res);
+
+      return data.articleList;
+    });
+  }
+
+  public async fetchVillaJutaeks(qs: ComplexesQs) {
+    qs.realEstateType = 'VL:DDDGG:JWJT:SGJT:HOJT';
+    qs.tag = '::::::::';
+
+    return await request({
+      uri: `https://new.land.naver.com/api/articles`,
+      method: 'GET',
+      qs: qs,
+      headers: this.getHeaders(),
+    }).then((res) => {
+      const data = JSON.parse(res);
+
+      return data.articleList;
+    });
+  }
+
+  /**
+   * 아파트 단지 정보를 불러오는 API
+   */
   public async fetchComplexes(qs: ComplexesQs) {
+    qs.realEstateType = 'PRE:APT:ABYG:JGC';
+
+    return await request({
+      uri: `https://new.land.naver.com/api/regions/complexes`,
+      method: 'GET',
+      qs: qs,
+      headers: this.getHeaders(),
+    }).then((res) => {
+      const data = JSON.parse(res);
+
+      return data.complexList;
+    });
+  }
+
+  public async fetchOfficetels(qs: ComplexesQs) {
+    qs.realEstateType = 'PRE:OPST';
+
     return await request({
       uri: `https://new.land.naver.com/api/regions/complexes`,
       method: 'GET',
@@ -213,6 +266,23 @@ export default class NaverService {
     });
   }
 
+  public async getComplexCustomQuery({ where, type }: { where: string[]; type: 'all' | 'row' | 'one' }) {
+    return await this.modelService.execute({
+      sql: `SELECT * FROM areleme.complex a WHERE a.type = 'naver' AND %s`.replace('%s', where.join(' AND ')),
+      type: type,
+    });
+  }
+
+  public async getLastEstateQuery({ where, type }: { where: string[]; type: 'all' | 'row' | 'one' }) {
+    return await this.modelService.execute({
+      sql: `SELECT * FROM areleme.last_estate a WHERE a.type = 'naver' AND %s`.replace(
+        '%s',
+        where.join(' AND '),
+      ),
+      type: type,
+    });
+  }
+
   /**
    * 네이버 부동산 쿼리에 맞게 Setting을 변경합니다.
    * 
@@ -249,14 +319,18 @@ export default class NaverService {
       rentPriceMax: 0, // * 최대가격 (월세)
       areaMin: 0, // * 최소면적
       areaMax: 0, // * 최대면적
+      tag: '',
+      order: 'dateDesc',
     };
 
     qs.tradeType = tradeTypeVo[tradeType];
 
     qs.priceMin = details.cost[0] === 0 ? 0 : details.cost[0];
-    qs.priceMax = details.cost[1] === 1000000001 ? 900000000 : details.cost[1];
 
-    qs.rentPriceMin = details.rentCost[0] === 100000 ? 1 : details.rentCost[0];
+    const myPriceMaxStan = tradeType === 'monthlyRent' ? 30000000 : 1000000001;
+    qs.priceMax = details.cost[1] === myPriceMaxStan ? 900000000 : details.cost[1];
+
+    qs.rentPriceMin = details.rentCost[0] === 100000 ? 0 : details.rentCost[0];
     qs.rentPriceMax = details.rentCost[1] === 2000000 ? 900000000 : details.rentCost[1];
 
     qs.areaMin = details.pyeong[0] === 10 ? 0 : details.pyeong[0];

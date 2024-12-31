@@ -53,11 +53,14 @@ export default function CompletedAlarmSetting() {
       })
         .then((res) => res.json())
         .finally(() => {
-          // clearData();
+          clearData();
           setLoading(false);
         });
 
-      console.log(settingApiRes);
+      if (!settingApiRes.ok) {
+        alert(settingApiRes.msg);
+        return;
+      }
     })();
   }, []);
 

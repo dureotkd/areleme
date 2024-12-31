@@ -94,9 +94,18 @@ export default (app: Router) => {
 
       const params = req.body.params;
 
-      console.log(params);
-
       try {
+        const sameSettingRow = await AlarmService.getSettingCustomQuery({
+          where: [`userSeq = '${userSeq}'`, `params = '${JSON.stringify(params)}'`],
+          type: 'row',
+        });
+
+        if (!empty(sameSettingRow)) {
+          apiRes.ok = false;
+          apiRes.msg = '동일한 조건으로 설정된 알림이 존재합니다';
+          break;
+        }
+
         const settingSeq = await AlarmService.makeSetting({
           userSeq: userSeq,
           params: params,
@@ -109,7 +118,7 @@ export default (app: Router) => {
           break;
         }
 
-        await AlarmService.makeNowLastEstate(params);
+        await AlarmService.makeNowLastEstate(settingSeq, params);
       } catch (error) {
         console.log(error);
         apiRes.ok = false;

@@ -47,6 +47,7 @@ exports.default = (app) => {
             alarmSeq: 0,
             complexNo: 0,
         };
+        console.log('hello');
         /**
          * 1. settings를 반복문 돌리면서 설정값을 확인한다.
          * 2. 설정값을 [네이버,다방] 파라미터로 구분화 한다
@@ -55,32 +56,55 @@ exports.default = (app) => {
          * 5. 새로운 매물이 나온걸 확인하면 회원에게 알림을 보낸다.
          */
         const complexDetails = [];
-        for await (const settingRow of settings) {
-            const { seq, userSeq, params, sendTypes } = settingRow;
-            logRes.settingSeq = seq;
-            const paramArray = JSON.parse(params);
-            const naverQs = NaverService.converyToQuery(paramArray);
-            const complexes = await NaverService.fetchComplexes(naverQs);
-            if ((0, valid_1.empty)(complexes)) {
-                logRes.ok = 0;
-                logRes.msg = 'complexes가 존재하지 않습니다';
-                // await LogService.makeAlarmLog(logRes);
-                break;
-            }
-            for await (const complexRow of complexes) {
-                const { complexNo } = complexRow;
-                logRes.complexNo = complexNo;
-                // 최근게시글
-                naverQs.order = 'dateDesc';
-                const complexDetail = await NaverService.fetchComplexDetail(complexNo, naverQs);
-                console.log(complexDetail);
-                if ((0, valid_1.empty)(complexDetail)) {
-                    logRes.ok = 0;
-                    logRes.msg = 'complexDetail가 존재하지 않습니다';
-                    // await LogService.makeAlarmLog(logRes);
-                    continue;
-                }
-                break;
+        for await (const setting of settings) {
+            const paramJson = JSON.parse(setting.params);
+            const naverQs = NaverService.converyToQuery(paramJson);
+            let estates = [];
+            switch (paramJson.estateType) {
+                case 'apt':
+                case 'op':
+                    const complexes = await NaverService.getComplexCustomQuery({
+                        where: [`settingSeq = '${setting.seq}'`],
+                        type: 'all',
+                    });
+                    if (!(0, valid_1.empty)(complexes)) {
+                        for await (const complex of complexes) {
+                            const lastEstate = await NaverService.getLastEstateQuery({
+                                where: [`complexNo = '${complex.no}'`],
+                                type: 'row',
+                            });
+                            const complexDetails = await NaverService.fetchComplexDetails(complex.no, naverQs);
+                            // * 매물이 없어 ? = 패스
+                            if ((0, valid_1.empty)(complexDetails)) {
+                                continue;
+                            }
+                            const lastEstateIndex = complexDetails.findIndex((item) => lastEstate.articleNo === item.articleNo);
+                            // * 아예 못찾는거라 문제가 있음... (온보딩 설정후 바로 마지막매물을 넣었는데 왜 못찾지?)
+                            if (lastEstateIndex === -1) {
+                                continue;
+                            }
+                            // * 새로운 매물이 나오지않았다 (온보딩 설정후 마지막 매물이 아직도 0번쨰이다)
+                            if (lastEstateIndex === 0) {
+                                continue;
+                            }
+                            for (let i = 0; i < lastEstateIndex; i++) {
+                                const newComplexDetail = complexDetails[i];
+                                console.log(newComplexDetail);
+                            }
+                            // for await (const apiEstate of complexDetails) {
+                            //   if (lastEstate.articleNo === apiEstate.articleNo) {
+                            //     break;
+                            //   }
+                            // }
+                        }
+                    }
+                    break;
+                case 'one':
+                    estates = await NaverService.fetchOneTowRooms(naverQs);
+                    break;
+                case 'villa':
+                    estates = await NaverService.fetchVillaJutaeks(naverQs);
+                    break;
             }
         }
         return res.status(200).json({ message: 'Success' });
