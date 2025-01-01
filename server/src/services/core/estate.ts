@@ -85,6 +85,7 @@ export default class EstateService {
         where: [
           `settingSeq = '${params.settingSeq}'`,
           `articleNo = '${params.beforeAritlceNo}'`,
+          `complexNo = '${params.compelxNo}'`,
           `\`type\` = '${params.type}'`,
         ],
       });

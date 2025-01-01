@@ -6,24 +6,26 @@ import CollectServiceInstance from '../../services/collect/collect';
 import AlarmInstance from '../../services/core/alarm';
 import NaverInstance from '../../services/platform/naver';
 import EstateInstance from '../../services/core/estate';
+import RequestManagerInstance from '../../services/utils/requestManager';
 
 import { empty } from '../../utils/valid';
+import { wait } from '../../utils/time';
 
 const route = Router();
 
 export default (app: Router) => {
   app.use('/collect', route);
 
-  // http://localhost:5000/api/collect/local
+  // http://localhost:4000/api/collect/local
   route.get('/local', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
     await collectService.saveNaverLocal();
-    await collectService.saveDabangLocal();
+    // await collectService.saveDabangLocal();
 
     return res.status(200).json({ message: 'Success' });
   });
 
-  // http://localhost:5000/api/collect/region
+  // http://localhost:4000/api/collect/region
   route.get('/region', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
     await collectService.saveNaverRegion();
@@ -32,7 +34,7 @@ export default (app: Router) => {
     return res.status(200).json({ message: 'Success' });
   });
 
-  // http://localhost:5000/api/collect/dong
+  // http://localhost:4000/api/collect/dong
   route.get('/dong', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
     await collectService.saveNaverDong();
@@ -41,15 +43,23 @@ export default (app: Router) => {
     return res.status(200).json({ message: 'Success' });
   });
 
-  // http://localhost:5000/api/collect/test
-  route.get('/test', async (req: Request, res: Response) => {
+  route.get('/proxy', async (req: Request, res: Response) => {
+    const RequestManagerService = Container.get(RequestManagerInstance);
+    await RequestManagerService.makeProxy();
+
+    return res.status(200).json({ message: 'Success' });
+  });
+
+  // http://localhost:4000/api/collect/alarm
+  route.get('/alarm', async (req: Request, res: Response) => {
     const AlarmService = Container.get(AlarmInstance);
     const NaverService = Container.get(NaverInstance);
     const EstateService = Container.get(EstateInstance);
+    const RequestManagerService = Container.get(RequestManagerInstance);
 
     const settings = await AlarmService.getSettings();
 
-    console.log('======= 알림 START =======');
+    console.log(`======= 알림 START 총 : ${settings.length} =======`);
     /**
      * 1. settings를 반복문 돌리면서 설정값을 확인한다.
      * 2. 설정값을 [네이버,다방] 파라미터로 구분화 한다
@@ -57,10 +67,11 @@ export default (app: Router) => {
      * 4. 다방 부동산 매물을 파라미터로 검색해 수집한다
      * 5. 새로운 매물이 나온걸 확인하면 회원에게 알림을 보낸다.
      */
-
     for await (const setting of settings) {
       const paramJson = JSON.parse(setting.params);
       const naverQs = NaverService.convertToQuery(paramJson);
+
+      console.log(paramJson);
 
       let newEstates = [];
 
@@ -81,7 +92,13 @@ export default (app: Router) => {
 
               const complexDetails = await NaverService.fetchComplexDetails(complex.no, naverQs);
 
-              newEstates = await EstateService.findNewEstates(complexDetails, lastEstate);
+              console.log(`complexName : ${complex.name} complexDetails-- : ${complexDetails.length}`);
+
+              const findNewEstates: any = await EstateService.findNewEstates(complexDetails, lastEstate);
+
+              if (!empty(findNewEstates)) {
+                newEstates.push(...findNewEstates);
+              }
             }
           }
 
@@ -97,6 +114,9 @@ export default (app: Router) => {
 
           break;
       }
+
+      await RequestManagerService.waitRandom();
+      console.log(newEstates);
 
       if (empty(newEstates)) {
         // * 새로운 매물이 존재하지않음
@@ -126,17 +146,21 @@ export default (app: Router) => {
           continue;
         }
 
-        console.log('UPDATE...');
-
         // * UPDATE ...
-        await EstateService.updateLastEstate({
-          settingSeq: setting.seq,
-          articleNo: newEstate.articleNo,
-          beforeAritlceNo: newEstate.beforeArticleNo,
-          type: 'naver',
-        });
+        // ! 이부분이 문제..
+        // await EstateService.updateLastEstate({
+        //   settingSeq: setting.seq,
+        //   articleNo: newEstate.articleNo,
+        //   beforeAritlceNo: newEstate.beforeArticleNo,
+        //   complexNo: newEstate.complexNo,
+        //   type: 'naver',
+        // });
+
+        // await wait(5000);
       }
     }
+
+    console.log(`======= 알림 END 총 : ${settings.length} =======`);
 
     return res.status(200).json({ message: 'Success' });
   });

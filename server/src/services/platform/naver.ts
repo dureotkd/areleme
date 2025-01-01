@@ -1,11 +1,13 @@
 import { Service } from 'typedi';
 import request from 'request-promise-native';
 
-import ModelService from '../model/model';
 import config from '../../config';
 
 import { wait } from '../../utils/time';
 import { empty } from '../../utils/valid';
+
+import ModelService from '../model/model';
+import requestManagerService from '../utils/requestManager';
 
 /**
  *       cortarNo: dong, // * dong [code]
@@ -36,17 +38,18 @@ type ComplexesQs = {
 
 @Service()
 export default class NaverService {
-  constructor(private readonly modelService: ModelService) {}
+  constructor(
+    private readonly modelService: ModelService,
+    private readonly requestManagerService: requestManagerService,
+  ) {}
 
   public async fetchLocal() {
     try {
       const data = await request({
         uri: 'https://new.land.naver.com/api/regions/list?cortarNo=0000000000',
         method: 'GET',
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-        },
+        proxy: await this.requestManagerService.getRandomProxy(),
+        headers: this.requestManagerService.getHeadersNaver(),
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res);
 
@@ -69,10 +72,8 @@ export default class NaverService {
       await request({
         uri: `https://new.land.naver.com/api/regions/list?cortarNo=${row.code}`,
         method: 'GET',
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-        },
+        proxy: await this.requestManagerService.getRandomProxy(),
+        headers: this.requestManagerService.getHeadersNaver(),
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res); // regionList
         regionList.forEach((item: any) => {
@@ -99,10 +100,8 @@ export default class NaverService {
       await request({
         uri: `https://new.land.naver.com/api/regions/list?cortarNo=${row.code}`,
         method: 'GET',
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36',
-        },
+        proxy: await this.requestManagerService.getRandomProxy(),
+        headers: this.requestManagerService.getHeadersNaver(),
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res); // regionList
         regionList.forEach((item: any) => {
@@ -128,7 +127,8 @@ export default class NaverService {
       uri: `https://new.land.naver.com/api/articles`,
       method: 'GET',
       qs: qs,
-      headers: this.getHeaders(),
+      proxy: await this.requestManagerService.getRandomProxy(),
+      headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
 
@@ -144,7 +144,8 @@ export default class NaverService {
       uri: `https://new.land.naver.com/api/articles`,
       method: 'GET',
       qs: qs,
-      headers: this.getHeaders(),
+      proxy: await this.requestManagerService.getRandomProxy(),
+      headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
 
@@ -162,7 +163,8 @@ export default class NaverService {
       uri: `https://new.land.naver.com/api/regions/complexes`,
       method: 'GET',
       qs: qs,
-      headers: this.getHeaders(),
+      proxy: await this.requestManagerService.getRandomProxy(),
+      headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
 
@@ -177,7 +179,8 @@ export default class NaverService {
       uri: `https://new.land.naver.com/api/regions/complexes`,
       method: 'GET',
       qs: qs,
-      headers: this.getHeaders(),
+      proxy: await this.requestManagerService.getRandomProxy(),
+      headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
 
@@ -200,7 +203,9 @@ export default class NaverService {
         ...qs,
         complexNo: complexNo,
       },
-      headers: this.getHeaders(),
+      rejectUnauthorized: false, // SSL 인증서 검증을 비활성화
+      proxy: await this.requestManagerService.getRandomProxy(),
+      headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
 
@@ -228,8 +233,6 @@ export default class NaverService {
 
     return locations;
   }
-
-  public async fetchNowLastEstate(params: any) {}
 
   public async getLocals() {
     return await this.modelService.execute({
@@ -359,21 +362,5 @@ export default class NaverService {
     delete cloneEstate['beforeArticleNo'];
 
     return cloneEstate;
-  }
-
-  private getHeaders() {
-    return {
-      authorization:
-        'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IlJFQUxFU1RBVEUiLCJpYXQiOjE3MzM5OTE0MTgsImV4cCI6MTczNDAwMjIxOH0.OecLbUoVZtwQ-NAwfY0Jjz5DNxJg1Ai-76l1EVXe6BE',
-      referer: 'https://new.land.naver.com/complexes/25256',
-      'sec-ch-ua': '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
-      'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"Windows"',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-origin',
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-    };
   }
 }

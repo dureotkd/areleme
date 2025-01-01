@@ -236,7 +236,7 @@ export default function SendTypes(props: { page: string }) {
                 />
                 <button
                   type="button"
-                  className="w-1/4 bg-silver100 h-10 p-sm text-tiny"
+                  className="w-2/5 bg-silver100 h-10 p-sm text-xs"
                   onClick={sendAuthCode.bind(this, 'sms')}
                 >
                   인증번호 전송
@@ -269,7 +269,7 @@ export default function SendTypes(props: { page: string }) {
                   />
                   <button
                     type="button"
-                    className="w-1/4 bg-silver100 h-10 p-sm text-tiny"
+                    className="w-2/5 bg-silver100 h-10 p-sm text-xs"
                     onClick={vertifyAuthCode.bind(this, 'sms')}
                   >
                     인증번호 확인
@@ -302,7 +302,7 @@ export default function SendTypes(props: { page: string }) {
                 />
                 <button
                   type="button"
-                  className="w-1/4 bg-silver100 h-10 p-sm text-tiny"
+                  className="w-2/5 bg-silver100 h-10 p-sm text-xs"
                   onClick={sendAuthCode.bind(this, 'email')}
                 >
                   인증번호 전송
@@ -335,7 +335,7 @@ export default function SendTypes(props: { page: string }) {
                   />
                   <button
                     type="button"
-                    className="w-1/4 bg-silver100 h-10 p-sm text-tiny"
+                    className="w-2/5 bg-silver100 h-10 p-sm text-xs"
                     onClick={vertifyAuthCode.bind(this, 'email')}
                   >
                     인증번호 확인
