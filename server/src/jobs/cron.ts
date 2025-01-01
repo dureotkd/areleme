@@ -2,7 +2,7 @@ import Container from 'typedi';
 import cron from 'node-cron';
 
 import AlarmInstance from '../services/core/alarm';
-import NaverInstance from '../services/core/naver';
+import NaverInstance from '../services/platform/naver';
 
 type Setting = {
   seq: number;

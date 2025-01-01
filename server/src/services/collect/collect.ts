@@ -1,8 +1,8 @@
 import { Service } from 'typedi';
 
-import DabangService from '../core/dabang';
-import NaverService from '../core/naver';
-import ZigbangService from '../core/zigbang';
+import DabangService from '../platform/dabang';
+import NaverService from '../platform/naver';
+import ZigbangService from '../platform/zigbang';
 import ModelService from '../model/model';
 
 import { empty } from '../../utils/valid';

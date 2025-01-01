@@ -301,7 +301,7 @@ export default class NaverService {
 [1]   inputs: { sms: '01056539944' }  
 [1] }
    */
-  public converyToQuery({ estateType, tradeType, dong, details }: any) {
+  public convertToQuery({ estateType, tradeType, dong, details }: any) {
     const tradeTypeVo: any = {
       sell: 'A1', // 매매,
       lease: 'B1', // 전세,
@@ -337,6 +337,28 @@ export default class NaverService {
     qs.areaMax = details.pyeong[1] === 61 ? 900000000 : details.pyeong[1];
 
     return qs;
+  }
+
+  public convertToEstate(estate: any) {
+    const cloneEstate = { ...estate };
+    cloneEstate.tagList = estate.tagList.join('/');
+    cloneEstate.isPriceModification = estate.isPriceModification === true ? 1 : 0;
+    cloneEstate.cpPcArticleLinkUseAtArticleTitleYn =
+      estate.cpPcArticleLinkUseAtArticleTitleYn === true ? 1 : 0;
+    cloneEstate.cpPcArticleLinkUseAtCpNameYn = estate.cpPcArticleLinkUseAtCpNameYn === true ? 1 : 0;
+    cloneEstate.cpMobileArticleLinkUseAtArticleTitleYn =
+      estate.cpMobileArticleLinkUseAtArticleTitleYn === true ? 1 : 0;
+    cloneEstate.cpMobileArticleLinkUseAtCpNameYn = estate.cpMobileArticleLinkUseAtCpNameYn === true ? 1 : 0;
+    cloneEstate.isLocationShow = estate.isLocationShow === true ? 1 : 0;
+    cloneEstate.tradeCheckedByOwner = estate.tradeCheckedByOwner === true ? 1 : 0;
+    cloneEstate.isDirectTrade = estate.isDirectTrade === true ? 1 : 0;
+    cloneEstate.isInterest = estate.isInterest === true ? 1 : 0;
+    cloneEstate.isComplex = estate.isComplex === true ? 1 : 0;
+    cloneEstate.isVrExposed = estate.isVrExposed === true ? 1 : 0;
+
+    delete cloneEstate['beforeArticleNo'];
+
+    return cloneEstate;
   }
 
   private getHeaders() {

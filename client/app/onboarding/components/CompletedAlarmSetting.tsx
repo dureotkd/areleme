@@ -53,14 +53,20 @@ export default function CompletedAlarmSetting() {
       })
         .then((res) => res.json())
         .finally(() => {
-          clearData();
-          setLoading(false);
+          // clearData();
         });
 
       if (!settingApiRes.ok) {
         alert(settingApiRes.msg);
         return;
       }
+
+      // const { data } = await fetch(`http://localhost:4000/api/alarm/complex/${settingApiRes.seq}`, {
+      //   method: 'GET',
+      // }).then((res) => res.json());
+
+      // setComplexes(data);
+      setLoading(false);
     })();
   }, []);
 

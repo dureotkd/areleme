@@ -1,9 +1,10 @@
+import { empty } from './../../utils/valid';
 import { Router, Request, Response } from 'express';
 import Container from 'typedi';
 
 import AlarmInstance from '../../services/core/alarm';
-
-import { empty } from '../../utils/valid';
+import EstateInstance from '../../services/core/estate';
+import ComplexInstance from '../../services/core/complex';
 
 const route = Router();
 
@@ -39,6 +40,7 @@ export default (app: Router) => {
   // http://localhost:5000/api/alarm,
   route.post('/setting', async (req: Request, res: Response) => {
     const AlarmService = Container.get(AlarmInstance);
+    const EstateService = Container.get(EstateInstance);
 
     const userSeq = (req?.body?.userSeq || []) as number;
     const { estateType, tradeType, local, region, dong, details, selectCodes } = (req?.body?.params ||
@@ -47,6 +49,7 @@ export default (app: Router) => {
     const apiRes = {
       ok: true,
       msg: '',
+      seq: 0,
     };
 
     for await (const process of [1]) {
@@ -118,13 +121,38 @@ export default (app: Router) => {
           break;
         }
 
-        await AlarmService.makeNowLastEstate(settingSeq, params);
+        await EstateService.makeLastEstateNaver(settingSeq, params);
+
+        apiRes.seq = settingSeq;
       } catch (error) {
         console.log(error);
         apiRes.ok = false;
         apiRes.msg = '알수없는 오류가 발생하였습니다';
         break;
       }
+    }
+
+    return res.status(200).json(apiRes);
+  });
+
+  route.get('/complex/:settingSeq', async (req: Request, res: Response) => {
+    const ComplexService = Container.get(ComplexInstance);
+    const { settingSeq } = req?.params;
+
+    const apiRes = {
+      ok: true,
+      msg: '',
+      data: [],
+    };
+
+    for await (const process of [1]) {
+      if (empty(settingSeq)) {
+        apiRes.ok = false;
+        apiRes.msg = '필수 정보 부족';
+        break;
+      }
+
+      apiRes.data = await ComplexService.getComplexes(settingSeq);
     }
 
     return res.status(200).json(apiRes);
