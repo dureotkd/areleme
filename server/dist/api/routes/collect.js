@@ -59,10 +59,10 @@ exports.default = (app) => {
             const paramJson = JSON.parse(setting.params);
             const naverQs = NaverService.convertToQuery(paramJson);
             console.log(paramJson);
-            let newEstates = [];
             switch (paramJson.estateType) {
                 case 'apt':
                 case 'op':
+                    const newEstates = [];
                     const complexes = await NaverService.getComplexCustomQuery({
                         where: [`settingSeq = '${setting.seq}'`],
                         type: 'all',
@@ -76,9 +76,36 @@ exports.default = (app) => {
                             const complexDetails = await NaverService.fetchComplexDetails(complex.no, naverQs);
                             console.log(`complexName : ${complex.name} complexDetails-- : ${complexDetails.length}`);
                             const findNewEstates = await EstateService.findNewEstates(complexDetails, lastEstate);
-                            if (!(0, valid_1.empty)(findNewEstates)) {
-                                newEstates.push(...findNewEstates);
+                            if ((0, valid_1.empty)(findNewEstates)) {
+                                console.log(`매물이 존재하지 않습니다 :: ${complex.name}`);
+                                continue;
                             }
+                            for await (const newEstate of findNewEstates) {
+                                newEstate.type = 'naver';
+                                newEstate.settingSeq = setting.seq;
+                                const myEstateEntitiy = await NaverService.convertToEstate(newEstate);
+                                const estateSeq = await EstateService.makeEstate(myEstateEntitiy);
+                                if ((0, valid_1.empty)(estateSeq)) {
+                                    // ! DB ERROR
+                                    console.log(`매물 등록시 에러가 발생하였습니다`);
+                                    continue;
+                                }
+                                // * 알림 보내고
+                                const alarmRes = await AlarmService.sendAlarm();
+                                if ((0, valid_1.empty)(alarmRes)) {
+                                    // ! Alarm API ERROR
+                                    console.log(`알림 전송시 에러가 발생하였습니다`);
+                                    continue;
+                                }
+                            }
+                            const findLastEstate = findNewEstates[findNewEstates.length - 1];
+                            // * UPDATE ...
+                            await EstateService.updateLastEstate({
+                                settingSeq: setting.seq,
+                                articleNo: findLastEstate.articleNo,
+                                complexNo: findLastEstate.complexNo,
+                                type: 'naver',
+                            });
                         }
                     }
                     break;
@@ -89,45 +116,10 @@ exports.default = (app) => {
                     const villaJutaeks = await NaverService.fetchVillaJutaeks(naverQs);
                     break;
             }
-            await RequestManagerService.waitRandom();
-            console.log(newEstates);
-            if ((0, valid_1.empty)(newEstates)) {
-                // * 새로운 매물이 존재하지않음
-                console.log('새로운 매물이 존재하지 않습니다');
-                continue;
-            }
-            for await (const newEstate of newEstates) {
-                newEstate.type = 'naver';
-                newEstate.settingSeq = setting.seq;
-                const myEstateEntitiy = await NaverService.convertToEstate(newEstate);
-                const estateSeq = await EstateService.makeEstate(myEstateEntitiy);
-                if ((0, valid_1.empty)(estateSeq)) {
-                    // ! DB ERROR
-                    console.log(`매물 등록시 에러가 발생하였습니다`);
-                    continue;
-                }
-                // * 알림 보내고
-                const alarmRes = await AlarmService.sendAlarm();
-                if ((0, valid_1.empty)(alarmRes)) {
-                    // ! Alarm API ERROR
-                    console.log(`알림 전송시 에러가 발생하였습니다`);
-                    continue;
-                }
-                // * UPDATE ...
-                // ! 이부분이 문제..
-                // await EstateService.updateLastEstate({
-                //   settingSeq: setting.seq,
-                //   articleNo: newEstate.articleNo,
-                //   beforeAritlceNo: newEstate.beforeArticleNo,
-                //   complexNo: newEstate.complexNo,
-                //   type: 'naver',
-                // });
-                // await wait(5000);
-            }
+            // await RequestManagerService.waitRandom();
         }
         console.log(`======= 알림 END 총 : ${settings.length} =======`);
         return res.status(200).json({ message: 'Success' });
     });
-    route.get('/dabang/test');
 };
 //# sourceMappingURL=collect.js.map

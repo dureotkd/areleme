@@ -58,6 +58,8 @@ export default async function Home() {
           상호명 : 솔루션하우스 | 대표 : 신성민
           <br />
           사업자등록번호 : 854-37-01547
+          <br />
+          대전광역시 유성구 둔곡동 80 우미린
         </div>
       </footer>
     </>

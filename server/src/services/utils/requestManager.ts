@@ -39,7 +39,7 @@ export default class requestManagerService {
 
       // 1. 프록시 파일 경로 지정
       const downloadsPath = path.join(os.homedir(), 'Downloads');
-      const filePath = path.join(downloadsPath, 'ips.txt');
+      const filePath = path.join(downloadsPath, '프록시유동_쿨아이피.txt');
 
       // 2. 파일 읽기
       const fileContent = fs.readFileSync(filePath, 'utf-8');

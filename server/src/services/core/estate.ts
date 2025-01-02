@@ -43,10 +43,10 @@ export default class EstateService {
 
     console.log(`lastEstateIndex : ${lastEstateIndex}`);
 
-    for (let i = 0; i < lastEstateIndex; i++) {
+    for (let i = lastEstateIndex - 1; i >= 0; i--) {
       const newComplexDetail = complexDetails[i];
-      newComplexDetail.beforeArticleNo = lastEstate.articleNo;
-      newEstates.unshift(newComplexDetail);
+      newComplexDetail.complexNo = lastEstate.complexNo;
+      newEstates.push(newComplexDetail);
     }
 
     return newEstates;
@@ -84,8 +84,7 @@ export default class EstateService {
         },
         where: [
           `settingSeq = '${params.settingSeq}'`,
-          `articleNo = '${params.beforeAritlceNo}'`,
-          `complexNo = '${params.compelxNo}'`,
+          `complexNo = '${params.complexNo}'`,
           `\`type\` = '${params.type}'`,
         ],
       });

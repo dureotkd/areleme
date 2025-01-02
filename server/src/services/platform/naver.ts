@@ -359,7 +359,7 @@ export default class NaverService {
     cloneEstate.isComplex = estate.isComplex === true ? 1 : 0;
     cloneEstate.isVrExposed = estate.isVrExposed === true ? 1 : 0;
 
-    delete cloneEstate['beforeArticleNo'];
+    delete cloneEstate['lastEstateArticleNo'];
 
     return cloneEstate;
   }
