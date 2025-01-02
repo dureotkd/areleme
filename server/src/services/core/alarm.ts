@@ -29,7 +29,7 @@ export default class AlarmService {
 
   public async getSettings() {
     return await this.modelService.execute({
-      sql: 'SELECT * FROM areleme.alarm_setting',
+      sql: 'SELECT * FROM areleme.alarm_setting a WHERE 1',
       type: 'all',
     });
   }

@@ -27,7 +27,9 @@ export default class EstateService {
       return [];
     }
 
-    const lastEstateIndex = complexDetails.findIndex((item: any) => lastEstate.articleNo === item.articleNo);
+    const lastEstateIndex = complexDetails.findIndex((item: any) => {
+      return lastEstate.articleNo === item.articleNo;
+    });
 
     /**
      * * 아예 못찾는거라 문제가 있음... (온보딩 설정후 바로 마지막매물을 넣었는데 왜 못찾지?) => 아마 페이지 2로 매물이 넘어가서?
@@ -142,10 +144,18 @@ export default class EstateService {
       case 'one':
         estates = await this.naverService.fetchOneTowRooms(naverQs);
 
+        if (estates.length > 1) {
+          estates.splice(1);
+        }
+
         break;
 
       case 'villa':
         estates = await this.naverService.fetchVillaJutaeks(naverQs);
+
+        if (estates.length > 1) {
+          estates.splice(1);
+        }
 
         break;
 
@@ -153,7 +163,7 @@ export default class EstateService {
         const officetels = await this.naverService.fetchOfficetels(naverQs);
 
         if (!empty(officetels)) {
-          for await (const { complexNo } of officetels) {
+          for await (const { complexNo, complexName } of officetels) {
             await this.modelService.execute({
               debug: this.debug,
               sql: this.modelService.getInsertQuery({
@@ -161,6 +171,7 @@ export default class EstateService {
                 data: {
                   settingSeq: settingSeq,
                   no: complexNo,
+                  name: complexName,
                   rDate: nowDate,
                   type: 'naver',
                 },

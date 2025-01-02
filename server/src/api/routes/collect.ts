@@ -43,6 +43,7 @@ export default (app: Router) => {
     return res.status(200).json({ message: 'Success' });
   });
 
+  // http://localhost:4000/api/collect/proxy
   route.get('/proxy', async (req: Request, res: Response) => {
     const RequestManagerService = Container.get(RequestManagerInstance);
     await RequestManagerService.makeProxy();
@@ -59,7 +60,7 @@ export default (app: Router) => {
 
     const settings = await AlarmService.getSettings();
 
-    console.log(`======= 알림 START 총 : ${settings.length} =======`);
+    console.log(`======= 알림 START 총 : ${settings.length} =======\n`);
     /**
      * 1. settings를 반복문 돌리면서 설정값을 확인한다.
      * 2. 설정값을 [네이버,다방] 파라미터로 구분화 한다
@@ -71,13 +72,11 @@ export default (app: Router) => {
       const paramJson = JSON.parse(setting.params);
       const naverQs = NaverService.convertToQuery(paramJson);
 
-      console.log(paramJson);
+      console.log(`setting : ${setting.seq} START \n`, naverQs);
 
       switch (paramJson.estateType) {
         case 'apt':
         case 'op':
-          const newEstates = [];
-
           const complexes = await NaverService.getComplexCustomQuery({
             where: [`settingSeq = '${setting.seq}'`],
             type: 'all',
@@ -92,12 +91,12 @@ export default (app: Router) => {
 
               const complexDetails = await NaverService.fetchComplexDetails(complex.no, naverQs);
 
-              console.log(`complexName : ${complex.name} complexDetails-- : ${complexDetails.length}`);
+              console.log(`complexName:${complex.name} :: ${complexDetails.length} \n`);
 
               const findNewEstates: any = await EstateService.findNewEstates(complexDetails, lastEstate);
 
               if (empty(findNewEstates)) {
-                console.log(`매물이 존재하지 않습니다 :: ${complex.name}`);
+                console.log(`매물이 존재하지 않습니다 :: ${complex.name} (${complex.no}) \n`);
                 continue;
               }
 
@@ -139,17 +138,60 @@ export default (app: Router) => {
           break;
 
         case 'one':
-          const onetwoRooms = await NaverService.fetchOneTowRooms(naverQs);
-
-          break;
-
         case 'villa':
-          const villaJutaeks = await NaverService.fetchVillaJutaeks(naverQs);
+          const estates =
+            paramJson.estateType === 'one'
+              ? await NaverService.fetchOneTowRooms(naverQs)
+              : await NaverService.fetchVillaJutaeks(naverQs);
+
+          const lastEstate = await NaverService.getLastEstateQuery({
+            where: [`settingSeq = '${setting.seq}'`],
+            type: 'row',
+          });
+          const findNewEstates: any = await EstateService.findNewEstates(estates, lastEstate);
+
+          if (empty(findNewEstates)) {
+            console.log(`매물이 존재하지 않습니다 :: 원/투룸 \n`);
+            continue;
+          }
+
+          for await (const newEstate of findNewEstates) {
+            newEstate.type = 'naver';
+            newEstate.settingSeq = setting.seq;
+
+            const myEstateEntitiy = await NaverService.convertToEstate(newEstate);
+            const estateSeq = await EstateService.makeEstate(myEstateEntitiy);
+
+            if (empty(estateSeq)) {
+              // ! DB ERROR
+              console.log(`매물 등록시 에러가 발생하였습니다`);
+              continue;
+            }
+
+            // * 알림 보내고
+            const alarmRes = await AlarmService.sendAlarm();
+
+            if (empty(alarmRes)) {
+              // ! Alarm API ERROR
+              console.log(`알림 전송시 에러가 발생하였습니다`);
+              continue;
+            }
+          }
+
+          const findLastEstate = findNewEstates[findNewEstates.length - 1];
+
+          // * UPDATE ...
+          await EstateService.updateLastEstate({
+            settingSeq: setting.seq,
+            articleNo: findLastEstate.articleNo,
+            complexNo: findLastEstate.complexNo,
+            type: 'naver',
+          });
 
           break;
       }
 
-      // await RequestManagerService.waitRandom();
+      await RequestManagerService.waitRandom();
     }
 
     console.log(`======= 알림 END 총 : ${settings.length} =======`);

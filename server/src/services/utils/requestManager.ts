@@ -18,7 +18,7 @@ export default class requestManagerService {
     const randomIndex = Math.floor(Math.random() * proxies.length);
     const proxy = proxies[randomIndex];
 
-    console.log(`proxy server ::: ${proxy}`);
+    // console.log(`proxy server ::: ${proxy}`);
 
     return proxy;
   }
@@ -71,7 +71,7 @@ export default class requestManagerService {
     // 0~10000 밀리초 (0~10초)
     const randomDelay = Math.floor(Math.random() * 10000);
 
-    console.log(`random Delay :: ${randomDelay}`);
+    console.log(`\n random Delay :: ${randomDelay} \n`);
 
     return new Promise((resolve) => setTimeout(resolve, randomDelay));
   }
