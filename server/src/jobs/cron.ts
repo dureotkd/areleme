@@ -26,6 +26,8 @@ export default async () => {
      * 5. 새로운 매물이 나온걸 확인하면 회원에게 알림을 보낸다.
      */
     for await (const setting of settings) {
+      await RequestManagerService.waitRandom();
+
       const paramJson = JSON.parse(setting.params);
       const naverQs = NaverService.convertToQuery(paramJson);
 
@@ -147,8 +149,6 @@ export default async () => {
 
           break;
       }
-
-      await RequestManagerService.waitRandom();
     }
 
     console.log(`======= 알림 END 총 : ${settings.length} =======`);
