@@ -46,7 +46,6 @@ exports.default = (app) => {
         const AlarmService = typedi_1.default.get(alarm_1.default);
         const NaverService = typedi_1.default.get(naver_1.default);
         const EstateService = typedi_1.default.get(estate_1.default);
-        const RequestManagerService = typedi_1.default.get(requestManager_1.default);
         const settings = await AlarmService.getSettings();
         console.log(`======= 알림 START 총 : ${settings.length} =======\n`);
         /**
@@ -91,7 +90,7 @@ exports.default = (app) => {
                                     continue;
                                 }
                                 // * 알림 보내고
-                                const alarmRes = await AlarmService.sendAlarm();
+                                const alarmRes = await AlarmService.sendAlarm(estateSeq);
                                 if ((0, valid_1.empty)(alarmRes)) {
                                     // ! Alarm API ERROR
                                     console.log(`알림 전송시 에러가 발생하였습니다`);
@@ -134,7 +133,7 @@ exports.default = (app) => {
                             continue;
                         }
                         // * 알림 보내고
-                        const alarmRes = await AlarmService.sendAlarm();
+                        const alarmRes = await AlarmService.sendAlarm(estateSeq);
                         if ((0, valid_1.empty)(alarmRes)) {
                             // ! Alarm API ERROR
                             console.log(`알림 전송시 에러가 발생하였습니다`);
@@ -151,7 +150,6 @@ exports.default = (app) => {
                     });
                     break;
             }
-            await RequestManagerService.waitRandom();
         }
         console.log(`======= 알림 END 총 : ${settings.length} =======`);
         return res.status(200).json({ message: 'Success' });

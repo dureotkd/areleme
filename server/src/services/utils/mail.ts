@@ -7,27 +7,31 @@ import config from '../../config';
 export default class mailService {
   constructor() {}
 
-  public async send(to: string, msg: string) {
-    const mailer = nodemailer.createTransport({
-      service: 'naver',
-      host: 'smtp.naver.com', // SMTP 서버명
-      port: 465, // SMTP 포트
-      auth: {
-        user: config.naver.user_id, // 네이버 아이디
-        pass: config.naver.user_pw, // 발급하여 저장한 비밀 번호
-      },
-    });
+  public async send(to: string, subject: string = '', msg: string) {
+    let res = null;
 
-    const res = await mailer.sendMail({
-      from: `${config.naver.user_id}@naver.com`,
-      to: to,
-      subject: '[매물 알리미] 인증코드 안내',
-      html: `<div><h3>${msg}</h3></div>`,
-    });
+    try {
+      const mailer = nodemailer.createTransport({
+        service: 'naver',
+        host: 'smtp.naver.com', // SMTP 서버명
+        port: 465, // SMTP 포트
+        auth: {
+          user: config.naver.user_id, // 네이버 아이디
+          pass: config.naver.user_pw, // 발급하여 저장한 비밀 번호
+        },
+      });
 
-    console.log(res);
+      res = await mailer.sendMail({
+        from: `${config.naver.user_id}@naver.com`,
+        to: to,
+        subject: `매물 알리미 ${subject}`,
+        html: msg,
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
-    return {};
+    return res;
   }
 
   public async save() {}

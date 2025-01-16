@@ -18,14 +18,13 @@ export default class solapiService {
     this.messageService = new SolapiMessageService(apiKey, apiSecret);
   }
 
-  public async sendSMS(to: string, msg: string) {
+  public async sendSMS(to: string, subject: string = '', msg: string) {
     let res = null;
-
-    console.log(to, msg);
 
     try {
       res = await this.messageService.sendOne({
         to: to, // 예: '01012345678'
+        subject: `매물 알리미 ${subject}`,
         from: '01056539944', // 예: '0212345678'
         text: msg,
       });

@@ -56,7 +56,6 @@ export default (app: Router) => {
     const AlarmService = Container.get(AlarmInstance);
     const NaverService = Container.get(NaverInstance);
     const EstateService = Container.get(EstateInstance);
-    const RequestManagerService = Container.get(RequestManagerInstance);
 
     const settings = await AlarmService.getSettings();
 
@@ -114,7 +113,7 @@ export default (app: Router) => {
                 }
 
                 // * 알림 보내고
-                const alarmRes = await AlarmService.sendAlarm();
+                const alarmRes = await AlarmService.sendAlarm(estateSeq);
 
                 if (empty(alarmRes)) {
                   // ! Alarm API ERROR
@@ -169,7 +168,7 @@ export default (app: Router) => {
             }
 
             // * 알림 보내고
-            const alarmRes = await AlarmService.sendAlarm();
+            const alarmRes = await AlarmService.sendAlarm(estateSeq);
 
             if (empty(alarmRes)) {
               // ! Alarm API ERROR
@@ -190,8 +189,6 @@ export default (app: Router) => {
 
           break;
       }
-
-      await RequestManagerService.waitRandom();
     }
 
     console.log(`======= 알림 END 총 : ${settings.length} =======`);

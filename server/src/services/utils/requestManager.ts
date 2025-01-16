@@ -18,8 +18,6 @@ export default class requestManagerService {
     const randomIndex = Math.floor(Math.random() * proxies.length);
     const proxy = proxies[randomIndex];
 
-    console.log(`proxy server ::: ${proxy}`);
-
     return proxy;
   }
 
@@ -67,14 +65,14 @@ export default class requestManagerService {
     }
   }
 
-  public async waitRandom() {
-    // 0~10000 밀리초 (0~10초)
-    const randomDelay = Math.floor(Math.random() * 10000);
+  // public async waitRandom() {
+  //   // 0~10000 밀리초 (0~10초)
+  //   const randomDelay = Math.floor(Math.random() * 10000);
 
-    console.log(`\n random Delay :: ${randomDelay} \n`);
+  //   console.log(`\n random Delay :: ${randomDelay} \n`);
 
-    return new Promise((resolve) => setTimeout(resolve, randomDelay));
-  }
+  //   return new Promise((resolve) => setTimeout(resolve, randomDelay));
+  // }
 
   public getHeadersNaver() {
     return {

@@ -3,14 +3,14 @@ import cron from 'node-cron';
 import dayjs from 'dayjs';
 
 import { empty } from '../utils/valid';
+import { waitRandom } from '../utils/time';
 
 import AlarmInstance from '../services/core/alarm';
 import NaverInstance from '../services/platform/naver';
 import EstateInstance from '../services/core/estate';
-import RequestManagerInstance from '../services/utils/requestManager';
 
 export default async () => {
-  cron.schedule('*/10 * * * *', async () => {
+  cron.schedule('*/5 * * * *', async () => {
     // 현재 시간 가져오기
     const currentTime = dayjs();
 
@@ -22,13 +22,11 @@ export default async () => {
       return;
     }
 
-    return;
-
     const AlarmService = Container.get(AlarmInstance);
     const NaverService = Container.get(NaverInstance);
     const EstateService = Container.get(EstateInstance);
-    const RequestManagerService = Container.get(RequestManagerInstance);
     const settings = await AlarmService.getSettings();
+
     console.log(`======= 알림 START 총 : ${settings.length} =======\n`);
     /**
      * 1. settings를 반복문 돌리면서 설정값을 확인한다.
@@ -38,7 +36,8 @@ export default async () => {
      * 5. 새로운 매물이 나온걸 확인하면 회원에게 알림을 보낸다.
      */
     for await (const setting of settings) {
-      await RequestManagerService.waitRandom();
+      await waitRandom(10000);
+
       const paramJson = JSON.parse(setting.params);
       const naverQs = NaverService.convertToQuery(paramJson);
       console.log(`setting : ${setting.seq} START \n`, naverQs);
@@ -82,7 +81,8 @@ export default async () => {
                 }
 
                 // * 알림 보내고
-                const alarmRes = await AlarmService.sendAlarm();
+                const alarmRes = await AlarmService.sendAlarm(estateSeq);
+
                 if (empty(alarmRes)) {
                   // ! Alarm API ERROR
                   console.log(`알림 전송시 에러가 발생하였습니다`);
@@ -133,7 +133,7 @@ export default async () => {
             }
 
             // * 알림 보내고
-            const alarmRes = await AlarmService.sendAlarm();
+            const alarmRes = await AlarmService.sendAlarm(estateSeq);
             if (empty(alarmRes)) {
               // ! Alarm API ERROR
               console.log(`알림 전송시 에러가 발생하였습니다`);

@@ -13,3 +13,12 @@ export const getNowDate = () => {
 
   return formattedNow;
 };
+
+export const waitRandom = async (sec: number) => {
+  // 0~10000 밀리초 (0~10초)
+  const randomDelay = Math.floor(Math.random() * sec);
+
+  console.log(`\n random Delay :: ${randomDelay} \n`);
+
+  return new Promise((resolve) => setTimeout(resolve, randomDelay));
+};

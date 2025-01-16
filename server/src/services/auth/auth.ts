@@ -50,12 +50,12 @@ export default class AuthService {
         break;
       }
 
-      let sendRes = {};
+      let sendRes = null;
 
       if (type === 'sms') {
-        sendRes = await this.solapiService.sendSMS(to, msg);
+        sendRes = await this.solapiService.sendSMS(to, '[인증번호]', msg);
       } else if (type === 'email') {
-        sendRes = await this.mailService.send(to, msg);
+        sendRes = await this.mailService.send(to, '[인증번호]', msg);
       }
 
       if (!sendRes) {
