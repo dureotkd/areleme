@@ -71,17 +71,17 @@ export default (app: Router) => {
       }
       if (empty(local)) {
         apiRes.ok = false;
-        apiRes.msg = '지역정보가 없습니다';
+        apiRes.msg = '지역정보(local)가 없습니다';
         break;
       }
       if (empty(region)) {
         apiRes.ok = false;
-        apiRes.msg = '지역정보가 없습니다';
+        apiRes.msg = '지역정보(region)가 없습니다';
         break;
       }
       if (empty(dong)) {
         apiRes.ok = false;
-        apiRes.msg = '지역정보가 없습니다';
+        apiRes.msg = '지역정보(dong)가 없습니다';
         break;
       }
       if (empty(details)) {
@@ -121,7 +121,7 @@ export default (app: Router) => {
           break;
         }
 
-        await EstateService.makeLastEstateNaver(settingSeq, params);
+        await EstateService.makeInitLastEstateNaver(settingSeq, params);
 
         apiRes.seq = settingSeq;
       } catch (error) {

@@ -72,6 +72,13 @@ export default class EstateService {
     }
   }
 
+  public async getLastEstateCustomQuery({ where, type }: { where: string[]; type: 'all' | 'row' | 'one' }) {
+    return await this.modelService.execute({
+      sql: `SELECT * FROM areleme.last_estate a WHERE %s`.replace('%s', where.join(' AND ')),
+      type: type,
+    });
+  }
+
   /**
    * 마지막 매물을 UPDATE 해줍니다
    */
@@ -106,10 +113,8 @@ export default class EstateService {
    * 기준점을 만들어줍니다
    * 현재 기준으로 마지막 매물을 INSERT 해줍니다
    */
-  public async makeLastEstateNaver(settingSeq: string, params: any) {
-    console.log(params);
+  public async makeInitLastEstateNaver(settingSeq: string, params: any) {
     const nowDate = getNowDate();
-
     const naverQs = this.naverService.convertToQuery(params);
 
     let estates = [];
@@ -120,7 +125,7 @@ export default class EstateService {
 
         if (!empty(complexes)) {
           for await (const { complexNo, complexName } of complexes) {
-            console.log(complexNo, complexName);
+            console.log(complexNo, complexName, naverQs);
 
             await this.complexService.makeComplex({
               settingSeq: settingSeq,
@@ -187,6 +192,8 @@ export default class EstateService {
 
         break;
     }
+
+    console.log(estates);
 
     if (!empty(estates)) {
       for await (const { articleNo, complexNo } of estates) {

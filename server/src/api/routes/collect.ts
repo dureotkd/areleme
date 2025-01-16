@@ -124,13 +124,24 @@ export default (app: Router) => {
 
               const findLastEstate = findNewEstates[findNewEstates.length - 1];
 
-              // * UPDATE ...
-              await EstateService.updateLastEstate({
-                settingSeq: setting.seq,
-                articleNo: findLastEstate.articleNo,
-                complexNo: findLastEstate.complexNo,
-                type: 'naver',
-              });
+              /**
+               * ? 테스트를 어떻게 할것인가..
+               *
+               * * 처음 Setting후 LastEstate가 Insert안됐지만
+               * * 알림 전송 과정에서 발견하였을 경우!
+               */
+              if (!empty(lastEstate)) {
+                // * UPDATE ...
+                await EstateService.updateLastEstate({
+                  settingSeq: setting.seq,
+                  articleNo: findLastEstate.articleNo,
+                  complexNo: findLastEstate.complexNo,
+                  type: 'naver',
+                });
+              } else {
+                // & INSERT ...
+                await EstateService.makeInitLastEstateNaver(setting.seq, naverQs);
+              }
             }
           }
 

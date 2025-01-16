@@ -8,3 +8,8 @@ export function convertToPyeong(squareMeters: number): number {
   const conversionFactor = 3.3058;
   return Math.ceil(parseFloat((squareMeters / conversionFactor).toFixed(2)));
 }
+
+export function convertToSquareMeters(pyeong: number): number {
+  const conversionFactor = 3.3058;
+  return Math.ceil(parseFloat((pyeong * conversionFactor).toFixed(2)));
+}

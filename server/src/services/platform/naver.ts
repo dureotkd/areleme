@@ -5,6 +5,7 @@ import config from '../../config';
 
 import { wait } from '../../utils/time';
 import { empty } from '../../utils/valid';
+import { convertToSquareMeters } from '../../utils/string';
 
 import ModelService from '../model/model';
 import requestManagerService from '../utils/requestManager';
@@ -328,16 +329,27 @@ export default class NaverService {
 
     qs.tradeType = tradeTypeVo[tradeType];
 
-    qs.priceMin = details.cost[0] === 0 ? 0 : details.cost[0];
+    const myPriceMaxStan = tradeType == 'monthlyRent' ? 30000000 : 1000000001;
 
-    const myPriceMaxStan = tradeType === 'monthlyRent' ? 30000000 : 1000000001;
-    qs.priceMax = details.cost[1] === myPriceMaxStan ? 900000000 : details.cost[1];
+    qs.priceMax = details.cost[1] == myPriceMaxStan ? 900000000 : details.cost[1];
 
-    qs.rentPriceMin = details.rentCost[0] === 100000 ? 0 : details.rentCost[0];
-    qs.rentPriceMax = details.rentCost[1] === 2000000 ? 900000000 : details.rentCost[1];
+    if (details.cost[0] == 0) {
+      qs.priceMin = details.cost[0];
+    } else {
+      qs.priceMin = details.cost[0] / 10000;
+    }
 
-    qs.areaMin = details.pyeong[0] === 10 ? 0 : details.pyeong[0];
-    qs.areaMax = details.pyeong[1] === 61 ? 900000000 : details.pyeong[1];
+    if (details.cost[1] == myPriceMaxStan) {
+      qs.priceMax = details.cost[1];
+    } else {
+      qs.priceMax = details.cost[1] / 10000;
+    }
+
+    qs.rentPriceMin = details.rentCost[0] == 100000 ? 0 : details.rentCost[0];
+    qs.rentPriceMax = details.rentCost[1] == 2000000 ? 900000000 : details.rentCost[1];
+
+    qs.areaMin = details.pyeong[0] == 10 ? 0 : convertToSquareMeters(details.pyeong[0]);
+    qs.areaMax = details.pyeong[1] == 61 ? 900000000 : convertToSquareMeters(details.pyeong[1]);
 
     return qs;
   }
@@ -345,19 +357,19 @@ export default class NaverService {
   public convertToEstate(estate: any) {
     const cloneEstate = { ...estate };
     cloneEstate.tagList = estate.tagList.join('/');
-    cloneEstate.isPriceModification = estate.isPriceModification === true ? 1 : 0;
+    cloneEstate.isPriceModification = estate.isPriceModification == true ? 1 : 0;
     cloneEstate.cpPcArticleLinkUseAtArticleTitleYn =
-      estate.cpPcArticleLinkUseAtArticleTitleYn === true ? 1 : 0;
-    cloneEstate.cpPcArticleLinkUseAtCpNameYn = estate.cpPcArticleLinkUseAtCpNameYn === true ? 1 : 0;
+      estate.cpPcArticleLinkUseAtArticleTitleYn == true ? 1 : 0;
+    cloneEstate.cpPcArticleLinkUseAtCpNameYn = estate.cpPcArticleLinkUseAtCpNameYn == true ? 1 : 0;
     cloneEstate.cpMobileArticleLinkUseAtArticleTitleYn =
-      estate.cpMobileArticleLinkUseAtArticleTitleYn === true ? 1 : 0;
-    cloneEstate.cpMobileArticleLinkUseAtCpNameYn = estate.cpMobileArticleLinkUseAtCpNameYn === true ? 1 : 0;
-    cloneEstate.isLocationShow = estate.isLocationShow === true ? 1 : 0;
-    cloneEstate.tradeCheckedByOwner = estate.tradeCheckedByOwner === true ? 1 : 0;
-    cloneEstate.isDirectTrade = estate.isDirectTrade === true ? 1 : 0;
-    cloneEstate.isInterest = estate.isInterest === true ? 1 : 0;
-    cloneEstate.isComplex = estate.isComplex === true ? 1 : 0;
-    cloneEstate.isVrExposed = estate.isVrExposed === true ? 1 : 0;
+      estate.cpMobileArticleLinkUseAtArticleTitleYn == true ? 1 : 0;
+    cloneEstate.cpMobileArticleLinkUseAtCpNameYn = estate.cpMobileArticleLinkUseAtCpNameYn == true ? 1 : 0;
+    cloneEstate.isLocationShow = estate.isLocationShow == true ? 1 : 0;
+    cloneEstate.tradeCheckedByOwner = estate.tradeCheckedByOwner == true ? 1 : 0;
+    cloneEstate.isDirectTrade = estate.isDirectTrade == true ? 1 : 0;
+    cloneEstate.isInterest = estate.isInterest == true ? 1 : 0;
+    cloneEstate.isComplex = estate.isComplex == true ? 1 : 0;
+    cloneEstate.isVrExposed = estate.isVrExposed == true ? 1 : 0;
 
     delete cloneEstate['lastEstateArticleNo'];
 

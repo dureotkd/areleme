@@ -36,7 +36,7 @@ export default async () => {
      * 5. 새로운 매물이 나온걸 확인하면 회원에게 알림을 보낸다.
      */
     for await (const setting of settings) {
-      await waitRandom(10000);
+      // await waitRandom(10000);
 
       const paramJson = JSON.parse(setting.params);
       const naverQs = NaverService.convertToQuery(paramJson);
@@ -92,13 +92,24 @@ export default async () => {
 
               const findLastEstate = findNewEstates[findNewEstates.length - 1];
 
-              // * UPDATE ...
-              await EstateService.updateLastEstate({
-                settingSeq: setting.seq,
-                articleNo: findLastEstate.articleNo,
-                complexNo: findLastEstate.complexNo,
-                type: 'naver',
-              });
+              /**
+               * ? 테스트를 어떻게 할것인가..
+               *
+               * * 처음 Setting후 LastEstate가 Insert안됐지만
+               * * 알림 전송 과정에서 발견하였을 경우!
+               */
+              if (!empty(lastEstate)) {
+                // * UPDATE ...
+                await EstateService.updateLastEstate({
+                  settingSeq: setting.seq,
+                  articleNo: findLastEstate.articleNo,
+                  complexNo: findLastEstate.complexNo,
+                  type: 'naver',
+                });
+              } else {
+                // & INSERT ...
+                await EstateService.makeInitLastEstateNaver(setting.seq, naverQs);
+              }
             }
           }
           break;
