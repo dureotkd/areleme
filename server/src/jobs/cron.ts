@@ -1,5 +1,6 @@
 import Container from 'typedi';
 import cron from 'node-cron';
+import dayjs from 'dayjs';
 
 import { empty } from '../utils/valid';
 
@@ -9,14 +10,25 @@ import EstateInstance from '../services/core/estate';
 import RequestManagerInstance from '../services/utils/requestManager';
 
 export default async () => {
-  cron.schedule('*/5 * * * *', async () => {
+  cron.schedule('*/10 * * * *', async () => {
+    // 현재 시간 가져오기
+    const currentTime = dayjs();
+
+    const startHour = 7;
+    const endHour = 22;
+
+    if (!(currentTime.hour() >= startHour && currentTime.hour() < endHour)) {
+      console.log('작동 시간 외입니다. 작업을 수행하지 않습니다.');
+      return;
+    }
+
+    return;
+
     const AlarmService = Container.get(AlarmInstance);
     const NaverService = Container.get(NaverInstance);
     const EstateService = Container.get(EstateInstance);
     const RequestManagerService = Container.get(RequestManagerInstance);
-
     const settings = await AlarmService.getSettings();
-
     console.log(`======= 알림 START 총 : ${settings.length} =======\n`);
     /**
      * 1. settings를 반복문 돌리면서 설정값을 확인한다.
@@ -27,10 +39,8 @@ export default async () => {
      */
     for await (const setting of settings) {
       await RequestManagerService.waitRandom();
-
       const paramJson = JSON.parse(setting.params);
       const naverQs = NaverService.convertToQuery(paramJson);
-
       console.log(`setting : ${setting.seq} START \n`, naverQs);
 
       switch (paramJson.estateType) {
@@ -62,7 +72,6 @@ export default async () => {
               for await (const newEstate of findNewEstates) {
                 newEstate.type = 'naver';
                 newEstate.settingSeq = setting.seq;
-
                 const myEstateEntitiy = await NaverService.convertToEstate(newEstate);
                 const estateSeq = await EstateService.makeEstate(myEstateEntitiy);
 
@@ -74,7 +83,6 @@ export default async () => {
 
                 // * 알림 보내고
                 const alarmRes = await AlarmService.sendAlarm();
-
                 if (empty(alarmRes)) {
                   // ! Alarm API ERROR
                   console.log(`알림 전송시 에러가 발생하였습니다`);
@@ -93,7 +101,6 @@ export default async () => {
               });
             }
           }
-
           break;
 
         case 'one':
@@ -102,7 +109,6 @@ export default async () => {
             paramJson.estateType === 'one'
               ? await NaverService.fetchOneTowRooms(naverQs)
               : await NaverService.fetchVillaJutaeks(naverQs);
-
           const lastEstate = await NaverService.getLastEstateQuery({
             where: [`settingSeq = '${setting.seq}'`],
             type: 'row',
@@ -117,7 +123,6 @@ export default async () => {
           for await (const newEstate of findNewEstates) {
             newEstate.type = 'naver';
             newEstate.settingSeq = setting.seq;
-
             const myEstateEntitiy = await NaverService.convertToEstate(newEstate);
             const estateSeq = await EstateService.makeEstate(myEstateEntitiy);
 
@@ -129,7 +134,6 @@ export default async () => {
 
             // * 알림 보내고
             const alarmRes = await AlarmService.sendAlarm();
-
             if (empty(alarmRes)) {
               // ! Alarm API ERROR
               console.log(`알림 전송시 에러가 발생하였습니다`);
@@ -146,11 +150,9 @@ export default async () => {
             complexNo: findLastEstate.complexNo,
             type: 'naver',
           });
-
           break;
       }
     }
-
     console.log(`======= 알림 END 총 : ${settings.length} =======`);
   });
 };

@@ -19,7 +19,6 @@ export default function CompletedAlarmSetting() {
         router.replace('/');
         return;
       }
-
       const estateType = window.localStorage.getItem('on_data_1');
       const tradeType = window.localStorage.getItem('on_data_2');
       const local = window.localStorage.getItem('on_data_3');
@@ -28,7 +27,6 @@ export default function CompletedAlarmSetting() {
       const details = window.localStorage.getItem('on_data_6');
       const selectCodes = window.localStorage.getItem('on_data_7');
       const userSeq = window.localStorage.getItem('on_data_user_seq');
-
       const params = {
         estateType: estateType,
         tradeType: tradeType,
@@ -38,9 +36,6 @@ export default function CompletedAlarmSetting() {
         details: JSON.parse(details),
         selectCodes: JSON.parse(selectCodes),
       };
-
-      console.log(params);
-
       const settingApiRes = await fetch(`http://localhost:4000/api/alarm/setting`, {
         method: 'POST',
         body: JSON.stringify({
@@ -53,18 +48,15 @@ export default function CompletedAlarmSetting() {
       })
         .then((res) => res.json())
         .finally(() => {
-          // clearData();
+          clearData();
         });
-
       if (!settingApiRes.ok) {
         alert(settingApiRes.msg);
         return;
       }
-
       // const { data } = await fetch(`http://localhost:4000/api/alarm/complex/${settingApiRes.seq}`, {
       //   method: 'GET',
       // }).then((res) => res.json());
-
       // setComplexes(data);
       setLoading(false);
     })();
@@ -98,28 +90,31 @@ export default function CompletedAlarmSetting() {
     }
   };
 
-  if (loading) {
-    return <FetchLoading />;
-  }
-
   return (
     <Layout
-      des="알림 설정 완료"
+      des={loading ? '알림 설정중...' : '알림 설정 완료!'}
       isNext
+      loading={loading}
       isOnlyNext
       nextName="확인했어요"
       nextOnClick={() => {
         router.replace('/');
       }}
     >
-      <div>조건에 맞는 공고를 아래와 같이 보낼게요</div>
-      <Image
-        className="rounded-lg mt-lg"
-        src="/static/images/ex_talk.png"
-        alt="로고"
-        width={300}
-        height={200}
-      />
+      {loading ? (
+        <FetchLoading />
+      ) : (
+        <>
+          <div>조건에 맞는 공고를 아래와 같이 보낼게요</div>
+          <Image
+            className="rounded-lg mt-lg"
+            src="/static/images/ex_talk.png"
+            alt="로고"
+            width={300}
+            height={200}
+          />
+        </>
+      )}
     </Layout>
   );
 }

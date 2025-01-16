@@ -18,7 +18,7 @@ export default class requestManagerService {
     const randomIndex = Math.floor(Math.random() * proxies.length);
     const proxy = proxies[randomIndex];
 
-    // console.log(`proxy server ::: ${proxy}`);
+    console.log(`proxy server ::: ${proxy}`);
 
     return proxy;
   }

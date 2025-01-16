@@ -4,7 +4,8 @@ import { getNowDate } from '../../utils/time';
 import { empty } from '../../utils/valid';
 
 import mailService from '../utils/mail';
-import PPurioService from '../utils/ppurio';
+import solapiService from '../utils/solapi';
+
 import ModelService from '../model/model';
 
 @Service()
@@ -13,7 +14,7 @@ export default class AuthService {
     private readonly debug = false,
 
     private readonly modelService: ModelService,
-    private readonly ppurioService: PPurioService,
+    private readonly solapiService: solapiService,
     private readonly mailService: mailService,
   ) {}
 
@@ -27,9 +28,7 @@ export default class AuthService {
       const nowDate = getNowDate();
 
       const authCode = this.makeCode();
-      const msg = `인증번호 : ${authCode}`;
-
-      console.log(msg);
+      const msg = `[매물알리미]\n인증번호 : ${authCode}`;
 
       const insertSeq = await this.modelService.execute({
         debug: this.debug,
@@ -54,7 +53,7 @@ export default class AuthService {
       let sendRes = {};
 
       if (type === 'sms') {
-        sendRes = await this.ppurioService.sendSMS(to, msg);
+        sendRes = await this.solapiService.sendSMS(to, msg);
       } else if (type === 'email') {
         sendRes = await this.mailService.send(to, msg);
       }

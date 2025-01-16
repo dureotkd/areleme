@@ -34,4 +34,11 @@ export default {
     pw: process.env.DB_PW,
     name: process.env.DB_NAME,
   },
+  solapi: {
+    api_key: process.env.SOLAPI_API_KEY,
+    secret_key: process.env.SOLAPI_SECRET_KEY,
+  },
+  ppurio: {
+    api_key: process.env.PPURIO_API_KEY,
+  },
 };
