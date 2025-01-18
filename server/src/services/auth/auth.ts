@@ -30,6 +30,8 @@ export default class AuthService {
       const authCode = this.makeCode();
       const msg = `[매물알리미]\n인증번호 : ${authCode}`;
 
+      console.log(msg);
+
       const insertSeq = await this.modelService.execute({
         debug: this.debug,
         database: 'areleme',

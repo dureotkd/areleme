@@ -3,12 +3,16 @@ import request from 'request-promise-native';
 
 import config from '../../config';
 
-import { wait } from '../../utils/time';
+import { wait, getNowDate } from '../../utils/time';
 import { empty } from '../../utils/valid';
 import { convertToSquareMeters } from '../../utils/string';
+import requestManagerService from '../utils/requestManager';
 
 import ModelService from '../model/model';
-import requestManagerService from '../utils/requestManager';
+import SettingService from '../core/setting';
+import EstateService from '../core/estate';
+import ComplexService from '../core/complex';
+import AlarmService from '../core/alarm';
 
 /**
  *       cortarNo: dong, // * dong [code]
@@ -40,7 +44,12 @@ type ComplexesQs = {
 @Service()
 export default class NaverService {
   constructor(
+    private readonly debug: false,
     private readonly modelService: ModelService,
+    private readonly complexService: ComplexService,
+    private readonly settingService: SettingService,
+    private readonly estateService: EstateService,
+    private readonly alarmService: AlarmService,
     private readonly requestManagerService: requestManagerService,
   ) {}
 
@@ -272,7 +281,7 @@ export default class NaverService {
 
   public async getComplexCustomQuery({ where, type }: { where: string[]; type: 'all' | 'row' | 'one' }) {
     return await this.modelService.execute({
-      sql: `SELECT * FROM areleme.complex a WHERE a.type = 'naver' AND %s`.replace('%s', where.join(' AND ')),
+      sql: `SELECT * FROM areleme.complex a WHERE %s`.replace('%s', where.join(' AND ')),
       type: type,
     });
   }
@@ -285,6 +294,255 @@ export default class NaverService {
       ),
       type: type,
     });
+  }
+
+  public async runNewEstate() {
+    const settings = await this.settingService.getSettings();
+
+    for await (const setting of settings) {
+      const paramJson = JSON.parse(setting.params);
+      const naverQs = this.convertToQuery(paramJson);
+
+      switch (paramJson.estateType) {
+        case 'apt':
+        case 'op':
+          const complexes = await this.getComplexCustomQuery({
+            where: [`settingSeq = '${setting.seq}'`],
+            type: 'all',
+          });
+
+          if (!empty(complexes)) {
+            for await (const complex of complexes) {
+              const lastEstate = await this.getLastEstateQuery({
+                where: [`settingSeq = '${setting.seq}'`, `complexNo = '${complex.no}'`],
+                type: 'row',
+              });
+
+              const complexDetails = await this.fetchComplexDetails(complex.no, naverQs);
+
+              console.log(`complexName:${complex.name} ${complex.no} :: ${complexDetails.length} \n`);
+
+              // if (complex.name === '향촌') {
+              //   // console.log(naverQs);
+              // }
+
+              const findNewEstates: any = await this.estateService.findNewEstates(complexDetails, lastEstate);
+
+              if (empty(findNewEstates)) {
+                console.log(`매물이 존재하지 않습니다 :: ${complex.name} (${complex.no}) \n`);
+                continue;
+              }
+
+              for await (const newEstate of findNewEstates) {
+                newEstate.type = 'naver';
+                newEstate.settingSeq = setting.seq;
+
+                const myEstateEntitiy = await this.convertToEstate(newEstate);
+                const estateSeq = await this.estateService.makeEstate(myEstateEntitiy);
+
+                if (empty(estateSeq)) {
+                  // ! DB ERROR
+                  console.log(`매물 등록시 에러가 발생하였습니다`);
+                  continue;
+                }
+
+                // * 알림 보내고
+                const alarmRes = await this.alarmService.sendAlarm(estateSeq);
+
+                if (empty(alarmRes)) {
+                  // ! Alarm API ERROR
+                  console.log(`알림 전송시 에러가 발생하였습니다`);
+                  continue;
+                }
+              }
+
+              const findLastEstate = findNewEstates[findNewEstates.length - 1];
+
+              /**
+               * ? 테스트를 어떻게 할것인가..
+               *
+               * * 처음 Setting후 LastEstate가 Insert안됐지만
+               * * 알림 전송 과정에서 발견하였을 경우!
+               */
+              if (!empty(lastEstate)) {
+                // * UPDATE ...
+                await this.estateService.updateLastEstate({
+                  settingSeq: setting.seq,
+                  articleNo: findLastEstate.articleNo,
+                  complexNo: findLastEstate.complexNo,
+                  type: 'naver',
+                });
+              } else {
+                // & INSERT ...
+                await this.initLastEstate(setting.seq, naverQs);
+              }
+            }
+          }
+
+          break;
+
+        case 'one':
+        case 'villa':
+          const estates =
+            paramJson.estateType === 'one'
+              ? await this.fetchOneTowRooms(naverQs)
+              : await this.fetchVillaJutaeks(naverQs);
+
+          const lastEstate = await this.getLastEstateQuery({
+            where: [`settingSeq = '${setting.seq}'`],
+            type: 'row',
+          });
+          const findNewEstates: any = await this.estateService.findNewEstates(estates, lastEstate);
+
+          if (empty(findNewEstates)) {
+            console.log(`매물이 존재하지 않습니다 :: 원/투룸 \n`);
+            continue;
+          }
+
+          for await (const newEstate of findNewEstates) {
+            newEstate.type = 'naver';
+            newEstate.settingSeq = setting.seq;
+
+            const myEstateEntitiy = await this.convertToEstate(newEstate);
+            const estateSeq = await this.estateService.makeEstate(myEstateEntitiy);
+
+            if (empty(estateSeq)) {
+              // ! DB ERROR
+              console.log(`매물 등록시 에러가 발생하였습니다`);
+              continue;
+            }
+
+            // * 알림 보내고
+            const alarmRes = await this.alarmService.sendAlarm(estateSeq);
+
+            if (empty(alarmRes)) {
+              // ! Alarm API ERROR
+              console.log(`알림 전송시 에러가 발생하였습니다`);
+              continue;
+            }
+          }
+
+          const findLastEstate = findNewEstates[findNewEstates.length - 1];
+
+          // * UPDATE ...
+          await this.estateService.updateLastEstate({
+            settingSeq: setting.seq,
+            articleNo: findLastEstate.articleNo,
+            complexNo: findLastEstate.complexNo,
+            type: 'naver',
+          });
+
+          break;
+      }
+    }
+  }
+
+  /**
+   * 기준점을 만들어줍니다
+   * 현재 기준으로 마지막 매물을 INSERT 해줍니다
+   */
+  public async initLastEstate(settingSeq: string, params: any) {
+    const nowDate = getNowDate();
+    const naverQs = this.convertToQuery(params);
+
+    let estates = [];
+
+    switch (params.estateType) {
+      case 'apt':
+        const complexes = await this.fetchComplexes(naverQs);
+
+        if (!empty(complexes)) {
+          for await (const { complexNo, complexName } of complexes) {
+            console.log(complexNo, complexName);
+
+            await this.complexService.makeComplex({
+              settingSeq: settingSeq,
+              no: complexNo,
+              name: complexName,
+              rDate: nowDate,
+            });
+
+            const complexDetails = await this.fetchComplexDetails(complexNo, naverQs);
+
+            if (!empty(complexDetails)) {
+              complexDetails[0].complexNo = complexNo;
+              estates.push(complexDetails[0]);
+            }
+          }
+        }
+
+        break;
+
+      case 'one':
+        estates = await this.fetchOneTowRooms(naverQs);
+
+        if (estates.length > 1) {
+          estates.splice(1);
+        }
+
+        break;
+
+      case 'villa':
+        estates = await this.fetchVillaJutaeks(naverQs);
+
+        if (estates.length > 1) {
+          estates.splice(1);
+        }
+
+        break;
+
+      case 'op':
+        const officetels = await this.fetchOfficetels(naverQs);
+
+        if (!empty(officetels)) {
+          for await (const { complexNo, complexName } of officetels) {
+            await this.modelService.execute({
+              debug: this.debug,
+              sql: this.modelService.getInsertQuery({
+                table: 'areleme.complex',
+                data: {
+                  settingSeq: settingSeq,
+                  no: complexNo,
+                  name: complexName,
+                  rDate: nowDate,
+                },
+              }),
+              type: 'exec',
+            });
+
+            const complexDetails = await this.fetchComplexDetails(complexNo, naverQs);
+
+            if (!empty(complexDetails)) {
+              complexDetails[0].complexNo = complexNo;
+              estates.push(complexDetails[0]);
+            }
+          }
+        }
+
+        break;
+    }
+
+    if (!empty(estates)) {
+      for await (const { articleNo, complexNo } of estates) {
+        await this.modelService.execute({
+          debug: this.debug,
+          sql: this.modelService.getInsertQuery({
+            table: 'areleme.last_estate',
+            data: {
+              settingSeq: settingSeq,
+              articleNo: articleNo,
+              complexNo: complexNo,
+              type: 'naver',
+              rDate: nowDate,
+              eDate: nowDate,
+            },
+          }),
+          type: 'exec',
+        });
+      }
+    }
+
+    return true;
   }
 
   /**
@@ -345,8 +603,17 @@ export default class NaverService {
       qs.priceMax = details.cost[1] / 10000;
     }
 
-    qs.rentPriceMin = details.rentCost[0] == 100000 ? 0 : details.rentCost[0];
-    qs.rentPriceMax = details.rentCost[1] == 2000000 ? 900000000 : details.rentCost[1];
+    if (details.rentCost[0] == 0) {
+      qs.rentPriceMin = details.rentCost[0];
+    } else {
+      qs.rentPriceMin = details.rentCost[0] / 10000;
+    }
+
+    if (details.rentCost[1] == myPriceMaxStan) {
+      qs.rentPriceMax = details.rentCost[1];
+    } else {
+      qs.rentPriceMax = details.rentCost[1] / 10000;
+    }
 
     qs.areaMin = details.pyeong[0] == 10 ? 0 : convertToSquareMeters(details.pyeong[0]);
     qs.areaMax = details.pyeong[1] == 61 ? 900000000 : convertToSquareMeters(details.pyeong[1]);
@@ -354,24 +621,80 @@ export default class NaverService {
     return qs;
   }
 
+  /**
+   * 
+   * [1] {
+[1]   articleNo: '2503201949',  
+[1]   articleName: '목련',      
+[1]   articleStatus: 'R0',      
+[1]   realEstateTypeCode: 'APT',
+[1]   realEstateTypeName: '아파트',
+[1]   articleRealEstateTypeCode: 'A01',
+[1]   articleRealEstateTypeName: '아파트',
+[1]   tradeTypeCode: 'A1',
+[1]   tradeTypeName: '매매',
+[1]   verificationTypeCode: 'DOCV2',
+[1]   floorInfo: '5/15',
+[1]   priceChangeState: 'SAME',
+[1]   isPriceModification: false,
+[1]   dealOrWarrantPrc: '7억 7,000',
+[1]   areaName: '92',
+[1]   area1: 92,
+[1]   area2: 75,
+[1]   direction: '남향',
+[1]   articleConfirmYmd: '20250117',
+[1]   siteImageCount: 0,
+[1]   articleFeatureDesc: '전세안고 매매.추가비용무.샷시포함올리모.거실.방확장.시야트인라인.',
+[1]   tagList: [ '25년이상', '대단지', '방세개', '화장실한개' ],
+[1]   buildingName: '303동',
+[1]   sameAddrCnt: 3,
+[1]   sameAddrDirectCnt: 0,
+[1]   sameAddrMaxPrc: '7억 7,000',
+[1]   sameAddrMinPrc: '7억 7,000',
+[1]   cpid: 'bizmk',
+[1]   cpName: '매경부동산',
+[1]   cpPcArticleUrl: 'http://land.mk.co.kr/rd/rd.php?UID=2503201949',
+[1]   cpPcArticleBridgeUrl: '',
+[1]   cpPcArticleLinkUseAtArticleTitleYn: false,
+[1]   cpPcArticleLinkUseAtCpNameYn: true,
+[1]   cpMobileArticleUrl: '',
+[1]   cpMobileArticleLinkUseAtArticleTitleYn: false,
+[1]   cpMobileArticleLinkUseAtCpNameYn: false,
+[1]   latitude: '36.350084',
+[1]   longitude: '127.393086',
+[1]   isLocationShow: false,
+[1]   realtorName: '목련공인중개사사무소',
+[1]   realtorId: 'voo0625',
+[1]   tradeCheckedByOwner: false,
+[1]   isDirectTrade: false,
+[1]   isInterest: false,
+[1]   isComplex: true,
+[1]   detailAddress: '',
+[1]   detailAddressYn: 'N',
+[1]   isVrExposed: false,
+[1]   complexNo: '5962',
+[1]   type: 'naver',
+[1]   settingSeq: 1
+[1] }
+   * @param estate 
+   * @returns 
+   */
   public convertToEstate(estate: any) {
-    const cloneEstate = { ...estate };
-    cloneEstate.tagList = estate.tagList.join('/');
-    cloneEstate.isPriceModification = estate.isPriceModification == true ? 1 : 0;
-    cloneEstate.cpPcArticleLinkUseAtArticleTitleYn =
-      estate.cpPcArticleLinkUseAtArticleTitleYn == true ? 1 : 0;
-    cloneEstate.cpPcArticleLinkUseAtCpNameYn = estate.cpPcArticleLinkUseAtCpNameYn == true ? 1 : 0;
-    cloneEstate.cpMobileArticleLinkUseAtArticleTitleYn =
-      estate.cpMobileArticleLinkUseAtArticleTitleYn == true ? 1 : 0;
-    cloneEstate.cpMobileArticleLinkUseAtCpNameYn = estate.cpMobileArticleLinkUseAtCpNameYn == true ? 1 : 0;
-    cloneEstate.isLocationShow = estate.isLocationShow == true ? 1 : 0;
-    cloneEstate.tradeCheckedByOwner = estate.tradeCheckedByOwner == true ? 1 : 0;
-    cloneEstate.isDirectTrade = estate.isDirectTrade == true ? 1 : 0;
-    cloneEstate.isInterest = estate.isInterest == true ? 1 : 0;
-    cloneEstate.isComplex = estate.isComplex == true ? 1 : 0;
-    cloneEstate.isVrExposed = estate.isVrExposed == true ? 1 : 0;
+    const cloneEstate: any = {};
 
-    delete cloneEstate['lastEstateArticleNo'];
+    cloneEstate.type = estate.type;
+    cloneEstate.settingSeq = estate.settingSeq;
+    cloneEstate.complexNo = estate.complexNo;
+    cloneEstate.articleNo = estate.articleNo;
+    cloneEstate.articleName = estate.articleName;
+    cloneEstate.tradeTypeName = estate.tradeTypeName;
+    cloneEstate.priceName = estate.sameAddrMinPrc;
+    cloneEstate.floorInfo = estate.floorInfo;
+    cloneEstate.area2 = estate.area2;
+    cloneEstate.direction = estate.direction;
+    cloneEstate.title = estate.articleFeatureDesc;
+    cloneEstate.rDate = getNowDate();
+    cloneEstate.link = `https://new.land.naver.com/complexes/${estate.complexNo}?articleNo=${estate.articleNo}`;
 
     return cloneEstate;
   }

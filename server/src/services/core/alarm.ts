@@ -85,16 +85,20 @@ export default class AlarmService {
         type: 'row',
       });
 
+      console.log(estate);
+
+      const [presentImage = null] = !empty(estate.images) ? JSON.parse(estate.images) : [];
+
       if (selectCodes.includes('sms')) {
         const sendRes = await this.solapiService.sendSMS(
           user.sms,
           `${localName} > ${regionName} > ${dongName}`,
           [
-            `${estate.articleName} ${estate.buildingName}`,
-            `${estate.tradeTypeName} ${estate.dealOrWarrantPrc}`,
-            `${estate.floorInfo}층,${convertToPyeong(estate.area2)}평,${estate.direction}`,
-            `${estate.articleFeatureDesc}`,
-            `https://new.land.naver.com/complexes/${estate.complexNo}?articleNo=${estate.articleNo}`,
+            `${estate.articleName}`,
+            `${estate.tradeTypeName} ${estate.priceName}`,
+            `${estate.floorInfo}층,${convertToPyeong(estate.area2)}평`,
+            `${estate.title}`,
+            `${estate.link}`,
           ].join('\n'),
         );
 
@@ -110,12 +114,13 @@ export default class AlarmService {
           user.email,
           `${localName} > ${regionName} > ${dongName}`,
           [
-            `<h2>${estate.articleName} ${estate.buildingName}</h2>`,
-            `<h2 style="color:blue;">${estate.tradeTypeName} ${estate.dealOrWarrantPrc}</h2>`,
-            `<h3>${estate.floorInfo}층,${convertToPyeong(estate.area2)}평,${estate.direction}</h3>`,
-            `<h3>${estate.articleFeatureDesc}</h3>`,
+            presentImage && `<img src="${presentImage}" alt="presentimage" />`,
+            `<h2>${estate.articleName}</h2>`,
+            `<h2 style="color:blue;">${estate.tradeTypeName} ${estate.priceName}</h2>`,
+            `<h3>${estate.floorInfo}층,${convertToPyeong(estate.area2)}평</h3>`,
+            `<h3>${estate.title}</h3>`,
             '<br/>',
-            `https://new.land.naver.com/complexes/${estate.complexNo}?articleNo=${estate.articleNo}`,
+            `${estate.link}`,
           ].join(''),
         );
 
@@ -128,38 +133,5 @@ export default class AlarmService {
     }
 
     return res.ok;
-  }
-
-  public async getSettingCustomQuery({ where, type }: { where: string[]; type: 'all' | 'row' | 'one' }) {
-    return await this.modelService.execute({
-      sql: `SELECT * FROM areleme.alarm_setting a WHERE %s`.replace('%s', where.join(' AND ')),
-      type: type,
-    });
-  }
-
-  public async getSettings() {
-    return await this.modelService.execute({
-      sql: 'SELECT * FROM areleme.alarm_setting a WHERE 1',
-      type: 'all',
-    });
-  }
-
-  public async makeSetting({ userSeq, params, sendTypes }: any) {
-    const nowDate = getNowDate();
-
-    return await this.modelService.execute({
-      debug: this.debug,
-      sql: this.modelService.getInsertQuery({
-        table: 'areleme.alarm_setting',
-        data: {
-          userSeq: userSeq,
-          params: JSON.stringify(params),
-          sendTypes: sendTypes.join('/'),
-          rDate: nowDate,
-          eDate: nowDate,
-        },
-      }),
-      type: 'exec',
-    });
   }
 }

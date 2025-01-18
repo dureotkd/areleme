@@ -2,22 +2,11 @@ import { Service } from 'typedi';
 
 import ModelService from '../model/model';
 
-import NaverService from '../platform/naver';
-import DabangService from '../platform/dabang';
-import ComplexService from './complex';
-
 import { empty } from '../../utils/valid';
-import { getNowDate } from '../../utils/time';
 
 @Service()
 export default class EstateService {
-  constructor(
-    private readonly debug: false,
-    private readonly naverService: NaverService,
-    private readonly dabangService: DabangService,
-    private readonly modelService: ModelService,
-    private readonly complexService: ComplexService,
-  ) {}
+  constructor(private readonly debug: false, private readonly modelService: ModelService) {}
 
   public async findNewEstates(complexDetails: any, lastEstate: any) {
     const newEstates = [];
@@ -107,114 +96,5 @@ export default class EstateService {
       console.log(error);
       return 0;
     }
-  }
-
-  /**
-   * 기준점을 만들어줍니다
-   * 현재 기준으로 마지막 매물을 INSERT 해줍니다
-   */
-  public async makeInitLastEstateNaver(settingSeq: string, params: any) {
-    const nowDate = getNowDate();
-    const naverQs = this.naverService.convertToQuery(params);
-
-    let estates = [];
-
-    switch (params.estateType) {
-      case 'apt':
-        const complexes = await this.naverService.fetchComplexes(naverQs);
-
-        if (!empty(complexes)) {
-          for await (const { complexNo, complexName } of complexes) {
-            console.log(complexNo, complexName, naverQs);
-
-            await this.complexService.makeComplex({
-              settingSeq: settingSeq,
-              no: complexNo,
-              name: complexName,
-              type: 'naver',
-              rDate: nowDate,
-            });
-
-            const complexDetails = await this.naverService.fetchComplexDetails(complexNo, naverQs);
-
-            if (!empty(complexDetails)) {
-              complexDetails[0].complexNo = complexNo;
-              estates.push(complexDetails[0]);
-            }
-          }
-        }
-
-        break;
-
-      case 'one':
-        estates = await this.naverService.fetchOneTowRooms(naverQs);
-
-        if (estates.length > 1) {
-          estates.splice(1);
-        }
-
-        break;
-
-      case 'villa':
-        estates = await this.naverService.fetchVillaJutaeks(naverQs);
-
-        if (estates.length > 1) {
-          estates.splice(1);
-        }
-
-        break;
-
-      case 'op':
-        const officetels = await this.naverService.fetchOfficetels(naverQs);
-
-        if (!empty(officetels)) {
-          for await (const { complexNo, complexName } of officetels) {
-            await this.modelService.execute({
-              debug: this.debug,
-              sql: this.modelService.getInsertQuery({
-                table: 'areleme.complex',
-                data: {
-                  settingSeq: settingSeq,
-                  no: complexNo,
-                  name: complexName,
-                  rDate: nowDate,
-                  type: 'naver',
-                },
-              }),
-              type: 'exec',
-            });
-
-            const complexDetails = await this.naverService.fetchComplexDetails(complexNo, naverQs);
-            complexDetails[0].complexNo = complexNo;
-            estates.push(complexDetails[0]);
-          }
-        }
-
-        break;
-    }
-
-    console.log(estates);
-
-    if (!empty(estates)) {
-      for await (const { articleNo, complexNo } of estates) {
-        await this.modelService.execute({
-          debug: this.debug,
-          sql: this.modelService.getInsertQuery({
-            table: 'areleme.last_estate',
-            data: {
-              settingSeq: settingSeq,
-              articleNo: articleNo,
-              complexNo: complexNo,
-              type: 'naver',
-              rDate: nowDate,
-              eDate: nowDate,
-            },
-          }),
-          type: 'exec',
-        });
-      }
-    }
-
-    return true;
   }
 }

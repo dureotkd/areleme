@@ -21,6 +21,18 @@ export default class ComplexService {
     }
   }
 
+  public async getComplexCustomQuery({ where, type }: { where: string[]; type: 'all' | 'row' | 'one' }) {
+    try {
+      return await this.modelService.execute({
+        sql: `SELECT * FROM areleme.complex a WHERE %s`.replace('%s', where.join(' AND ')),
+        type: type,
+      });
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+
   public async makeComplex(data: any) {
     try {
       return await this.modelService.execute({
@@ -28,6 +40,23 @@ export default class ComplexService {
         sql: this.modelService.getInsertQuery({
           table: 'areleme.complex',
           data: data,
+        }),
+        type: 'exec',
+      });
+    } catch (error) {
+      console.log(error);
+      return 0;
+    }
+  }
+
+  public async updateComplex(data: {}, where: string[]) {
+    try {
+      return await this.modelService.execute({
+        debug: this.debug,
+        sql: this.modelService.getUpdateQuery({
+          table: 'areleme.complex',
+          data: data,
+          where: where,
         }),
         type: 'exec',
       });

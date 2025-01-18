@@ -3,8 +3,11 @@ import { Router, Request, Response } from 'express';
 import Container from 'typedi';
 
 import AlarmInstance from '../../services/core/alarm';
-import EstateInstance from '../../services/core/estate';
 import ComplexInstance from '../../services/core/complex';
+import SettingInstance from '../../services/core/setting';
+
+import NaverInstance from '../../services/platform/naver';
+import DabangInstance from '../../services/platform/dabang';
 
 const route = Router();
 
@@ -40,7 +43,9 @@ export default (app: Router) => {
   // http://localhost:5000/api/alarm,
   route.post('/setting', async (req: Request, res: Response) => {
     const AlarmService = Container.get(AlarmInstance);
-    const EstateService = Container.get(EstateInstance);
+    const NaverService = Container.get(NaverInstance);
+    const DabangService = Container.get(DabangInstance);
+    const SettingService = Container.get(SettingInstance);
 
     const userSeq = (req?.body?.userSeq || []) as number;
     const { estateType, tradeType, local, region, dong, details, selectCodes } = (req?.body?.params ||
@@ -98,7 +103,7 @@ export default (app: Router) => {
       const params = req.body.params;
 
       try {
-        const sameSettingRow = await AlarmService.getSettingCustomQuery({
+        const sameSettingRow = await SettingService.getCustomQuery({
           where: [`userSeq = '${userSeq}'`, `params = '${JSON.stringify(params)}'`],
           type: 'row',
         });
@@ -109,19 +114,20 @@ export default (app: Router) => {
           break;
         }
 
-        const settingSeq = await AlarmService.makeSetting({
+        const settingSeq = await SettingService.makeSetting({
           userSeq: userSeq,
           params: params,
           sendTypes: selectCodes,
         });
+
+        await NaverService.initLastEstate(settingSeq, params);
+        await DabangService.initLastEstate(settingSeq, params);
 
         if (!settingSeq) {
           apiRes.ok = false;
           apiRes.msg = '알수없는 오류가 발생하였습니다';
           break;
         }
-
-        await EstateService.makeInitLastEstateNaver(settingSeq, params);
 
         apiRes.seq = settingSeq;
       } catch (error) {

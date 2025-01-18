@@ -19,6 +19,7 @@ export default function CompletedAlarmSetting() {
         router.replace('/');
         return;
       }
+
       const estateType = window.localStorage.getItem('on_data_1');
       const tradeType = window.localStorage.getItem('on_data_2');
       const local = window.localStorage.getItem('on_data_3');
@@ -27,6 +28,7 @@ export default function CompletedAlarmSetting() {
       const details = window.localStorage.getItem('on_data_6');
       const selectCodes = window.localStorage.getItem('on_data_7');
       const userSeq = window.localStorage.getItem('on_data_user_seq');
+
       const params = {
         estateType: estateType,
         tradeType: tradeType,
@@ -36,6 +38,7 @@ export default function CompletedAlarmSetting() {
         details: JSON.parse(details),
         selectCodes: JSON.parse(selectCodes),
       };
+
       const settingApiRes = await fetch(`http://localhost:4000/api/alarm/setting`, {
         method: 'POST',
         body: JSON.stringify({
@@ -48,12 +51,14 @@ export default function CompletedAlarmSetting() {
       })
         .then((res) => res.json())
         .finally(() => {
-          clearData();
+          // clearData();
         });
-      if (!settingApiRes.ok) {
-        alert(settingApiRes.msg);
-        return;
-      }
+
+      // if (!settingApiRes.ok) {
+      //   alert(settingApiRes.msg);
+      //   return;
+      // }
+
       // const { data } = await fetch(`http://localhost:4000/api/alarm/complex/${settingApiRes.seq}`, {
       //   method: 'GET',
       // }).then((res) => res.json());

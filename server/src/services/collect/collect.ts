@@ -7,6 +7,8 @@ import ModelService from '../model/model';
 
 import { empty } from '../../utils/valid';
 
+import request from 'request-promise-native';
+
 @Service()
 export default class CollectService {
   constructor(

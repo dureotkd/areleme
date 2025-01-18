@@ -116,7 +116,8 @@ export default class ModelService {
           connection.query(sql, function (err: QueryError | null, data: RowDataPacket) {
             if (err) {
               console.log('DB 쿼리 오류', err);
-              reject(new Error('query error'));
+              // reject(new Error('query error'));
+              reject(null);
             } else {
               switch (type) {
                 case 'all':
