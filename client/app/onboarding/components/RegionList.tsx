@@ -6,6 +6,8 @@ import { useEffect, useState } from 'react';
 import Layout from './Layout';
 import SelectButton from './SelectButton';
 import FetchLoading from '../../components/FetchLoading';
+import useRedirectPrevData from '../hooks/useRedirectPrevData';
+import SelectedDisplay from './SelectedDisplay';
 
 type Region = {
   seq: number;
@@ -18,6 +20,8 @@ export default function RegionList(props: { page: string }) {
 
   const [loading, setLoading] = useState(true);
   const [list, setList] = useState<Region[]>([]);
+
+  useRedirectPrevData(props.page);
 
   useEffect(() => {
     (async () => {
@@ -42,6 +46,7 @@ export default function RegionList(props: { page: string }) {
         </>
       }
     >
+      <SelectedDisplay className="mb-md" />
       {loading && <FetchLoading />}
       {list.length > 0 &&
         list.map((item) => {
@@ -53,6 +58,9 @@ export default function RegionList(props: { page: string }) {
               onClick={() => {
                 window.localStorage.setItem('on_page', props.page);
                 window.localStorage.setItem(`on_data_${props.page}`, item.code);
+                const on_data_name = JSON.parse(window.localStorage.getItem('on_data_name'));
+                on_data_name[parseInt(props.page) - 1] = item.name;
+                window.localStorage.setItem('on_data_name', JSON.stringify(on_data_name));
                 router.push(`/onboarding/${Number(props.page) + 1}`);
               }}
             />

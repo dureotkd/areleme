@@ -32,6 +32,7 @@ export default function GovTypeList(props: { page: string }) {
             onClick={() => {
               window.localStorage.setItem('on_page', props.page);
               window.localStorage.setItem(`on_data_${props.page}`, item.code);
+              window.localStorage.setItem('on_data_name', JSON.stringify([item.name]));
               router.push(`/onboarding/${Number(props.page) + 1}`);
             }}
           />

@@ -374,7 +374,7 @@ export default class NaverService {
                 });
               } else {
                 // & INSERT ...
-                await this.initLastEstate(setting.seq, naverQs);
+                await this.initLastEstate(setting.seq);
               }
             }
           }
@@ -441,7 +441,14 @@ export default class NaverService {
    * 기준점을 만들어줍니다
    * 현재 기준으로 마지막 매물을 INSERT 해줍니다
    */
-  public async initLastEstate(settingSeq: string, params: any) {
+  public async initLastEstate(settingSeq: string) {
+    const setting: any = await this.settingService.getCustomQuery({
+      where: [`seq = '${settingSeq}'`],
+      type: 'row',
+    });
+
+    const params = JSON.parse(setting.params);
+
     const nowDate = getNowDate();
     const naverQs = this.convertToQuery(params);
 
@@ -694,6 +701,13 @@ export default class NaverService {
     cloneEstate.direction = estate.direction;
     cloneEstate.title = estate.articleFeatureDesc;
     cloneEstate.rDate = getNowDate();
+
+    if (!empty(estate.representativeImgUrl)) {
+      cloneEstate.images = JSON.stringify([
+        `https://landthumb-phinf.pstatic.net/${estate.representativeImgUrl}`,
+      ]);
+    }
+
     cloneEstate.link = `https://new.land.naver.com/complexes/${estate.complexNo}?articleNo=${estate.articleNo}`;
 
     return cloneEstate;

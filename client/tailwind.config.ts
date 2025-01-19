@@ -14,6 +14,7 @@ export default {
       }),
       textColor: () => ({
         primary: '#fff',
+        blue100: '#83affd',
         silver: '#d9d5d5',
         silver100: '#ededed',
         secondary: '#ffed4a',

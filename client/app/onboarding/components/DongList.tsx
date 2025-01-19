@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import Layout from './Layout';
 import SelectButton from './SelectButton';
 import FetchLoading from '../../components/FetchLoading';
+import SelectedDisplay from './SelectedDisplay';
 
 type Dong = {
   seq: number;
@@ -42,6 +43,7 @@ export default function DongList(props: { page: string }) {
         </>
       }
     >
+      <SelectedDisplay className="mb-md" />
       {loading && <FetchLoading />}
       {list.length > 0 &&
         list.map((item) => {
@@ -53,6 +55,9 @@ export default function DongList(props: { page: string }) {
               onClick={() => {
                 window.localStorage.setItem('on_page', props.page);
                 window.localStorage.setItem(`on_data_${props.page}`, item.code);
+                const on_data_name = JSON.parse(window.localStorage.getItem('on_data_name'));
+                on_data_name[parseInt(props.page) - 1] = item.name;
+                window.localStorage.setItem('on_data_name', JSON.stringify(on_data_name));
                 router.push(`/onboarding/${Number(props.page) + 1}`);
               }}
             />

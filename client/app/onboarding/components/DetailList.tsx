@@ -7,10 +7,12 @@ import Layout from './Layout';
 import FetchLoading from '../../components/FetchLoading';
 import number from '../helpers/number';
 import { useRouter } from 'next/navigation';
+import useRedirectPrevData from '../hooks/useRedirectPrevData';
+import SelectedDisplay from './SelectedDisplay';
 
 const RENT_MIN_COST = 100000;
 const RENT_MAX_COST = 2000000;
-const RENT_STEP = 10000;
+const RENT_STEP = 50000;
 
 const MIN_PYEONG = 10;
 const MAX_PYEONG = 61;
@@ -36,6 +38,8 @@ export default function DetailList(props: { page: string }) {
   );
   const pyeongRangeText = useMemo(() => formatPyeongRange(pyeong), [pyeong]);
 
+  useRedirectPrevData(props.page);
+
   useEffect(() => {
     (() => {
       const sellingType = window.localStorage.getItem('on_data_2') as string;
@@ -50,7 +54,7 @@ export default function DetailList(props: { page: string }) {
 
         case 'lease':
         case 'sell':
-          setCostStep(10000000);
+          setCostStep(20000000);
           setCost([0, 1000000001]);
           setCostRange([0, 1000000001]);
 
@@ -89,6 +93,7 @@ export default function DetailList(props: { page: string }) {
         <FetchLoading />
       ) : (
         <>
+          <SelectedDisplay className="mb-md" />
           <div>
             <div>
               <h3 className="font-semibold">가격</h3>
@@ -159,7 +164,7 @@ export default function DetailList(props: { page: string }) {
                   className="mt-sm"
                   style={{ width: '95%' }}
                   value={pyeong}
-                  step={1}
+                  step={5}
                   min={MIN_PYEONG}
                   max={MAX_PYEONG}
                   onChange={(value) => {

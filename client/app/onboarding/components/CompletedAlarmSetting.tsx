@@ -1,16 +1,23 @@
 'use client';
 
 import React from 'react';
-import Layout from './Layout';
+
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
+import { motion } from 'framer-motion';
+
+import { wait } from '../../helpers/time';
+
+import Layout from './Layout';
+import SelectedDisplay from './SelectedDisplay';
 import FetchLoading from '../../components/FetchLoading';
+import ViewButton from './ViewButton';
 
 export default function CompletedAlarmSetting() {
   const router = useRouter();
 
-  const [loading, setLoading] = React.useState<boolean>(true);
-  const [sendTypes, setSendTypes] = React.useState<string[]>([]);
+  const [loadingStep, setLoadingStep] = React.useState<string>('');
+  const [realLoading, setRealLoading] = React.useState<boolean>(true);
+
   const [complexes, setComplexes] = React.useState<[]>([]);
 
   React.useEffect(() => {
@@ -39,7 +46,7 @@ export default function CompletedAlarmSetting() {
         selectCodes: JSON.parse(selectCodes),
       };
 
-      const settingApiRes = await fetch(`http://localhost:4000/api/alarm/setting`, {
+      const settingApiRes = await fetch(`http://localhost:4000/api/setting`, {
         method: 'POST',
         body: JSON.stringify({
           userSeq: userSeq,
@@ -48,22 +55,52 @@ export default function CompletedAlarmSetting() {
         headers: {
           'Content-Type': 'application/json',
         },
-      })
-        .then((res) => res.json())
-        .finally(() => {
-          // clearData();
-        });
+      }).then((res) => res.json());
 
       // if (!settingApiRes.ok) {
       //   alert(settingApiRes.msg);
+      //   await wait(2000);
+      //   window.location.replace('/');
       //   return;
       // }
 
-      // const { data } = await fetch(`http://localhost:4000/api/alarm/complex/${settingApiRes.seq}`, {
-      //   method: 'GET',
-      // }).then((res) => res.json());
-      // setComplexes(data);
-      setLoading(false);
+      const settingSeq = settingApiRes.seq;
+      let intervalRes: any = {};
+
+      if (estateType === 'apt' || estateType === 'op') {
+        setLoadingStep('complex-search');
+        intervalRes = setInterval(async () => {
+          try {
+            const { data } = await fetch(`http://localhost:4000/api/alarm/complex/${settingSeq}`, {
+              method: 'GET',
+            }).then((res) => res.json());
+
+            setComplexes(data);
+          } catch (error) {}
+        }, 1000);
+
+        await wait(5000);
+        setLoadingStep('complex-unit-search');
+      } else {
+        setLoadingStep('platform-search');
+
+        await wait(3000);
+      }
+
+      await fetch(`http://localhost:4000/api/alarm`, {
+        method: 'POST',
+        body: JSON.stringify({
+          settingSeq: settingSeq,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+        .then((res) => res.json())
+        .finally(() => {
+          setLoadingStep('finish');
+          clearInterval(intervalRes);
+        });
     })();
   }, []);
 
@@ -95,29 +132,69 @@ export default function CompletedAlarmSetting() {
     }
   };
 
+  const loadingStepText = React.useMemo(() => {
+    if (!loadingStep) {
+      return '알림 설정중..';
+    }
+
+    return {
+      'complex-search': '단지 정보를 조회하고 있어요..',
+      'complex-unit-search': '단지별 매물을 조회하고 있어요..',
+      'platform-search': '플랫폼 매물을 조회하고 있어요..',
+      finish: '알림 설정 완료!!',
+    }[loadingStep];
+  }, [loadingStep]);
+
   return (
     <Layout
-      des={loading ? '알림 설정중...' : '알림 설정 완료!'}
+      des={loadingStepText}
       isNext
-      loading={loading}
+      loading={loadingStep === 'finish' ? false : true}
       isOnlyNext
       nextName="확인했어요"
       nextOnClick={() => {
         router.replace('/');
       }}
     >
-      {loading ? (
+      {loadingStep === '' ? (
         <FetchLoading />
       ) : (
         <>
-          <div>조건에 맞는 공고를 아래와 같이 보낼게요</div>
-          <Image
-            className="rounded-lg mt-lg"
-            src="/static/images/ex_talk.png"
-            alt="로고"
-            width={300}
-            height={200}
-          />
+          <SelectedDisplay />
+          {}
+          {loadingStep === 'complex-search' && <FetchLoading />}
+          <motion.ul
+            variants={{
+              hidden: {
+                opacity: 0,
+              },
+              visible: {
+                opacity: 1,
+                transition: {
+                  when: 'beforeChildren',
+                  staggerChildren: 0.2,
+                },
+              },
+            }}
+            initial="hidden"
+            animate="visible"
+            className="flex flex-wrap mt-sm"
+          >
+            {complexes.map((complex: any) => {
+              return (
+                <motion.li
+                  variants={{
+                    hidden: { opacity: 0, y: 50 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  className="mr-sm"
+                  key={`complex-${complex.seq}`}
+                >
+                  <ViewButton name={complex.name} />
+                </motion.li>
+              );
+            })}
+          </motion.ul>
         </>
       )}
     </Layout>

@@ -114,7 +114,8 @@ export default class AlarmService {
           user.email,
           `${localName} > ${regionName} > ${dongName}`,
           [
-            presentImage && `<img src="${presentImage}" alt="presentimage" />`,
+            presentImage &&
+              `<img src="${presentImage}" alt="presentimage" style="width:450px; height:450px;" />`,
             `<h2>${estate.articleName}</h2>`,
             `<h2 style="color:blue;">${estate.tradeTypeName} ${estate.priceName}</h2>`,
             `<h3>${estate.floorInfo}층,${convertToPyeong(estate.area2)}평</h3>`,

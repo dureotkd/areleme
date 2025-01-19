@@ -114,8 +114,6 @@ export default (app: Router) => {
       );
     }
 
-    await dabangService.initLastEstate('1', JSON.parse(a));
-
     return res.status(200).json({ message: 'Success' });
   });
 
@@ -133,7 +131,6 @@ export default (app: Router) => {
      */
     await NaverService.runNewEstate();
     await DabangService.runNewEstate();
-    console.log('hello Dabang');
 
     return res.status(200).json({ message: 'Success' });
   });

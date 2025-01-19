@@ -10,8 +10,6 @@ export default function SelectButton(props: {
 }) {
   const [selected, setSelected] = useState<string[]>([]);
 
-  console.log(selected);
-
   const handleOnClick = useCallback(
     (event: React.MouseEvent) => {
       if (props.multiple) {

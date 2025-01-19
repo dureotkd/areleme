@@ -84,7 +84,6 @@ exports.default = (app) => {
                 lng: lng,
             }, [`seq = '${naverComplex.seq}'`]);
         }
-        await dabangService.initLastEstate('1', JSON.parse(a));
         return res.status(200).json({ message: 'Success' });
     });
     // http://localhost:4000/api/collect/alarm
@@ -100,7 +99,6 @@ exports.default = (app) => {
          */
         await NaverService.runNewEstate();
         await DabangService.runNewEstate();
-        console.log('hello Dabang');
         return res.status(200).json({ message: 'Success' });
     });
 };

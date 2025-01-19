@@ -57,8 +57,6 @@ export default (app: Router) => {
         break;
       }
 
-      console.log(email);
-
       if (isValidEmail(email)) {
         apiRes.ok = false;
         apiRes.msg = '이메일 유형을 확인해주세요';

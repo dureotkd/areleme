@@ -19,7 +19,7 @@ export default async function Home() {
   return (
     <>
       <main className="mt-md">
-        <h1 className="text-3xl font-semibold">매물 알리미</h1>
+        <h1 className="text-3xl font-semibold">부동산 매물 알리미</h1>
         <Image
           className="rounded-lg mt-lg"
           src="/static/images/logo.png"

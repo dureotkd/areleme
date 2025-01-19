@@ -168,7 +168,6 @@ export default class DabangService {
       return result;
     } catch (error: any) {
       console.log('error.. fetch summary', error.message);
-
       return [];
     }
   }
@@ -179,7 +178,7 @@ export default class DabangService {
    */
   public async fetchComplexDetails(complexNo: string, qs: any) {
     const { spaceList } = await this.fetchSummary(complexNo);
-    const spaceSeqList = spaceList.length > 0 ? spaceList.map((item: any) => item.spaceSeq) : [];
+    const spaceSeqList = !empty(spaceList) ? spaceList.map((item: any) => item.spaceSeq) : [];
     qs.filters.spaceSeqList = spaceSeqList;
 
     try {
@@ -230,6 +229,7 @@ export default class DabangService {
         return roomList;
       });
     } catch (error: any) {
+      console.log(dong, qs);
       console.log('error fetchOneTowRooms', error.message);
     }
   }
@@ -256,7 +256,8 @@ export default class DabangService {
         return roomList;
       });
     } catch (error: any) {
-      console.log('error fetchOneTowRooms', error.message);
+      console.log(qs);
+      console.log('error fetchVillaJutaeks', error.message);
     }
   }
 
@@ -282,7 +283,8 @@ export default class DabangService {
         return roomList;
       });
     } catch (error: any) {
-      console.log('error fetchOneTowRooms', error.message);
+      console.log(qs);
+      console.log('error fetchOfficetels', error.message);
     }
   }
 
@@ -304,7 +306,13 @@ export default class DabangService {
 [1] }
    * @param params 
    */
-  public async initLastEstate(settingSeq: string, params: any) {
+  public async initLastEstate(settingSeq: string) {
+    const setting: any = await this.settingService.getCustomQuery({
+      where: [`seq = '${settingSeq}'`],
+      type: 'row',
+    });
+    const params = JSON.parse(setting.params);
+
     const { local, region, dong, estateType } = params;
     const qs = this.convertToQuery(params);
 
@@ -509,7 +517,7 @@ export default class DabangService {
                 });
               } else {
                 // & INSERT ...
-                await this.initLastEstate(setting.seq, qs);
+                await this.initLastEstate(setting.seq);
               }
             }
           }
@@ -531,11 +539,18 @@ export default class DabangService {
             estates = await this.fetchOfficetels(dabangDongCode, qs);
           }
 
+          const estateList = estates.map((item: any) => {
+            return {
+              ...item,
+              articleNo: item.id,
+            };
+          });
+
           const lastEstate = await this.estateService.getLastEstateCustomQuery({
             where: [`settingSeq = '${setting.seq}'`, `type = 'dabang'`],
             type: 'row',
           });
-          const findNewEstates: any = await this.estateService.findNewEstates(estates, lastEstate);
+          const findNewEstates: any = await this.estateService.findNewEstates(estateList, lastEstate);
 
           if (empty(findNewEstates)) {
             console.log(`매물이 존재하지 않습니다 :: 원/투룸 \n`);
@@ -624,6 +639,9 @@ export default class DabangService {
         isShortLease: false,
         hasTakeTenant: false,
 
+        hasPano: false,
+        hasElevator: false,
+        canParking: false,
         //
       },
     };
@@ -640,7 +658,7 @@ export default class DabangService {
         // & ==================== 매매 / 전세 ====================
 
         if (details.cost[0] == 0) {
-          qs.mainFilters.tradeRange.min = details.cost[0];
+          qs.mainFilters.tradeRange.min = 0;
         } else {
           qs.mainFilters.tradeRange.min = details.cost[0] / 10000;
         }
@@ -655,16 +673,24 @@ export default class DabangService {
 
       case 'lease':
         if (details.cost[0] == 0) {
-          qs.mainFilters.depositRange.min = details.cost[0];
+          qs.mainFilters.depositRange.min = 0;
         } else {
           qs.mainFilters.depositRange.min = details.cost[0] / 10000;
         }
 
         if (details.cost[1] == SELL_MAX_PRICE) {
-          qs.mainFilters.depositRange.max = details.cost[1];
+          qs.mainFilters.depositRange.max = 999999;
         } else {
           qs.mainFilters.depositRange.max = details.cost[1] / 10000;
         }
+
+        qs.mainFilters.roomFloorList = ['GROUND_FIRST', 'GROUND_SECOND_OVER', 'SEMI_BASEMENT', 'ROOFTOP'];
+        qs.mainFilters.roomTypeList = ['ONE_ROOM', 'TWO_ROOM'];
+        qs.mainFilters.canParking = false;
+        qs.mainFilters.hasElevator = false;
+        qs.mainFilters.hasPano = false;
+        qs.mainFilters.isDivision = false;
+        qs.mainFilters.isDuplex = false;
 
         // & ==================== 매매 / 전세 ====================
 
@@ -674,7 +700,7 @@ export default class DabangService {
         // & ==================== 월세 ====================
 
         if (details.rentCost[0] == 0) {
-          qs.mainFilters.priceRange.min = details.rentCost[0];
+          qs.mainFilters.priceRange.min = 0;
         } else {
           qs.mainFilters.priceRange.min = details.rentCost[0] / 10000;
         }
@@ -706,8 +732,6 @@ export default class DabangService {
 
   public convertToEstate(estate: any, estateType: string) {
     const cloneEstate: any = {};
-
-    console.log(estate);
 
     cloneEstate.type = 'dabang';
     cloneEstate.articleName = estate.complexName;
