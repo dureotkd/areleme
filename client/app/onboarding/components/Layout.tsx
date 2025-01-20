@@ -11,6 +11,7 @@ type Props = {
   isOnlyNext?: boolean;
   nextName?: string;
   nextOnClick?: React.MouseEventHandler;
+  prevOnClick?: React.MouseEventHandler;
 };
 
 const Layout = ({
@@ -21,6 +22,7 @@ const Layout = ({
   isOnlyNext = false,
   nextName = '다음',
   nextOnClick,
+  prevOnClick,
 }: Props) => {
   const router = useRouter();
 
@@ -56,7 +58,21 @@ const Layout = ({
           <button
             className="w-full fixed bottom-0 bg-danger h-12 text-primary max-w-[540px] translate-x-center left-1/2"
             type="button"
-            onClick={() => {
+            onClick={(event) => {
+              prevOnClick && prevOnClick(event);
+
+              const page = window.localStorage.getItem('on_page');
+              const onDataNames = window.localStorage.getItem('on_data_name');
+
+              window.localStorage.removeItem(`on_data_${page}`);
+              window.localStorage.setItem('on_page', String(parseInt(page) - 1));
+
+              const newNames = JSON.parse(onDataNames).filter((item, index) => {
+                return page != index + 1;
+              });
+
+              window.localStorage.setItem('on_data_name', JSON.stringify(newNames));
+
               router.back();
             }}
           >

@@ -28,6 +28,6 @@ export default async () => {
     const NaverService = Container.get(NaverInstance);
     const DabangService = Container.get(DabangInstance);
 
-    await NaverService.runNewEstate();
+    // await NaverService.runNewEstate();
   });
 };

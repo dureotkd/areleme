@@ -24,7 +24,9 @@ export default function SendTypes(props: { page: string }) {
   const [okInputs, setOkInputs] = React.useState(types);
 
   const sendAuthCode = React.useCallback(
-    async (type: string) => {
+    async (type: string, event) => {
+      event.target.disabled = true;
+
       const { ok, msg } = await fetch(`http://localhost:4000/api/auth/${type}`, {
         method: 'POST',
         body: JSON.stringify({
@@ -53,6 +55,8 @@ export default function SendTypes(props: { page: string }) {
       if (msg) {
         alert(msg);
       }
+
+      event.target.disabled = false;
     },
     [inputs],
   );
