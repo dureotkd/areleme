@@ -39,6 +39,7 @@ type ComplexesQs = {
   areaMax: number;
   order?: string;
   tag?: string;
+  page?: number;
 };
 
 @Service()
@@ -322,10 +323,6 @@ export default class NaverService {
 
               console.log(`complexName:${complex.name} ${complex.no} :: ${complexDetails.length} \n`);
 
-              // if (complex.name === '향촌') {
-              //   // console.log(naverQs);
-              // }
-
               const findNewEstates: any = await this.estateService.findNewEstates(complexDetails, lastEstate);
 
               if (empty(findNewEstates)) {
@@ -336,6 +333,28 @@ export default class NaverService {
               for await (const newEstate of findNewEstates) {
                 newEstate.type = 'naver';
                 newEstate.settingSeq = setting.seq;
+
+                let okEstate = false;
+
+                if (paramJson.recommendType === 'all') {
+                  okEstate = true;
+                } else if (paramJson.recommendType === 'ai') {
+                  // * 가격변동 있으면 좋은매물
+                  if (newEstate.isPriceModification === true) {
+                    okEstate = true;
+                  }
+
+                  // * 급매일 경우 좋은매물
+                  if (newEstate.articleFeatureDesc.includes('급매')) {
+                    okEstate = true;
+                  }
+                }
+
+                // console.log(newEstate.articleNo, okEstate);
+
+                if (!okEstate) {
+                  continue;
+                }
 
                 const myEstateEntitiy = await this.convertToEstate(newEstate);
                 const estateSeq = await this.estateService.makeEstate(myEstateEntitiy);
@@ -405,6 +424,31 @@ export default class NaverService {
 
             const myEstateEntitiy = await this.convertToEstate(newEstate);
             const estateSeq = await this.estateService.makeEstate(myEstateEntitiy);
+
+            let okEstate = false;
+
+            if (paramJson.recommendType === 'all') {
+              okEstate = true;
+            } else if (paramJson.recommendType === 'ai') {
+              // * 가격변동 있으면 좋은매물
+              if (newEstate.isPriceModification === true) {
+                okEstate = true;
+              }
+
+              // * 급매일 경우 좋은매물
+              if (newEstate.articleFeatureDesc.includes('급매')) {
+                okEstate = true;
+              }
+
+              // * 저렴한 매물일 경우 좋은매물
+              if (newEstate.articleFeatureDesc.includes('저렴')) {
+                okEstate = true;
+              }
+            }
+
+            if (!okEstate) {
+              continue;
+            }
 
             if (empty(estateSeq)) {
               // ! DB ERROR
@@ -553,6 +597,13 @@ export default class NaverService {
   }
 
   /**
+   * AI 기준으로 매물을 추천합니다.
+   * 1.평수대비 최저가
+   * 2.급매
+   */
+  private async analyzeEstateAI() {}
+
+  /**
    * 네이버 부동산 쿼리에 맞게 Setting을 변경합니다.
    * 
    * [1] {
@@ -590,6 +641,7 @@ export default class NaverService {
       areaMax: 0, // * 최대면적
       tag: '',
       order: 'dateDesc',
+      page: 1,
     };
 
     qs.tradeType = tradeTypeVo[tradeType];

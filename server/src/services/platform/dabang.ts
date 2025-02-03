@@ -479,6 +479,26 @@ export default class DabangService {
               }
 
               for await (const newEstate of findNewEstates) {
+                let okEstate = false;
+
+                if (paramJson.recommendType === 'all') {
+                  okEstate = true;
+                } else if (paramJson.recommendType === 'ai') {
+                  // * 가격변동 있으면 좋은매물
+                  if (newEstate.isIconFocus === true) {
+                    okEstate = true;
+                  }
+
+                  // * 급매일 경우 좋은매물
+                  if (newEstate.roomTitle.includes('급매')) {
+                    okEstate = true;
+                  }
+                }
+
+                if (!okEstate) {
+                  continue;
+                }
+
                 const myEstateEntitiy = await this.convertToEstate(newEstate, paramJson.estateType);
                 myEstateEntitiy.settingSeq = setting.seq;
 
@@ -558,6 +578,26 @@ export default class DabangService {
           }
 
           for await (const newEstate of findNewEstates) {
+            let okEstate = false;
+
+            if (paramJson.recommendType === 'all') {
+              okEstate = true;
+            } else if (paramJson.recommendType === 'ai') {
+              // * 가격변동 있으면 좋은매물
+              if (newEstate.isIconFocus === true) {
+                okEstate = true;
+              }
+
+              // * 급매일 경우 좋은매물
+              if (newEstate.roomTitle.includes('급매')) {
+                okEstate = true;
+              }
+            }
+
+            if (!okEstate) {
+              continue;
+            }
+
             const myEstateEntitiy = await this.convertToEstate(newEstate, paramJson.estateType);
             myEstateEntitiy.settingSeq = setting.seq;
 

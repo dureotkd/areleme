@@ -27,6 +27,7 @@ export default {
         danger: '#BE4D31',
       }),
       margin: {
+        tiny: '2px',
         sm: '8px',
         md: '16px',
         lg: '24px',

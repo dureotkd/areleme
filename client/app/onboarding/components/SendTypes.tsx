@@ -2,12 +2,16 @@
 
 import { useRouter } from 'next/navigation';
 
+import React from 'react';
+
 import Layout from './Layout';
 import SelectButtonV2 from './SelectButtonV2';
-import React from 'react';
+
 import number from '../helpers/number';
 import { $ } from '../../helpers/document';
 import { wait } from '../../helpers/time';
+
+import Choco from '../../helpers/choco';
 
 const types = {
   sms: '',
@@ -27,17 +31,15 @@ export default function SendTypes(props: { page: string }) {
     async (type: string, event) => {
       event.target.disabled = true;
 
-      const { ok, msg } = await fetch(`http://localhost:4000/api/auth/${type}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          [type]: inputs[type],
-        }),
-        headers: {
-          'Content-Type': 'application/json', // JSON 데이터임을 명시
+      const { ok, msg } = await Choco({
+        url: `http://localhost:4000/api/auth/${type}`,
+        options: {
+          method: 'POST',
+          body: JSON.stringify({
+            [type]: inputs[type], // 동적으로 type 값을 보내기
+          }),
         },
-      })
-        .then((res) => res.json())
-        .finally(() => {});
+      });
 
       if (ok) {
         setShowInputCodes((prev) => {
@@ -63,19 +65,20 @@ export default function SendTypes(props: { page: string }) {
 
   const vertifyAuthCode = React.useCallback(
     async (type: string) => {
-      const { ok, msg } = await fetch(`http://localhost:4000/api/auth/verfiy`, {
-        method: 'POST',
-        body: JSON.stringify({
-          [type]: inputs[type],
-          code: inputCodes[type],
-          type: type,
-        }),
-        headers: {
-          'Content-Type': 'application/json', // JSON 데이터임을 명시
+      const { ok, msg } = await Choco({
+        url: 'http://localhost:4000/api/auth/verfiy',
+        options: {
+          method: 'POST',
+          body: JSON.stringify({
+            [type]: inputs[type], // 동적으로 type 값 전송
+            code: inputCodes[type],
+            type: type,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
-      })
-        .then((res) => res.json())
-        .finally(() => {});
+      });
 
       if (ok) {
         // SUCCESS CODE Go..

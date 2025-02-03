@@ -8,6 +8,8 @@ import SelectButton from './SelectButton';
 import FetchLoading from '../../components/FetchLoading';
 import SelectedDisplay from './SelectedDisplay';
 
+import Choco from '../../helpers/choco';
+
 type Dong = {
   seq: number;
   code: string;
@@ -24,11 +26,16 @@ export default function DongList(props: { page: string }) {
     (async () => {
       const regionCode = window.localStorage.getItem('on_data_4');
 
-      const { data } = await fetch(`http://localhost:4000/api/address/dong/${regionCode}`)
-        .then((res) => res.json())
-        .finally(() => {
+      const { data } = await Choco({
+        url: `http://localhost:4000/api/address/dong/${regionCode}`,
+        options: {
+          method: 'GET', // HTTP 메소드와 필요한 옵션을 지정
+        },
+        final: () => {
           setLoading(false);
-        });
+        },
+      });
+
       setList(data);
     })();
   }, []);

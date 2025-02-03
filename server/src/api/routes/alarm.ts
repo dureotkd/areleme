@@ -47,7 +47,7 @@ export default (app: Router) => {
     return res.status(200).json(apiRes);
   });
 
-  route.get('/complex/:settingSeq', async (req: Request, res: Response) => {
+  route.get('/complex/:settingSeq?', async (req: Request, res: Response) => {
     const ComplexService = Container.get(ComplexInstance);
     const { settingSeq } = req.params;
 

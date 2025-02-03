@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import * as React from 'react';
@@ -25,7 +24,6 @@ export default function RangeSlider(props: Props) {
       onChange={(event, value: number[]) => {
         // props.setValue(value as number[]);
         props.onChange(value as any);
-        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       }}
       valueLabelDisplay="auto"
       step={props?.step || 1}

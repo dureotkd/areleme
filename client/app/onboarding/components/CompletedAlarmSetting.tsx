@@ -5,12 +5,13 @@ import React from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
-import { wait } from '../../helpers/time';
-
 import Layout from './Layout';
 import SelectedDisplay from './SelectedDisplay';
 import FetchLoading from '../../components/FetchLoading';
 import ViewButton from './ViewButton';
+
+import { wait } from '../../helpers/time';
+import Choco from '../../helpers/choco';
 
 export default function CompletedAlarmSetting() {
   const router = useRouter();
@@ -27,6 +28,7 @@ export default function CompletedAlarmSetting() {
         return;
       }
 
+      const recommendType = window.localStorage.getItem('on_data_0');
       const estateType = window.localStorage.getItem('on_data_1');
       const tradeType = window.localStorage.getItem('on_data_2');
       const local = window.localStorage.getItem('on_data_3');
@@ -37,6 +39,7 @@ export default function CompletedAlarmSetting() {
       const userSeq = window.localStorage.getItem('on_data_user_seq');
 
       const params = {
+        recommendType: recommendType,
         estateType: estateType,
         tradeType: tradeType,
         local: local,
@@ -46,40 +49,42 @@ export default function CompletedAlarmSetting() {
         selectCodes: JSON.parse(selectCodes),
       };
 
-      const settingApiRes = await fetch(`http://localhost:4000/api/setting`, {
-        method: 'POST',
-        body: JSON.stringify({
-          userSeq: userSeq,
-          params: params,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
+      const settingApiRes = await Choco({
+        url: 'http://localhost:4000/api/setting',
+        options: {
+          method: 'POST',
+          body: JSON.stringify({
+            userSeq: userSeq, // 필요한 userSeq 값
+            params: params, // 필요한 params 값
+          }),
         },
-      }).then((res) => res.json());
+      });
 
-      // if (!settingApiRes.ok) {
-      //   alert(settingApiRes.msg);
-      //   await wait(2000);
-      //   window.location.replace('/');
-      //   return;
-      // }
+      if (!settingApiRes.ok) {
+        alert(settingApiRes.msg);
+        return;
+      }
 
       const settingSeq = settingApiRes.seq;
       let intervalRes: any = {};
 
       if (estateType === 'apt' || estateType === 'op') {
         setLoadingStep('complex-search');
+
         intervalRes = setInterval(async () => {
           try {
-            const { data } = await fetch(`http://localhost:4000/api/alarm/complex/${settingSeq}`, {
-              method: 'GET',
-            }).then((res) => res.json());
+            const { data } = await Choco({
+              url: `http://localhost:4000/api/alarm/complex/${settingSeq}`,
+            });
 
             setComplexes(data);
-          } catch (error) {}
+          } catch (error) {
+            console.log(error);
+          }
         }, 1000);
 
         await wait(5000);
+
         setLoadingStep('complex-unit-search');
       } else {
         setLoadingStep('platform-search');
@@ -87,27 +92,26 @@ export default function CompletedAlarmSetting() {
         await wait(3000);
       }
 
-      await fetch(`http://localhost:4000/api/alarm`, {
-        method: 'POST',
-        body: JSON.stringify({
-          settingSeq: settingSeq,
-        }),
-        headers: {
-          'Content-Type': 'application/json',
+      await Choco({
+        url: 'http://localhost:4000/api/alarm',
+        options: {
+          method: 'POST',
+          body: JSON.stringify({
+            settingSeq: settingSeq,
+          }),
         },
-      })
-        .then((res) => res.json())
-        .finally(() => {
+        final: () => {
           setLoadingStep('finish');
           clearInterval(intervalRes);
-        });
+        },
+      });
     })();
   }, []);
 
   const isValidData = () => {
     let valid = true;
 
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 0; i <= 6; i++) {
       const onboardingData = window.localStorage.getItem(`on_data_${i}`);
 
       if (!onboardingData) {
@@ -190,7 +194,7 @@ export default function CompletedAlarmSetting() {
                   className="mr-sm"
                   key={`complex-${complex.seq}`}
                 >
-                  <ViewButton name={complex.name} />
+                  <ViewButton className="mt-sm" name={complex.name} />
                 </motion.li>
               );
             })}

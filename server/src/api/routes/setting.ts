@@ -8,6 +8,7 @@ import SettingInstance from '../../services/core/setting';
 const route = Router();
 
 type Params = {
+  recommendType: string;
   estateType: string;
   tradeType: string;
   local: string;
@@ -44,6 +45,11 @@ export default (app: Router) => {
         break;
       }
 
+      if (empty(params.recommendType)) {
+        apiRes.ok = false;
+        apiRes.msg = '추천유형이 없습니다';
+        break;
+      }
       if (empty(params.estateType)) {
         apiRes.ok = false;
         apiRes.msg = '매물타입이 없습니다';
@@ -90,6 +96,8 @@ export default (app: Router) => {
       //   apiRes.msg = '동일한 조건으로 설정된 알림이 존재합니다';
       //   break;
       // }
+
+      console.log(params);
 
       const settingSeq = await SettingService.makeSetting({
         userSeq: userSeq,

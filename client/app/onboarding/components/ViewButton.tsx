@@ -1,8 +1,17 @@
 'use client';
 
-export default function ViewButton(props: { name: string }) {
+export default function ViewButton(props: {
+  name: string;
+  className?: string;
+  onClick?: React.MouseEventHandler<HTMLButtonElement>;
+}) {
   return (
-    <button type="button" className="bg-silver rounded-md text-base mt-md" style={{ padding: '4px 6px' }}>
+    <button
+      type="button"
+      className={`bg-silver rounded-md text-base  ${props.className}`}
+      style={{ padding: '4px 6px' }}
+      onClick={props.onClick || (() => {})}
+    >
       {props.name}
     </button>
   );

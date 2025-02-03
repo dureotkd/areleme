@@ -9,6 +9,8 @@ import FetchLoading from '../../components/FetchLoading';
 import useRedirectPrevData from '../hooks/useRedirectPrevData';
 import SelectedDisplay from './SelectedDisplay';
 
+import Choco from '../../helpers/choco';
+
 type Region = {
   seq: number;
   code: string;
@@ -27,11 +29,16 @@ export default function RegionList(props: { page: string }) {
     (async () => {
       const localCode = window.localStorage.getItem('on_data_3');
 
-      const { data } = await fetch(`http://localhost:4000/api/address/region/${localCode}`)
-        .then((res) => res.json())
-        .finally(() => {
+      const { data } = await Choco({
+        url: `http://localhost:4000/api/address/region/${localCode}`,
+        options: {
+          method: 'GET', // HTTP 메소드와 필요한 옵션을 지정
+        },
+        final: () => {
           setLoading(false);
-        });
+        },
+      });
+
       setList(data);
     })();
   }, []);

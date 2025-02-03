@@ -1,21 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-type todos = {
-  id: number;
-  userId: number;
-  title: string;
-  completed: boolean;
-};
-
-async function getData() {
-  const a = await fetch('https://jsonplaceholder.typicode.com/todos');
-  return a.json();
-}
-
 export default async function Home() {
-  const a: todos[] = await getData();
-
   return (
     <>
       <main className="mt-md">
@@ -28,21 +14,24 @@ export default async function Home() {
           height={200}
         />
         <h3 className="text-lg mt-md">3대 플랫폼, 하나의 설정으로 알림 끝</h3>
-        <Link href="onboarding/1" className="block mt-xl w-[300px] bg-primary p-md text-primary rounded-lg">
+        <Link
+          href="onboarding/explain"
+          className="block mt-xl w-[300px] bg-primary p-md text-primary rounded-lg"
+        >
           바로 시작하기
         </Link>
       </main>
 
-      <footer className="mt-xxl">
-        <Link
+      <footer className="w-full mt-lg">
+        {/* <Link
           href="/onboarding"
           className="underline font-semibold text-md"
           style={{ textUnderlineOffset: '5px' }}
         >
           이전에 로그인하신 적이 있나요?
-        </Link>
+        </Link> */}
 
-        <div className="mt-sm text-sm">
+        {/* <div className="mt-sm text-sm">
           로그인시{' '}
           <Link href="/zzz" className="underline" style={{ textUnderlineOffset: '5px' }}>
             서비스이용약관
@@ -52,7 +41,18 @@ export default async function Home() {
             개인정보처리방침
           </Link>
           에 동의합니다.
-        </div>
+        </div> */}
+
+        <a href="https://www.honeyaptdanji.com/" target="_blank" rel="광고-배너">
+          <Image
+            className="mt-md object-cover !h-[170px]"
+            src="https://admin.honeyaptdanji.com/static/media/logo_275w.ad6c4b836da89185f155.png"
+            alt="로고"
+            layout="responsive"
+            width={1000}
+            height={300}
+          />
+        </a>
 
         <div className="text-tiny mt-lg">
           상호명 : 솔루션하우스 | 대표 : 신성민

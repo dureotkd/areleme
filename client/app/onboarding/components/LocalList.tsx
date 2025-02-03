@@ -9,6 +9,8 @@ import FetchLoading from '../../components/FetchLoading';
 import useRedirectPrevData from '../hooks/useRedirectPrevData';
 import SelectedDisplay from './SelectedDisplay';
 
+import Choco from '../../helpers/choco';
+
 type Local = {
   seq: number;
   code: string;
@@ -27,11 +29,16 @@ export default function LocalList(props: { page: string }) {
 
   useEffect(() => {
     (async () => {
-      const { data } = await fetch('http://localhost:4000/api/address/local')
-        .then((res) => res.json())
-        .finally(() => {
+      const { data } = await Choco({
+        url: 'http://localhost:4000/api/address/local',
+        options: {
+          method: 'GET', // 필요한 HTTP 메소드와 기타 옵션
+        },
+        final: () => {
           setLoading(false);
-        });
+        },
+      });
+
       setList(data);
     })();
   }, []);

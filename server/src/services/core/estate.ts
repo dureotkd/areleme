@@ -16,7 +16,7 @@ export default class EstateService {
       return [];
     }
 
-    const lastEstateIndex = complexDetails.findIndex((item: any) => {
+    let lastEstateIndex = complexDetails.findIndex((item: any) => {
       return lastEstate.articleNo === item.articleNo;
     });
 
@@ -24,7 +24,7 @@ export default class EstateService {
      * * 아예 못찾는거라 문제가 있음... (온보딩 설정후 바로 마지막매물을 넣었는데 왜 못찾지?) => 아마 페이지 2로 매물이 넘어가서?
      */
     if (lastEstateIndex === -1) {
-      return [];
+      lastEstateIndex = complexDetails.length;
     }
 
     // * 새로운 매물이 나오지않았다 (온보딩 설정후 마지막 매물이 아직도 0번쨰이다)
