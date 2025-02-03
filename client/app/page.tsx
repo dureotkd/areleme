@@ -22,7 +22,7 @@ export default async function Home() {
         </Link>
       </main>
 
-      <footer className="w-full mt-lg">
+      <footer className="w-full">
         {/* <Link
           href="/onboarding"
           className="underline font-semibold text-md"
@@ -43,7 +43,7 @@ export default async function Home() {
           에 동의합니다.
         </div> */}
 
-        <a href="https://www.honeyaptdanji.com/" target="_blank" rel="광고-배너">
+        {/* <a href="https://www.honeyaptdanji.com/" target="_blank" rel="광고-배너">
           <Image
             className="mt-md object-cover !h-[170px]"
             src="https://admin.honeyaptdanji.com/static/media/logo_275w.ad6c4b836da89185f155.png"
@@ -52,7 +52,7 @@ export default async function Home() {
             width={1000}
             height={300}
           />
-        </a>
+        </a> */}
 
         <div className="text-tiny mt-lg">
           상호명 : 솔루션하우스 | 대표 : 신성민
