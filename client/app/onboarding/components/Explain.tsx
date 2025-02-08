@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 
 import ViewButton from './ViewButton';
 import FetchLoading from '../../components/FetchLoading';
+import Image from 'next/image';
+import { Button } from '@mui/material';
 
 const TypingAnimation = ({ text, className = '', onComplete = () => {}, show = false }) => {
   // 텍스트를 줄 단위로 나눕니다.
@@ -87,7 +89,7 @@ const Explain = () => {
     <div className="w-full min-h-screen">
       {steps.includes(1) && (
         <div className="flex p-md mt-md">
-          <img
+          <Image
             className="rounded-lg mr-sm w-[50px] h-[50px]"
             src="/static/images/ai_profile.png"
             alt="로고"
@@ -120,7 +122,7 @@ const Explain = () => {
 
       {steps.includes(3) && (
         <div className="flex p-md mt-md">
-          <img
+          <Image
             className="rounded-lg mr-sm w-[50px] h-[50px]"
             src="/static/images/ai_profile.png"
             alt="로고"
@@ -140,7 +142,7 @@ const Explain = () => {
 
       {steps.includes(4) && (
         <div className="flex p-md mt-md">
-          <img
+          <Image
             className="rounded-lg mr-sm w-[50px] h-[50px]"
             src="/static/images/ai_profile.png"
             alt="로고"
@@ -153,30 +155,36 @@ const Explain = () => {
             <div />
 
             <motion.div
-              className="flex"
+              className="flex mt-tiny"
               initial={{ y: 10, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -10, opacity: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <ViewButton
-                name="모든 매물"
+              <Button
+                variant="contained"
+                color="inherit"
                 onClick={() => {
                   setSelectCode('all');
                   const lastSteps = steps[steps.length - 1];
                   setSteps((prev) => [...prev, lastSteps + 1]);
                 }}
                 className="mr-sm mt-tiny bg-blue-200"
-              />
-              <ViewButton
-                name="AI 맞춤형 매물"
+              >
+                모든 매물
+              </Button>
+              <Button
+                variant="contained"
+                color="info"
+                style={{ marginLeft: 6 }}
                 onClick={() => {
                   setSelectCode('ai');
                   const lastSteps = steps[steps.length - 1];
                   setSteps((prev) => [...prev, lastSteps + 1]);
                 }}
-                className="mt-tiny bg-yellow-100"
-              />
+              >
+                AI 맞춤형 매물
+              </Button>
             </motion.div>
           </div>
         </div>
@@ -184,7 +192,7 @@ const Explain = () => {
 
       {steps.includes(5) && (
         <div className="flex p-md mt-md">
-          <img
+          <Image
             className="rounded-lg mr-sm w-[50px] h-[50px]"
             src="/static/images/ai_profile.png"
             alt="로고"
@@ -220,7 +228,7 @@ const Explain = () => {
 
       {steps.includes(7) && (
         <div className="flex p-md items-center">
-          <img
+          <Image
             className="rounded-lg mr-sm w-[50px] h-[50px]"
             src="/static/images/ai_profile.png"
             alt="로고"
