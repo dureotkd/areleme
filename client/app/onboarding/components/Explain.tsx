@@ -42,7 +42,7 @@ const TypingAnimation = ({ text, className = '', onComplete = () => {}, show = f
       className="typing-container"
       variants={container}
       onAnimationStart={() => {
-        window.scrollTo(0, 10000000000);
+        window.scrollTo(0, 10000);
       }}
       onAnimationComplete={onComplete}
       initial="hidden"
@@ -71,6 +71,10 @@ const Explain = () => {
   const router = useRouter();
 
   React.useEffect(() => {
+    document.body.style.overflow = 'hidden';
+  });
+
+  React.useEffect(() => {
     const explain = window.localStorage.getItem('explain');
 
     if (explain) {
@@ -86,7 +90,7 @@ const Explain = () => {
   }
 
   return (
-    <div className="w-full min-h-screen">
+    <div className="w-full min-h-screen text-sm sm:text-base">
       {steps.includes(1) && (
         <div className="flex p-md mt-md">
           <Image
@@ -97,7 +101,7 @@ const Explain = () => {
             height={50}
           />
           <TypingAnimation
-            text={`안녕하세요, 안내원 케빈입니다.\n매물 알리미 서비스에 대해 설명드리겠습니다.`}
+            text={`안녕하세요, 안내원 리샤입니다.\n매물 알리미 서비스에 대해 설명드리겠습니다.`}
             show={seeExplain}
             onComplete={() => {
               const lastSteps = steps[steps.length - 1];
