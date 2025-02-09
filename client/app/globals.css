@@ -55,8 +55,33 @@ select,
 input {
   box-sizing: border-box !important;
 }
+button {
+  position: relative;
+  overflow: hidden;
+}
 
 .selected {
   background-color: #5e7ef0 !important;
   color: #fff !important;
+}
+
+/* Ripple 효과 */
+button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 0;
+  background: rgba(255, 255, 255, 0.5);
+  transform: scale(0);
+  opacity: 0;
+  transition: transform 0.5s, opacity 0.5s;
+}
+
+/* 클릭 시 애니메이션 */
+button:active::after {
+  width: 100%;
+  transform: scale(4);
+  opacity: 1;
 }

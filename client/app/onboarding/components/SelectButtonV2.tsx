@@ -40,7 +40,7 @@ function SelectButtonV2(props: { items: Items[]; multiple?: boolean; onClick: an
             key={`${name}-${code}`}
             className={`${
               selectValue.includes(code) ? 'selected' : ''
-            } bg-silver pl-md pr-md pt-sm pb-sm mr-md mb-md rounded-md text-base`}
+            } bg-silver pl-md pr-md pt-sm pb-sm mr-md mb-md rounded-md text-sm`}
             type="button"
             value={code}
             onClick={async () => {

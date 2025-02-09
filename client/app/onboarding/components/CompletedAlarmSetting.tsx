@@ -24,18 +24,19 @@ export default function CompletedAlarmSetting() {
   React.useEffect(() => {
     (async () => {
       if (!isValidData()) {
+        alert('알림이 완성되어 홈화면으로 돌아갑니다');
         router.replace('/');
         return;
       }
 
-      const recommendType = window.localStorage.getItem('on_data_0');
       const estateType = window.localStorage.getItem('on_data_1');
       const tradeType = window.localStorage.getItem('on_data_2');
       const local = window.localStorage.getItem('on_data_3');
       const region = window.localStorage.getItem('on_data_4');
       const dong = window.localStorage.getItem('on_data_5');
       const details = window.localStorage.getItem('on_data_6');
-      const selectCodes = window.localStorage.getItem('on_data_7');
+      const selectCodes = window.localStorage.getItem('on_data_8');
+      const recommendType = window.localStorage.getItem('on_data_7');
       const userSeq = window.localStorage.getItem('on_data_user_seq');
 
       const params = {
@@ -103,15 +104,16 @@ export default function CompletedAlarmSetting() {
         final: () => {
           setLoadingStep('finish');
           clearInterval(intervalRes);
+          clearData();
         },
       });
     })();
-  }, []);
+  }, [router]);
 
   const isValidData = () => {
     let valid = true;
 
-    for (let i = 0; i <= 6; i++) {
+    for (let i = 1; i <= 8; i++) {
       const onboardingData = window.localStorage.getItem(`on_data_${i}`);
 
       if (!onboardingData) {
@@ -131,7 +133,7 @@ export default function CompletedAlarmSetting() {
     window.localStorage.removeItem('on_page');
     window.localStorage.removeItem('on_data_user_seq');
 
-    for (let i = 1; i <= 6; i++) {
+    for (let i = 1; i <= 8; i++) {
       window.localStorage.removeItem(`on_data_${i}`);
     }
   };

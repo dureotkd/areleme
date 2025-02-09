@@ -164,11 +164,11 @@ export default function SendTypes(props: { page: string }) {
     }
 
     const userSeq = apiRes1.id;
-    window.localStorage.setItem('on_data_7', JSON.stringify(selectCodes));
+    window.localStorage.setItem('on_data_8', JSON.stringify(selectCodes));
     window.localStorage.setItem('on_data_user_seq', userSeq);
 
     router.push(`/onboarding/complete`);
-  }, [selectCodes, okInputs, inputs]);
+  }, [selectCodes, inputs, router, okInputs]);
 
   return (
     <Layout
@@ -253,7 +253,7 @@ export default function SendTypes(props: { page: string }) {
               {showInputCodes.sms && (
                 <div className="w-full h-full flex items-center mt-sm">
                   {okInputs.sms && (
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-primary opacity-90 text-primary">
+                    <div className="absolute z-50 left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-primary opacity-90 text-primary">
                       인증되었습니다
                     </div>
                   )}
@@ -319,7 +319,7 @@ export default function SendTypes(props: { page: string }) {
               {showInputCodes.email && (
                 <div className="w-full h-full flex items-center mt-sm">
                   {okInputs.email && (
-                    <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-primary opacity-90 text-primary">
+                    <div className="absolute z-50 left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center bg-primary opacity-90 text-primary">
                       인증되었습니다
                     </div>
                   )}

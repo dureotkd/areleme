@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useCallback, useState } from 'react';
 
 export default function SelectButton(props: {
@@ -26,7 +27,7 @@ export default function SelectButton(props: {
   return (
     <button
       onClick={handleOnClick}
-      className="bg-silver pl-md pr-md pt-sm pb-sm mr-md mb-md rounded-md text-base"
+      className="bg-silver pl-md pr-md pt-sm pb-sm mr-md mb-md rounded-md text-sm"
     >
       {props.name}
     </button>
