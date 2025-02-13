@@ -9,7 +9,7 @@ const route = Router();
 export default (app: Router) => {
   app.use('/user', route);
 
-  // http://localhost:5000/api/user
+  // http://localhost:5000/user
   route.post('/', async (req: Request, res: Response) => {
     const UserService = Container.get(UserInstance);
 

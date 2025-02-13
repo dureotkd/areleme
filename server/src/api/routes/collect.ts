@@ -19,7 +19,7 @@ const route = Router();
 export default (app: Router) => {
   app.use('/collect', route);
 
-  // http://localhost:4000/api/collect/local
+  // collect/local
   route.get('/local', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
     await collectService.saveNaverLocal();
@@ -28,7 +28,7 @@ export default (app: Router) => {
     return res.status(200).json({ message: 'Success' });
   });
 
-  // http://localhost:4000/api/collect/region
+  // collect/region
   route.get('/region', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
     await collectService.saveNaverRegion();
@@ -37,7 +37,7 @@ export default (app: Router) => {
     return res.status(200).json({ message: 'Success' });
   });
 
-  // http://localhost:4000/api/collect/dong
+  // collect/dong
   route.get('/dong', async (req: Request, res: Response) => {
     const collectService = Container.get(CollectServiceInstance);
     await collectService.saveNaverDong();
@@ -46,7 +46,7 @@ export default (app: Router) => {
     return res.status(200).json({ message: 'Success' });
   });
 
-  // http://localhost:4000/api/collect/proxy
+  // collect/proxy
   route.get('/proxy', async (req: Request, res: Response) => {
     const RequestManagerService = Container.get(RequestManagerInstance);
     await RequestManagerService.makeProxy();
@@ -58,7 +58,7 @@ export default (app: Router) => {
     const RequestManagerService = Container.get(RequestManagerInstance);
 
     const a = await requestPromise({
-      uri: 'https://www.dabangapp.com/api/v5/room-list/category/one-two/region',
+      uri: 'https://www.dabangapp.com/v5/room-list/category/one-two/region',
       method: 'GET',
       qs: {
         code: '30170112',
@@ -79,7 +79,7 @@ export default (app: Router) => {
     return res.status(200).json({ message: 'Success' });
   });
 
-  // http://localhost:4000/api/collect/dabang
+  // collect/dabang
   route.get('/dabang', async (req: Request, res: Response) => {
     const dabangService = Container.get(DabangInstance);
     const naverService = Container.get(NaverInstance);
@@ -117,7 +117,7 @@ export default (app: Router) => {
     return res.status(200).json({ message: 'Success' });
   });
 
-  // http://localhost:4000/api/collect/alarm
+  // collect/alarm
   route.get('/alarm', async (req: Request, res: Response) => {
     const NaverService = Container.get(NaverInstance);
     const DabangService = Container.get(DabangInstance);

@@ -30,7 +30,7 @@ export default function LocalList(props: { page: string }) {
   useEffect(() => {
     (async () => {
       const { data } = await Choco({
-        url: 'http://localhost:4000/api/address/local',
+        url: 'address/local',
         options: {
           method: 'GET', // 필요한 HTTP 메소드와 기타 옵션
         },

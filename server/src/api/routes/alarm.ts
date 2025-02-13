@@ -14,7 +14,7 @@ const route = Router();
 export default (app: Router) => {
   app.use('/alarm', route);
 
-  // http://localhost:5000/api/alarm,
+  // http://localhost:5000/alarm,
   route.post('/', async (req: Request, res: Response) => {
     const NaverService = Container.get(NaverInstance);
     const DabangService = Container.get(DabangInstance);

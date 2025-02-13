@@ -1,3 +1,5 @@
+'use client';
+
 import { Suspense } from 'react';
 
 import AlarmOrderTypes from '../components/AlarmOrderTypes';
@@ -10,6 +12,7 @@ import SendTypes from '../components/SendTypes';
 import FetchLoading from '../../components/FetchLoading';
 import DetailList from '../components/DetailList';
 import CompletedAlarmSetting from '../components/CompletedAlarmSetting';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 export default function Page({ params: { step } }: { params: { step: string } }) {
   const renders: any = {
@@ -27,8 +30,18 @@ export default function Page({ params: { step } }: { params: { step: string } })
   const Onboarding = renders[step] ?? <div>Not Found</div>;
 
   return (
-    <Suspense fallback={<FetchLoading />}>
-      <div className="flex flex-wrap w-full h-full t-left justify-start">{Onboarding}</div>
-    </Suspense>
+    <ErrorBoundary>
+      <button
+        type="button"
+        onClick={() => {
+          throw new Error('event error');
+        }}
+      >
+        에러 테스트 TEST
+      </button>
+      <Suspense fallback={<FetchLoading />}>
+        <div className="flex flex-wrap w-full h-full t-left justify-start">{Onboarding}</div>
+      </Suspense>
+    </ErrorBoundary>
   );
 }

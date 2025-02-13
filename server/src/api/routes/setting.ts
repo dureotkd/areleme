@@ -25,7 +25,7 @@ type Params = {
 export default (app: Router) => {
   app.use('/setting', route);
 
-  // http://localhost:5000/api/setting
+  // http://localhost:5000/setting
   route.post('/', async (req: Request, res: Response) => {
     const SettingService = Container.get(SettingInstance);
 

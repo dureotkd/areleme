@@ -12,6 +12,7 @@ import ViewButton from './ViewButton';
 
 import { wait } from '../../helpers/time';
 import Choco from '../../helpers/choco';
+import ErrorBoundary from './ErrorBoundary';
 
 export default function CompletedAlarmSetting() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function CompletedAlarmSetting() {
       };
 
       const settingApiRes = await Choco({
-        url: 'http://localhost:4000/api/setting',
+        url: `setting`,
         options: {
           method: 'POST',
           body: JSON.stringify({
@@ -75,7 +76,7 @@ export default function CompletedAlarmSetting() {
         intervalRes = setInterval(async () => {
           try {
             const { data } = await Choco({
-              url: `http://localhost:4000/api/alarm/complex/${settingSeq}`,
+              url: `alarm/complex/${settingSeq}`,
             });
 
             setComplexes(data);
@@ -94,7 +95,7 @@ export default function CompletedAlarmSetting() {
       }
 
       await Choco({
-        url: 'http://localhost:4000/api/alarm',
+        url: 'alarm',
         options: {
           method: 'POST',
           body: JSON.stringify({
@@ -104,7 +105,8 @@ export default function CompletedAlarmSetting() {
         final: () => {
           setLoadingStep('finish');
           clearInterval(intervalRes);
-          clearData();
+
+          // clearData();
         },
       });
     })();
@@ -152,57 +154,59 @@ export default function CompletedAlarmSetting() {
   }, [loadingStep]);
 
   return (
-    <Layout
-      des={loadingStepText}
-      isNext
-      loading={loadingStep === 'finish' ? false : true}
-      isOnlyNext
-      nextName="확인했어요"
-      nextOnClick={() => {
-        router.replace('/');
-      }}
-    >
-      {loadingStep === '' ? (
-        <FetchLoading />
-      ) : (
-        <>
-          <SelectedDisplay />
-          {}
-          {loadingStep === 'complex-search' && <FetchLoading />}
-          <motion.ul
-            variants={{
-              hidden: {
-                opacity: 0,
-              },
-              visible: {
-                opacity: 1,
-                transition: {
-                  when: 'beforeChildren',
-                  staggerChildren: 0.2,
+    <ErrorBoundary>
+      <Layout
+        des={loadingStepText}
+        isNext
+        loading={loadingStep === 'finish' ? false : true}
+        isOnlyNext
+        nextName="확인했어요"
+        nextOnClick={() => {
+          router.replace('/');
+        }}
+      >
+        {loadingStep === '' ? (
+          <FetchLoading />
+        ) : (
+          <>
+            <SelectedDisplay />
+            {}
+            {loadingStep === 'complex-search' && <FetchLoading />}
+            <motion.ul
+              variants={{
+                hidden: {
+                  opacity: 0,
                 },
-              },
-            }}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-wrap mt-sm"
-          >
-            {complexes.map((complex: any) => {
-              return (
-                <motion.li
-                  variants={{
-                    hidden: { opacity: 0, y: 50 },
-                    visible: { opacity: 1, y: 0 },
-                  }}
-                  className="mr-sm"
-                  key={`complex-${complex.seq}`}
-                >
-                  <ViewButton className="mt-sm" name={complex.name} />
-                </motion.li>
-              );
-            })}
-          </motion.ul>
-        </>
-      )}
-    </Layout>
+                visible: {
+                  opacity: 1,
+                  transition: {
+                    when: 'beforeChildren',
+                    staggerChildren: 0.2,
+                  },
+                },
+              }}
+              initial="hidden"
+              animate="visible"
+              className="flex flex-wrap mt-sm"
+            >
+              {complexes.map((complex: any) => {
+                return (
+                  <motion.li
+                    variants={{
+                      hidden: { opacity: 0, y: 50 },
+                      visible: { opacity: 1, y: 0 },
+                    }}
+                    className="mr-sm"
+                    key={`complex-${complex.seq}`}
+                  >
+                    <ViewButton className="mt-sm" name={complex.name} />
+                  </motion.li>
+                );
+              })}
+            </motion.ul>
+          </>
+        )}
+      </Layout>
+    </ErrorBoundary>
   );
 }

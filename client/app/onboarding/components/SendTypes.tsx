@@ -32,7 +32,7 @@ export default function SendTypes(props: { page: string }) {
       event.target.disabled = true;
 
       const { ok, msg } = await Choco({
-        url: `http://localhost:4000/api/auth/${type}`,
+        url: `auth/${type}`,
         options: {
           method: 'POST',
           body: JSON.stringify({
@@ -66,7 +66,7 @@ export default function SendTypes(props: { page: string }) {
   const vertifyAuthCode = React.useCallback(
     async (type: string) => {
       const { ok, msg } = await Choco({
-        url: 'http://localhost:4000/api/auth/verfiy',
+        url: 'auth/verfiy',
         options: {
           method: 'POST',
           body: JSON.stringify({
@@ -145,18 +145,16 @@ export default function SendTypes(props: { page: string }) {
       delete cloneInputs['email'];
     }
 
-    const apiRes1 = await fetch(`http://localhost:4000/api/user`, {
-      method: 'POST',
-      body: JSON.stringify({
-        selectCodes: selectCodes,
-        inputs: cloneInputs,
-      }),
-      headers: {
-        'Content-Type': 'application/json', // JSON 데이터임을 명시
+    const apiRes1 = await Choco({
+      url: 'user',
+      options: {
+        method: 'POST',
+        body: JSON.stringify({
+          selectCodes: selectCodes,
+          inputs: cloneInputs,
+        }),
       },
-    })
-      .then((res) => res.json())
-      .finally(() => {});
+    });
 
     if (!apiRes1.ok) {
       alert(apiRes1.msg);

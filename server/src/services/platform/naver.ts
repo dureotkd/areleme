@@ -14,29 +14,17 @@ import EstateService from '../core/estate';
 import ComplexService from '../core/complex';
 import AlarmService from '../core/alarm';
 
-/**
- *       cortarNo: dong, // * dong [code]
-      priceType: 'RETAIL', // ??
-      realEstateType: 'APT:PRE', // ??
-      tradeType: '', // * 거래유형 (EX : A1:B2)
-      priceMin: 0, // * 최소가격
-      priceMax: 0, // * 최대가격
-      rentPriceMin: 0, // * 최소가격 (월세)
-      rentPriceMax: 0, // * 최대가격 (월세)
-      areMin: 0, // * 최소면적
-      areMax: 0, // * 최대면적
- */
 type ComplexesQs = {
-  cortarNo: string;
+  cortarNo: string; // * dong [code]
   priceType: string;
   realEstateType: string;
-  tradeType: string;
-  priceMin: number;
-  priceMax: number;
-  rentPriceMin: number;
-  rentPriceMax: number;
-  areaMin: number;
-  areaMax: number;
+  tradeType: string; // * 거래유형 (EX : A1:B2)
+  priceMin: number; // * 최소가격
+  priceMax: number; // * 최대가격
+  rentPriceMin: number; // * 최소가격 (월세)
+  rentPriceMax: number; // * 최대가격 (월세)
+  areaMin: number; // * 최소면적
+  areaMax: number; // * 최대면적
   order?: string;
   tag?: string;
   page?: number;
@@ -44,6 +32,8 @@ type ComplexesQs = {
 
 @Service()
 export default class NaverService {
+  private readonly BASE_URL = 'https://new.land.naver.com/api';
+
   constructor(
     private readonly debug: false,
     private readonly modelService: ModelService,
@@ -57,7 +47,7 @@ export default class NaverService {
   public async fetchLocal() {
     try {
       const data = await request({
-        uri: 'https://new.land.naver.com/api/regions/list?cortarNo=0000000000',
+        uri: `${this.BASE_URL}/list?cortarNo=0000000000`,
         method: 'GET',
         proxy: await this.requestManagerService.getRandomProxy(),
         headers: this.requestManagerService.getHeadersNaver(),
@@ -81,7 +71,7 @@ export default class NaverService {
 
     for await (const row of localAll) {
       await request({
-        uri: `https://new.land.naver.com/api/regions/list?cortarNo=${row.code}`,
+        uri: `${this.BASE_URL}/regions/list?cortarNo=${row.code}`,
         method: 'GET',
         proxy: await this.requestManagerService.getRandomProxy(),
         headers: this.requestManagerService.getHeadersNaver(),
@@ -109,7 +99,7 @@ export default class NaverService {
 
     for await (const row of regionAll) {
       await request({
-        uri: `https://new.land.naver.com/api/regions/list?cortarNo=${row.code}`,
+        uri: `${this.BASE_URL}/regions/list?cortarNo=${row.code}`,
         method: 'GET',
         proxy: await this.requestManagerService.getRandomProxy(),
         headers: this.requestManagerService.getHeadersNaver(),
@@ -135,7 +125,7 @@ export default class NaverService {
     qs.tag = ' :::::::SMALLSPCRENT';
 
     return await request({
-      uri: `https://new.land.naver.com/api/articles`,
+      uri: `${this.BASE_URL}/articles`,
       method: 'GET',
       qs: qs,
       proxy: await this.requestManagerService.getRandomProxy(),
@@ -152,7 +142,7 @@ export default class NaverService {
     qs.tag = '::::::::';
 
     return await request({
-      uri: `https://new.land.naver.com/api/articles`,
+      uri: `${this.BASE_URL}/articles`,
       method: 'GET',
       qs: qs,
       proxy: await this.requestManagerService.getRandomProxy(),
@@ -171,7 +161,7 @@ export default class NaverService {
     qs.realEstateType = 'PRE:APT:ABYG:JGC';
 
     return await request({
-      uri: `https://new.land.naver.com/api/regions/complexes`,
+      uri: `${this.BASE_URL}/regions/complexes`,
       method: 'GET',
       qs: qs,
       proxy: await this.requestManagerService.getRandomProxy(),
@@ -187,7 +177,7 @@ export default class NaverService {
     qs.realEstateType = 'PRE:OPST';
 
     return await request({
-      uri: `https://new.land.naver.com/api/regions/complexes`,
+      uri: `${this.BASE_URL}/regions/complexes`,
       method: 'GET',
       qs: qs,
       proxy: await this.requestManagerService.getRandomProxy(),
@@ -203,11 +193,11 @@ export default class NaverService {
    *
    * 아파트 & 오피스텔 정보를 불러오는 API ...
    *
-   * * https://new.land.naver.com/api/articles?cortarNo=3020015200 // 원룸 투룸 & 상가 토지 & 빌라 주택은 해당 URL을 사용합니다
+   * * ${this.BASE_URL}/articles?cortarNo=3020015200 // 원룸 투룸 & 상가 토지 & 빌라 주택은 해당 URL을 사용합니다
    */
   public async fetchComplexDetails(complexNo: string, qs: ComplexesQs) {
     return await request({
-      uri: `https://new.land.naver.com/api/articles/complex/${complexNo}`,
+      uri: `${this.BASE_URL}/articles/complex/${complexNo}`,
       method: 'GET',
       qs: {
         // 쿼리 스트링을 객체로 전달
@@ -760,7 +750,7 @@ export default class NaverService {
       ]);
     }
 
-    cloneEstate.link = `https://new.land.naver.com/complexes/${estate.complexNo}?articleNo=${estate.articleNo}`;
+    cloneEstate.link = `${this.BASE_URL}/complexes/${estate.complexNo}?articleNo=${estate.articleNo}`;
 
     return cloneEstate;
   }

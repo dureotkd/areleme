@@ -15,28 +15,28 @@ const request_promise_native_1 = __importDefault(require("request-promise-native
 const route = (0, express_1.Router)();
 exports.default = (app) => {
     app.use('/collect', route);
-    // http://localhost:4000/api/collect/local
+    // collect/local
     route.get('/local', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
         await collectService.saveNaverLocal();
         await collectService.saveDabangLocal();
         return res.status(200).json({ message: 'Success' });
     });
-    // http://localhost:4000/api/collect/region
+    // collect/region
     route.get('/region', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
         await collectService.saveNaverRegion();
         await collectService.saveDabangRegion();
         return res.status(200).json({ message: 'Success' });
     });
-    // http://localhost:4000/api/collect/dong
+    // collect/dong
     route.get('/dong', async (req, res) => {
         const collectService = typedi_1.default.get(collect_1.default);
         await collectService.saveNaverDong();
         await collectService.saveDabangDong();
         return res.status(200).json({ message: 'Success' });
     });
-    // http://localhost:4000/api/collect/proxy
+    // collect/proxy
     route.get('/proxy', async (req, res) => {
         const RequestManagerService = typedi_1.default.get(requestManager_1.default);
         await RequestManagerService.makeProxy();
@@ -45,7 +45,7 @@ exports.default = (app) => {
     route.get('/dabang-one', async (req, res) => {
         const RequestManagerService = typedi_1.default.get(requestManager_1.default);
         const a = await (0, request_promise_native_1.default)({
-            uri: 'https://www.dabangapp.com/api/v5/room-list/category/one-two/region',
+            uri: 'https://www.dabangapp.com/v5/room-list/category/one-two/region',
             method: 'GET',
             qs: {
                 code: '30170112',
@@ -62,7 +62,7 @@ exports.default = (app) => {
         console.log(a.result);
         return res.status(200).json({ message: 'Success' });
     });
-    // http://localhost:4000/api/collect/dabang
+    // collect/dabang
     route.get('/dabang', async (req, res) => {
         const dabangService = typedi_1.default.get(dabang_1.default);
         const naverService = typedi_1.default.get(naver_1.default);
@@ -86,7 +86,7 @@ exports.default = (app) => {
         }
         return res.status(200).json({ message: 'Success' });
     });
-    // http://localhost:4000/api/collect/alarm
+    // collect/alarm
     route.get('/alarm', async (req, res) => {
         const NaverService = typedi_1.default.get(naver_1.default);
         const DabangService = typedi_1.default.get(dabang_1.default);

@@ -13,6 +13,8 @@ import { getNowDate } from '../../utils/time';
 
 @Service()
 export default class DabangService {
+  private readonly BASE_URL = 'https://www.dabangapp.com/api';
+
   constructor(
     private readonly debug: false,
     private readonly modelService: ModelService,
@@ -27,7 +29,7 @@ export default class DabangService {
     const {
       result: { stateList },
     } = await request({
-      uri: 'https://www.dabangapp.com/api/v5/markers/category/one-two?bbox=%7B%22sw%22%3A%7B%22lat%22%3A33.1460636%2C%22lng%22%3A121.5391567%7D%2C%22ne%22%3A%7B%22lat%22%3A38.9502276%2C%22lng%22%3A136.0356167%7D%7D&filters=%7B%22sellingTypeList%22%3A%5B%22MONTHLY_RENT%22%2C%22LEASE%22%5D%2C%22depositRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22priceRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22isIncludeMaintenance%22%3Afalse%2C%22pyeongRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22useApprovalDateRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22roomFloorList%22%3A%5B%22GROUND_FIRST%22%2C%22GROUND_SECOND_OVER%22%2C%22SEMI_BASEMENT%22%2C%22ROOFTOP%22%5D%2C%22roomTypeList%22%3A%5B%22ONE_ROOM%22%2C%22TWO_ROOM%22%5D%2C%22dealTypeList%22%3A%5B%22AGENT%22%2C%22DIRECT%22%5D%2C%22canParking%22%3Afalse%2C%22isShortLease%22%3Afalse%2C%22hasElevator%22%3Afalse%2C%22hasPano%22%3Afalse%2C%22isDivision%22%3Afalse%2C%22isDuplex%22%3Afalse%7D&useMap=naver&zoom=9',
+      uri: `${this.BASE_URL}/v5/markers/category/one-two?bbox=%7B%22sw%22%3A%7B%22lat%22%3A33.1460636%2C%22lng%22%3A121.5391567%7D%2C%22ne%22%3A%7B%22lat%22%3A38.9502276%2C%22lng%22%3A136.0356167%7D%7D&filters=%7B%22sellingTypeList%22%3A%5B%22MONTHLY_RENT%22%2C%22LEASE%22%5D%2C%22depositRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22priceRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22isIncludeMaintenance%22%3Afalse%2C%22pyeongRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22useApprovalDateRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22roomFloorList%22%3A%5B%22GROUND_FIRST%22%2C%22GROUND_SECOND_OVER%22%2C%22SEMI_BASEMENT%22%2C%22ROOFTOP%22%5D%2C%22roomTypeList%22%3A%5B%22ONE_ROOM%22%2C%22TWO_ROOM%22%5D%2C%22dealTypeList%22%3A%5B%22AGENT%22%2C%22DIRECT%22%5D%2C%22canParking%22%3Afalse%2C%22isShortLease%22%3Afalse%2C%22hasElevator%22%3Afalse%2C%22hasPano%22%3Afalse%2C%22isDivision%22%3Afalse%2C%22isDuplex%22%3Afalse%7D&useMap=naver&zoom=9`,
       method: 'GET',
       proxy: await this.requestManagerService.getRandomProxy(),
       headers: this.requestManagerService.getHeadersDabang(),
@@ -61,7 +63,7 @@ export default class DabangService {
     const {
       result: { cityList },
     } = await request({
-      uri: 'https://www.dabangapp.com/api/v5/markers/category/apt',
+      uri: `${this.BASE_URL}/v5/markers/category/apt`,
       proxy: await this.requestManagerService.getRandomProxy(),
       headers: this.requestManagerService.getHeadersDabang(),
       qs: {
@@ -103,7 +105,7 @@ export default class DabangService {
     };
 
     const dongList = await request({
-      uri: 'https://www.dabangapp.com/api/v5/markers/category/one-two',
+      uri: `${this.BASE_URL}/v5/markers/category/one-two`,
       proxy: await this.requestManagerService.getRandomProxy(),
       headers: this.requestManagerService.getHeadersDabang(),
       qs: {
@@ -127,7 +129,7 @@ export default class DabangService {
    */
   public async fetchComplexes(keyword: string) {
     return await request({
-      uri: `https://www.dabangapp.com/api/3/loc/search-keyword`,
+      uri: `${this.BASE_URL}/3/loc/search-keyword`,
       method: 'GET',
       qs: {
         api_version: '3.0.1',
@@ -152,7 +154,7 @@ export default class DabangService {
   public async fetchSummary(complexNo: string) {
     try {
       const { code, msg, result } = await request({
-        uri: `https://www.dabangapp.com/api/v5/complex/apt/summary`,
+        uri: `${this.BASE_URL}/v5/complex/apt/summary`,
         method: 'GET',
         qs: {
           complexId: complexNo,
@@ -174,7 +176,7 @@ export default class DabangService {
 
   /**
    * 아파트 & 오피스텔 정보를 불러오는 API ...
-   * * https://new.land.naver.com/api/articles?cortarNo=3020015200 // 원룸 투룸 & 상가 토지 & 빌라 주택은 해당 URL을 사용합니다
+   * * https://new.land.naver.com/articles?cortarNo=3020015200 // 원룸 투룸 & 상가 토지 & 빌라 주택은 해당 URL을 사용합니다
    */
   public async fetchComplexDetails(complexNo: string, qs: any) {
     const { spaceList } = await this.fetchSummary(complexNo);
@@ -183,7 +185,7 @@ export default class DabangService {
 
     try {
       return await request({
-        uri: `https://www.dabangapp.com/api/v5/room-list/category/apt/complex`,
+        uri: `${this.BASE_URL}/v5/room-list/category/apt/complex`,
         method: 'GET',
         qs: {
           complexId: complexNo,
@@ -210,7 +212,7 @@ export default class DabangService {
   private async fetchOneTowRooms(dong: string, qs: any) {
     try {
       return await request({
-        uri: 'https://www.dabangapp.com/api/v5/room-list/category/one-two/region',
+        uri: `${this.BASE_URL}/v5/room-list/category/one-two/region`,
         method: 'GET',
         qs: {
           code: dong,
@@ -237,7 +239,7 @@ export default class DabangService {
   private async fetchVillaJutaeks(dong: string, qs: any) {
     try {
       return await request({
-        uri: 'https://www.dabangapp.com/api/v5/room-list/category/house-villa/region',
+        uri: `${this.BASE_URL}/v5/room-list/category/house-villa/region`,
         method: 'GET',
         qs: {
           code: dong,
@@ -264,7 +266,7 @@ export default class DabangService {
   private async fetchOfficetels(dong: string, qs: any) {
     try {
       return await request({
-        uri: 'https://www.dabangapp.com/api/v5/room-list/category/officetel/region',
+        uri: `${this.BASE_URL}/v5/room-list/category/officetel/region`,
         method: 'GET',
         qs: {
           code: dong,
@@ -795,7 +797,7 @@ export default class DabangService {
       op: 'officetel',
     };
 
-    cloneEstate.link = `https://www.dabangapp.com/map/${estateTypeVo[estateType]}?detail_id=${estate.articleNo}&detail_type=room`;
+    cloneEstate.link = `${this.BASE_URL}/map/${estateTypeVo[estateType]}?detail_id=${estate.articleNo}&detail_type=room`;
     cloneEstate.rDate = getNowDate();
 
     return cloneEstate;

@@ -9,7 +9,7 @@ const route = Router();
 export default (app: Router) => {
   app.use('/auth', route);
 
-  // http://localhost:5000/api/auth/sms
+  // http://localhost:5000/auth/sms
   route.post('/sms', async (req: Request, res: Response) => {
     const AuthService = Container.get(AuthInstance);
 

@@ -27,7 +27,7 @@ export default function DongList(props: { page: string }) {
       const regionCode = window.localStorage.getItem('on_data_4');
 
       const { data } = await Choco({
-        url: `http://localhost:4000/api/address/dong/${regionCode}`,
+        url: `address/dong/${regionCode}`,
         options: {
           method: 'GET', // HTTP 메소드와 필요한 옵션을 지정
         },
