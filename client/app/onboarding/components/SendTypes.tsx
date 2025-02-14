@@ -18,30 +18,45 @@ const types = {
   email: '',
 };
 
+type TypesType = {
+  sms: string;
+  email: string;
+};
+
 export default function SendTypes(props: { page: string }) {
   const router = useRouter();
 
   const [selectCodes, setSelectCodes] = React.useState<string[]>([]);
-  const [inputs, setInputs] = React.useState(types);
-  const [inputCodes, setInputCodes] = React.useState(types);
-  const [showInputCodes, setShowInputCodes] = React.useState(types);
-  const [okInputs, setOkInputs] = React.useState(types);
+  const [inputs, setInputs] = React.useState<TypesType>(types);
+  const [inputCodes, setInputCodes] = React.useState<TypesType>(types);
+  const [showInputCodes, setShowInputCodes] = React.useState<TypesType>(types);
+  const [okInputs, setOkInputs] = React.useState<TypesType>(types);
 
   const sendAuthCode = React.useCallback(
-    async (type: string, event) => {
-      event.target.disabled = true;
+    async (type: string, event: React.MouseEvent<HTMLButtonElement>) => {
+      if (inputs[type] === '') {
+        alert(`${type} 입력해주세요`);
+        $(`input[name='${type}']`)?.focus();
+        return;
+      }
 
-      const { ok, msg } = await Choco({
+      const { code, msg } = await Choco({
         url: `auth/${type}`,
         options: {
           method: 'POST',
           body: JSON.stringify({
-            [type]: inputs[type], // 동적으로 type 값을 보내기
+            [type]: inputs[type],
           }),
         },
+      }).catch((e: Error) => {
+        alert(e.message);
       });
 
-      if (ok) {
+      if (msg) {
+        alert(msg);
+      }
+
+      if (code === 'success') {
         setShowInputCodes((prev) => {
           return {
             ...prev,
@@ -53,19 +68,13 @@ export default function SendTypes(props: { page: string }) {
 
         $(`input[name='code[${type}]']`)?.focus();
       }
-
-      if (msg) {
-        alert(msg);
-      }
-
-      event.target.disabled = false;
     },
     [inputs],
   );
 
   const vertifyAuthCode = React.useCallback(
     async (type: string) => {
-      const { ok, msg } = await Choco({
+      const { code, msg } = await Choco({
         url: 'auth/verfiy',
         options: {
           method: 'POST',
@@ -74,13 +83,16 @@ export default function SendTypes(props: { page: string }) {
             code: inputCodes[type],
             type: type,
           }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
         },
+      }).catch((e: Error) => {
+        alert(e.message);
       });
 
-      if (ok) {
+      if (msg) {
+        alert(msg);
+      }
+
+      if (code === 'success') {
         // SUCCESS CODE Go..
         setOkInputs((prev) => {
           return {
@@ -90,10 +102,6 @@ export default function SendTypes(props: { page: string }) {
         });
 
         $(`input[name='email`)?.focus();
-      }
-
-      if (msg) {
-        alert(msg);
       }
     },
     [inputs, inputCodes],
@@ -154,9 +162,11 @@ export default function SendTypes(props: { page: string }) {
           inputs: cloneInputs,
         }),
       },
+    }).catch(() => {
+      alert('네트워크 오류가 발생하였습니다');
     });
 
-    if (!apiRes1.ok) {
+    if (apiRes1.code === 'fail') {
       alert(apiRes1.msg);
       return;
     }

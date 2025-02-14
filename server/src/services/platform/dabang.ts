@@ -31,7 +31,8 @@ export default class DabangService {
     } = await request({
       uri: `${this.BASE_URL}/v5/markers/category/one-two?bbox=%7B%22sw%22%3A%7B%22lat%22%3A33.1460636%2C%22lng%22%3A121.5391567%7D%2C%22ne%22%3A%7B%22lat%22%3A38.9502276%2C%22lng%22%3A136.0356167%7D%7D&filters=%7B%22sellingTypeList%22%3A%5B%22MONTHLY_RENT%22%2C%22LEASE%22%5D%2C%22depositRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22priceRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22isIncludeMaintenance%22%3Afalse%2C%22pyeongRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22useApprovalDateRange%22%3A%7B%22min%22%3A0%2C%22max%22%3A999999%7D%2C%22roomFloorList%22%3A%5B%22GROUND_FIRST%22%2C%22GROUND_SECOND_OVER%22%2C%22SEMI_BASEMENT%22%2C%22ROOFTOP%22%5D%2C%22roomTypeList%22%3A%5B%22ONE_ROOM%22%2C%22TWO_ROOM%22%5D%2C%22dealTypeList%22%3A%5B%22AGENT%22%2C%22DIRECT%22%5D%2C%22canParking%22%3Afalse%2C%22isShortLease%22%3Afalse%2C%22hasElevator%22%3Afalse%2C%22hasPano%22%3Afalse%2C%22isDivision%22%3Afalse%2C%22isDuplex%22%3Afalse%7D&useMap=naver&zoom=9`,
       method: 'GET',
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersDabang(),
     }).then((res) => {
       return JSON.parse(res);
@@ -64,7 +65,8 @@ export default class DabangService {
       result: { cityList },
     } = await request({
       uri: `${this.BASE_URL}/v5/markers/category/apt`,
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersDabang(),
       qs: {
         bbox: JSON.stringify(bbox),
@@ -106,7 +108,8 @@ export default class DabangService {
 
     const dongList = await request({
       uri: `${this.BASE_URL}/v5/markers/category/one-two`,
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersDabang(),
       qs: {
         bbox: JSON.stringify(bbox),
@@ -138,7 +141,8 @@ export default class DabangService {
         limit: 25,
         version: 1,
       },
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersDabang(),
     }).then((res) => {
       const data = JSON.parse(res);
@@ -160,7 +164,8 @@ export default class DabangService {
           complexId: complexNo,
         },
         rejectUnauthorized: false, // SSL 인증서 `검증을 비활성화
-        proxy: await this.requestManagerService.getRandomProxy(),
+        proxy:
+          process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
         headers: this.requestManagerService.getHeadersDabang(),
       }).then((res) => {
         const data = JSON.parse(res);
@@ -195,7 +200,8 @@ export default class DabangService {
           page: 1,
         },
         rejectUnauthorized: false, // SSL 인증서 `검증을 비활성화
-        proxy: await this.requestManagerService.getRandomProxy(),
+        proxy:
+          process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
         headers: this.requestManagerService.getHeadersDabang(),
       }).then((res) => {
         const {
@@ -221,7 +227,8 @@ export default class DabangService {
           zoom: 14,
           filters: JSON.stringify(qs.mainFilters),
         },
-        proxy: await this.requestManagerService.getRandomProxy(),
+        proxy:
+          process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
         headers: this.requestManagerService.getHeadersDabang(),
       }).then((res) => {
         const {
@@ -248,7 +255,8 @@ export default class DabangService {
           zoom: 14,
           filters: JSON.stringify(qs.mainFilters),
         },
-        proxy: await this.requestManagerService.getRandomProxy(),
+        proxy:
+          process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
         headers: this.requestManagerService.getHeadersDabang(),
       }).then((res) => {
         const {
@@ -275,7 +283,8 @@ export default class DabangService {
           zoom: 14,
           filters: JSON.stringify(qs.mainFilters),
         },
-        proxy: await this.requestManagerService.getRandomProxy(),
+        proxy:
+          process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
         headers: this.requestManagerService.getHeadersDabang(),
       }).then((res) => {
         const {

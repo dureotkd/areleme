@@ -12,15 +12,51 @@ import ViewButton from './ViewButton';
 
 import { wait } from '../../helpers/time';
 import Choco from '../../helpers/choco';
-import ErrorBoundary from './ErrorBoundary';
+import ApiErrorBoundary from './ApiErrorBoundary';
 
 export default function CompletedAlarmSetting() {
   const router = useRouter();
 
-  const [loadingStep, setLoadingStep] = React.useState<string>('');
-  const [realLoading, setRealLoading] = React.useState<boolean>(true);
+  const [loadingStep, setLoadingStep] = React.useState<string>('setting');
+
+  const loadingStepText = React.useMemo(() => {
+    if (!loadingStep) {
+      return '알림 설정중..';
+    }
+
+    return {
+      setting: '설정을 저장하고 있어요..',
+      'complex-search': '단지 정보를 조회하고 있어요..',
+      'complex-unit-search': '단지별 매물을 조회하고 있어요..',
+      'platform-search': '플랫폼 매물을 조회하고 있어요..',
+      finish: '알림 설정 완료!!',
+    }[loadingStep];
+  }, [loadingStep]);
+
+  return (
+    <Layout
+      des={loadingStepText}
+      isNext
+      loading={loadingStep === 'finish' ? false : true}
+      isOnlyNext
+      nextName="확인했어요"
+      nextOnClick={() => {
+        router.replace('/');
+      }}
+    >
+      <SelectedDisplay />
+      <ApiErrorBoundary>
+        <CompletedFetcher loadingStep={loadingStep} setLoadingStep={setLoadingStep} />
+      </ApiErrorBoundary>
+    </Layout>
+  );
+}
+
+function CompletedFetcher({ loadingStep, setLoadingStep }) {
+  const router = useRouter();
 
   const [complexes, setComplexes] = React.useState<[]>([]);
+  const [error, setError] = React.useState<string>('');
 
   React.useEffect(() => {
     (async () => {
@@ -60,29 +96,24 @@ export default function CompletedAlarmSetting() {
             params: params, // 필요한 params 값
           }),
         },
+      }).catch((e: Error) => {
+        setError(e.message);
       });
 
-      if (!settingApiRes.ok) {
-        alert(settingApiRes.msg);
-        return;
-      }
-
       const settingSeq = settingApiRes.seq;
-      let intervalRes: any = {};
+      let intervalRes: ReturnType<typeof setInterval>;
 
       if (estateType === 'apt' || estateType === 'op') {
         setLoadingStep('complex-search');
 
         intervalRes = setInterval(async () => {
-          try {
-            const { data } = await Choco({
-              url: `alarm/complex/${settingSeq}`,
-            });
+          const { data } = await Choco({
+            url: `alarm/complex/${settingSeq}`,
+          }).catch((e: Error) => {
+            setError(e.message);
+          });
 
-            setComplexes(data);
-          } catch (error) {
-            console.log(error);
-          }
+          setComplexes(data);
         }, 1000);
 
         await wait(5000);
@@ -94,7 +125,7 @@ export default function CompletedAlarmSetting() {
         await wait(3000);
       }
 
-      await Choco({
+      const alarmRes = await Choco({
         url: 'alarm',
         options: {
           method: 'POST',
@@ -102,15 +133,20 @@ export default function CompletedAlarmSetting() {
             settingSeq: settingSeq,
           }),
         },
-        final: () => {
-          setLoadingStep('finish');
+      })
+        .catch((e) => {
+          setError(e.message);
+        })
+        .finally(() => {
           clearInterval(intervalRes);
+        });
 
-          // clearData();
-        },
-      });
+      if (alarmRes.code === 'success') {
+        setLoadingStep('finish');
+        clearData();
+      }
     })();
-  }, [router]);
+  }, [router, setComplexes, setLoadingStep]);
 
   const isValidData = () => {
     let valid = true;
@@ -140,73 +176,46 @@ export default function CompletedAlarmSetting() {
     }
   };
 
-  const loadingStepText = React.useMemo(() => {
-    if (!loadingStep) {
-      return '알림 설정중..';
-    }
+  if (error) {
+    throw new Error(error);
+  }
 
-    return {
-      'complex-search': '단지 정보를 조회하고 있어요..',
-      'complex-unit-search': '단지별 매물을 조회하고 있어요..',
-      'platform-search': '플랫폼 매물을 조회하고 있어요..',
-      finish: '알림 설정 완료!!',
-    }[loadingStep];
-  }, [loadingStep]);
+  if (loadingStep === 'setting' || loadingStep === 'complex-search' || loadingStep === 'platform-search') {
+    return <FetchLoading />;
+  }
 
   return (
-    <ErrorBoundary>
-      <Layout
-        des={loadingStepText}
-        isNext
-        loading={loadingStep === 'finish' ? false : true}
-        isOnlyNext
-        nextName="확인했어요"
-        nextOnClick={() => {
-          router.replace('/');
-        }}
-      >
-        {loadingStep === '' ? (
-          <FetchLoading />
-        ) : (
-          <>
-            <SelectedDisplay />
-            {}
-            {loadingStep === 'complex-search' && <FetchLoading />}
-            <motion.ul
-              variants={{
-                hidden: {
-                  opacity: 0,
-                },
-                visible: {
-                  opacity: 1,
-                  transition: {
-                    when: 'beforeChildren',
-                    staggerChildren: 0.2,
-                  },
-                },
-              }}
-              initial="hidden"
-              animate="visible"
-              className="flex flex-wrap mt-sm"
-            >
-              {complexes.map((complex: any) => {
-                return (
-                  <motion.li
-                    variants={{
-                      hidden: { opacity: 0, y: 50 },
-                      visible: { opacity: 1, y: 0 },
-                    }}
-                    className="mr-sm"
-                    key={`complex-${complex.seq}`}
-                  >
-                    <ViewButton className="mt-sm" name={complex.name} />
-                  </motion.li>
-                );
-              })}
-            </motion.ul>
-          </>
-        )}
-      </Layout>
-    </ErrorBoundary>
+    <motion.ul
+      variants={{
+        hidden: {
+          opacity: 0,
+        },
+        visible: {
+          opacity: 1,
+          transition: {
+            when: 'beforeChildren',
+            staggerChildren: 0.2,
+          },
+        },
+      }}
+      initial="hidden"
+      animate="visible"
+      className="flex flex-wrap mt-sm"
+    >
+      {complexes.map((complex: any) => {
+        return (
+          <motion.li
+            variants={{
+              hidden: { opacity: 0, y: 50 },
+              visible: { opacity: 1, y: 0 },
+            }}
+            className="mr-sm"
+            key={`complex-${complex.seq}`}
+          >
+            <ViewButton className="mt-sm" name={complex.name} />
+          </motion.li>
+        );
+      })}
+    </motion.ul>
   );
 }

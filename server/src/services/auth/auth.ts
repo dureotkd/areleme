@@ -30,8 +30,6 @@ export default class AuthService {
       const authCode = this.makeCode();
       const msg = `[매물알리미]\n인증번호 : ${authCode}`;
 
-      console.log(msg);
-
       let sendRes = null;
 
       if (type === 'sms') {
@@ -44,6 +42,8 @@ export default class AuthService {
         res.ok = false;
         break;
       }
+
+      console.log(msg);
 
       const insertSeq = await this.modelService.execute({
         debug: this.debug,

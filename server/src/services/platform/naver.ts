@@ -49,7 +49,8 @@ export default class NaverService {
       const data = await request({
         uri: `${this.BASE_URL}/list?cortarNo=0000000000`,
         method: 'GET',
-        proxy: await this.requestManagerService.getRandomProxy(),
+        proxy:
+          process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
         headers: this.requestManagerService.getHeadersNaver(),
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res);
@@ -73,7 +74,8 @@ export default class NaverService {
       await request({
         uri: `${this.BASE_URL}/regions/list?cortarNo=${row.code}`,
         method: 'GET',
-        proxy: await this.requestManagerService.getRandomProxy(),
+        proxy:
+          process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
         headers: this.requestManagerService.getHeadersNaver(),
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res); // regionList
@@ -101,7 +103,8 @@ export default class NaverService {
       await request({
         uri: `${this.BASE_URL}/regions/list?cortarNo=${row.code}`,
         method: 'GET',
-        proxy: await this.requestManagerService.getRandomProxy(),
+        proxy:
+          process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
         headers: this.requestManagerService.getHeadersNaver(),
       }).then((res) => {
         const { regionList = [] } = JSON.parse(res); // regionList
@@ -128,7 +131,8 @@ export default class NaverService {
       uri: `${this.BASE_URL}/articles`,
       method: 'GET',
       qs: qs,
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
@@ -145,7 +149,8 @@ export default class NaverService {
       uri: `${this.BASE_URL}/articles`,
       method: 'GET',
       qs: qs,
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
@@ -164,7 +169,8 @@ export default class NaverService {
       uri: `${this.BASE_URL}/regions/complexes`,
       method: 'GET',
       qs: qs,
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
@@ -180,7 +186,8 @@ export default class NaverService {
       uri: `${this.BASE_URL}/regions/complexes`,
       method: 'GET',
       qs: qs,
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);
@@ -205,7 +212,8 @@ export default class NaverService {
         complexNo: complexNo,
       },
       rejectUnauthorized: false, // SSL 인증서 검증을 비활성화
-      proxy: await this.requestManagerService.getRandomProxy(),
+      proxy:
+        process.env.NODE_ENV === 'development' ? await this.requestManagerService.getRandomProxy() : null,
       headers: this.requestManagerService.getHeadersNaver(),
     }).then((res) => {
       const data = JSON.parse(res);

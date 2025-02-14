@@ -1,16 +1,18 @@
 import React from 'react';
 
-type Items = {
+type ItemsType = {
   code: string;
   name: string;
 };
 
-function SelectButtonV2(props: { items: Items[]; multiple?: boolean; onClick: any }) {
+function SelectButtonV2(props: { items: ItemsType[]; multiple?: boolean; onClick: Function }) {
   const [selectValue, setSelectValue] = React.useState<string[]>([]);
 
   const handleOnClick = React.useCallback(
     async (value: string) => {
       const actionType = selectValue.includes(value) ? 'DELETE' : 'INSERT';
+
+      console.log(actionType);
 
       const cloneSelectValue = [...selectValue].filter((item) => item !== 'all');
 
@@ -30,7 +32,6 @@ function SelectButtonV2(props: { items: Items[]; multiple?: boolean; onClick: an
     },
     [selectValue],
   );
-  //
 
   return (
     <>
@@ -45,13 +46,8 @@ function SelectButtonV2(props: { items: Items[]; multiple?: boolean; onClick: an
             value={code}
             onClick={async () => {
               if (props?.onClick) {
-                const r = await props.onClick(code);
-
-                console.log(r);
-
-                if (r !== false) {
-                  handleOnClick(code);
-                }
+                await props.onClick(code);
+                handleOnClick(code);
               }
             }}
           >

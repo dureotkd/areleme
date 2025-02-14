@@ -4,26 +4,48 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import Layout from './Layout';
+import ApiErrorBoundary from './ApiErrorBoundary';
 import SelectButton from './SelectButton';
 import FetchLoading from '../../components/FetchLoading';
-import useRedirectPrevData from '../hooks/useRedirectPrevData';
 import SelectedDisplay from './SelectedDisplay';
+
+import useRedirectPrevData from '../hooks/useRedirectPrevPage';
 
 import Choco from '../../helpers/choco';
 
-type Region = {
+type RegionType = {
   seq: number;
   code: string;
   name: string;
 };
 
 export default function RegionList(props: { page: string }) {
+  useRedirectPrevData(props.page);
+
+  return (
+    <Layout
+      des={
+        <>
+          지역을
+          <br />
+          선택해주세요
+        </>
+      }
+    >
+      <SelectedDisplay className="mb-md" />
+      <ApiErrorBoundary>
+        <RegionListFetcher page={props.page} />
+      </ApiErrorBoundary>
+    </Layout>
+  );
+}
+
+function RegionListFetcher({ page }) {
   const router = useRouter();
 
   const [loading, setLoading] = useState(true);
-  const [list, setList] = useState<Region[]>([]);
-
-  useRedirectPrevData(props.page);
+  const [error, setError] = useState<string>('');
+  const [list, setList] = useState<RegionType[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -37,42 +59,37 @@ export default function RegionList(props: { page: string }) {
         final: () => {
           setLoading(false);
         },
+      }).catch((e: Error) => {
+        setError(e.message);
       });
 
       setList(data);
     })();
   }, []);
 
-  return (
-    <Layout
-      des={
-        <>
-          지역을
-          <br />
-          선택해주세요
-        </>
-      }
-    >
-      <SelectedDisplay className="mb-md" />
-      {loading && <FetchLoading />}
-      {list.length > 0 &&
-        list.map((item) => {
-          return (
-            <SelectButton
-              key={item.seq}
-              code={item.code}
-              name={item.name}
-              onClick={() => {
-                window.localStorage.setItem('on_page', props.page);
-                window.localStorage.setItem(`on_data_${props.page}`, item.code);
-                const on_data_name = JSON.parse(window.localStorage.getItem('on_data_name'));
-                on_data_name[parseInt(props.page) - 1] = item.name;
-                window.localStorage.setItem('on_data_name', JSON.stringify(on_data_name));
-                router.push(`/onboarding/${Number(props.page) + 1}`);
-              }}
-            />
-          );
-        })}
-    </Layout>
-  );
+  if (error) {
+    throw new Error(error);
+  }
+
+  if (loading) {
+    return <FetchLoading />;
+  }
+
+  return list.map((item) => {
+    return (
+      <SelectButton
+        key={item.seq}
+        code={item.code}
+        name={item.name}
+        onClick={() => {
+          window.localStorage.setItem('on_page', page);
+          window.localStorage.setItem(`on_data_${page}`, item.code);
+          const on_data_name = JSON.parse(window.localStorage.getItem('on_data_name'));
+          on_data_name[parseInt(page) - 1] = item.name;
+          window.localStorage.setItem('on_data_name', JSON.stringify(on_data_name));
+          router.push(`/onboarding/${Number(page) + 1}`);
+        }}
+      />
+    );
+  });
 }

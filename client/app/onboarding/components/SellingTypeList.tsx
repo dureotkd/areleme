@@ -8,7 +8,7 @@ import Layout from './Layout';
 import SelectButton from './SelectButton';
 import SelectedDisplay from './SelectedDisplay';
 
-import useRedirectPrevData from '../hooks/useRedirectPrevData';
+import useRedirectPrevData from '../hooks/useRedirectPrevPage';
 
 export default function SellingTypeList(props: { page: string }) {
   const router = useRouter();

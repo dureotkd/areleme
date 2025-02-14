@@ -16,20 +16,20 @@ export default (app: Router) => {
     const { selectCodes, inputs } = req.body;
 
     const apiRes = {
-      ok: true,
+      code: 'success',
       msg: '',
       id: 0,
     };
 
     for await (const process of [1]) {
       if (empty(selectCodes)) {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = 'selectCodes 필수값입니다';
         break;
       }
 
       if (empty(inputs.sms) && empty(inputs.email)) {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = 'inputs 필수값입니다';
         break;
       }
@@ -40,7 +40,7 @@ export default (app: Router) => {
       });
 
       //   if (selectCodes.length !== Object.values(inputs)) {
-      //     apiRes.ok = false;
+      //     apiRes.code = 'fail';
       //     apiRes.msg = 'selectCodes = inputs Length는 대칭되야합니다';
       //     break;
       //   }
@@ -68,7 +68,7 @@ export default (app: Router) => {
 
         const insertUserSeq = await UserService.makeUser(newSelectCodes, inputs);
         if (!insertUserSeq) {
-          apiRes.ok = false;
+          apiRes.code = 'fail';
           apiRes.msg = '알수없는 오류가 발생하였습니다';
           break;
         }
@@ -76,7 +76,7 @@ export default (app: Router) => {
         apiRes.id = insertUserSeq;
       } catch (error) {
         console.log(error);
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '알수없는 오류가 발생하였습니다';
         break;
       }

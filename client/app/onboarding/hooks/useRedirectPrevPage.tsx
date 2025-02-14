@@ -1,6 +1,6 @@
 import React from 'react';
 
-function useRedirectPrevData(page: string) {
+function useRedirectPrevPage(page: string) {
   React.useEffect(() => {
     let res = true;
     let replaceUrl = '';
@@ -18,9 +18,7 @@ function useRedirectPrevData(page: string) {
     if (!res) {
       window.location.replace(replaceUrl);
     }
-  }, []);
-
-  return <div>useRedirectPrevData</div>;
+  }, [page]);
 }
 
-export default useRedirectPrevData;
+export default useRedirectPrevPage;

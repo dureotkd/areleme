@@ -3,15 +3,17 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+import ApiErrorBoundary from './ApiErrorBoundary';
 import SelectButton from './SelectButton';
 import Layout from './Layout';
 import FetchLoading from '../../components/FetchLoading';
-import useRedirectPrevData from '../hooks/useRedirectPrevData';
 import SelectedDisplay from './SelectedDisplay';
+
+import useRedirectPrevPage from '../hooks/useRedirectPrevPage';
 
 import Choco from '../../helpers/choco';
 
-type Local = {
+type LocalType = {
   seq: number;
   code: string;
   lat: string;
@@ -20,28 +22,7 @@ type Local = {
 };
 
 export default function LocalList(props: { page: string }) {
-  const router = useRouter();
-
-  const [loading, setLoading] = useState(true);
-  const [list, setList] = useState<Local[]>([]);
-
-  useRedirectPrevData(props.page);
-
-  useEffect(() => {
-    (async () => {
-      const { data } = await Choco({
-        url: 'address/local',
-        options: {
-          method: 'GET', // 필요한 HTTP 메소드와 기타 옵션
-        },
-        final: () => {
-          setLoading(false);
-        },
-      });
-
-      setList(data);
-    })();
-  }, []);
+  useRedirectPrevPage(props.page);
 
   return (
     <Layout
@@ -54,25 +35,61 @@ export default function LocalList(props: { page: string }) {
       }
     >
       <SelectedDisplay className="mb-md" />
-      {loading && <FetchLoading />}
-      {list.length > 0 &&
-        list.map((item) => {
-          return (
-            <SelectButton
-              key={item.seq}
-              code={item.code}
-              name={item.name}
-              onClick={() => {
-                window.localStorage.setItem('on_page', props.page);
-                window.localStorage.setItem(`on_data_${props.page}`, item.code);
-                const on_data_name = JSON.parse(window.localStorage.getItem('on_data_name'));
-                on_data_name[parseInt(props.page) - 1] = item.name;
-                window.localStorage.setItem('on_data_name', JSON.stringify(on_data_name));
-                router.push(`/onboarding/${Number(props.page) + 1}`);
-              }}
-            />
-          );
-        })}
+      <ApiErrorBoundary>
+        <LocalListFetcher page={props.page} />
+      </ApiErrorBoundary>
     </Layout>
   );
+}
+
+function LocalListFetcher({ page }) {
+  const router = useRouter();
+
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+  const [list, setList] = useState<LocalType[]>([]);
+
+  useEffect(() => {
+    (async () => {
+      const { data } = await Choco({
+        url: 'address/local',
+        options: {
+          method: 'GET',
+        },
+        final: () => {
+          setLoading(false);
+        },
+      }).catch((e) => {
+        setError(e.message);
+      });
+
+      setList(data);
+    })();
+  }, []);
+
+  if (error) {
+    throw new Error(error);
+  }
+
+  if (loading) {
+    return <FetchLoading />;
+  }
+
+  return list.map((item) => {
+    return (
+      <SelectButton
+        key={item.seq}
+        code={item.code}
+        name={item.name}
+        onClick={() => {
+          window.localStorage.setItem('on_page', page);
+          window.localStorage.setItem(`on_data_${page}`, item.code);
+          const on_data_name = JSON.parse(window.localStorage.getItem('on_data_name'));
+          on_data_name[parseInt(page) - 1] = item.name;
+          window.localStorage.setItem('on_data_name', JSON.stringify(on_data_name));
+          router.push(`/onboarding/${Number(page) + 1}`);
+        }}
+      />
+    );
+  });
 }

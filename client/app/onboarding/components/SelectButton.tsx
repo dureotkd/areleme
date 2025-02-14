@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useCallback, useState } from 'react';
 
 export default function SelectButton(props: {

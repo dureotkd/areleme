@@ -1,10 +1,9 @@
 import { empty } from './../../utils/valid';
 import { Router, Request, Response } from 'express';
+
 import Container from 'typedi';
 
-import AlarmInstance from '../../services/core/alarm';
 import ComplexInstance from '../../services/core/complex';
-import SettingInstance from '../../services/core/setting';
 
 import NaverInstance from '../../services/platform/naver';
 import DabangInstance from '../../services/platform/dabang';
@@ -22,13 +21,13 @@ export default (app: Router) => {
     const settingSeq = (req?.body?.settingSeq || []) as string;
 
     const apiRes = {
-      ok: true,
+      code: 'success',
       msg: '',
     };
 
     for await (const process of [1]) {
       if (!settingSeq) {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '알수없는 오류가 발생하였습니다';
         break;
       }
@@ -38,7 +37,7 @@ export default (app: Router) => {
         await DabangService.initLastEstate(settingSeq);
       } catch (error) {
         console.log(error);
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '알수없는 오류가 발생하였습니다';
         break;
       }
@@ -52,14 +51,14 @@ export default (app: Router) => {
     const { settingSeq } = req.params;
 
     const apiRes = {
-      ok: true,
+      code: 'success',
       msg: '',
       data: [],
     };
 
     for await (const process of [1]) {
       if (empty(settingSeq)) {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '필수 정보 부족';
         break;
       }

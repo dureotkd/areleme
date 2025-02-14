@@ -16,22 +16,29 @@ export default (app: Router) => {
     const sms = (req?.body?.sms || '') as string;
 
     const apiRes = {
-      ok: true,
+      code: 'success',
       msg: '전송되었습니다',
     };
 
     for await (const process of [1]) {
       if (sms === '') {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '전화번호를 입력해주세요';
         break;
       }
 
-      const sendCodeRes = await AuthService.sendCode(sms, 'sms');
+      try {
+        const sendCodeRes = await AuthService.sendCode(sms, 'sms');
 
-      if (!sendCodeRes.ok) {
-        apiRes.ok = false;
-        apiRes.msg = '인증번호 전송에 실패하였습니다';
+        if (!sendCodeRes.ok) {
+          apiRes.code = 'fail';
+          apiRes.msg = '인증번호 전송에 실패하였습니다';
+          break;
+        }
+      } catch (error) {
+        console.log(error);
+        apiRes.code = 'fail';
+        apiRes.msg = '서버 오류가 발생하였습니다';
         break;
       }
     }
@@ -46,19 +53,19 @@ export default (app: Router) => {
     const email = (body?.email || '') as string;
 
     const apiRes = {
-      ok: true,
+      code: 'success',
       msg: '전송되었습니다',
     };
 
     for await (const process of [1]) {
       if (email === '') {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '이메일을 입력해주세요';
         break;
       }
 
       if (isValidEmail(email)) {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '이메일 유형을 확인해주세요';
         break;
       }
@@ -67,14 +74,14 @@ export default (app: Router) => {
         const sendCodeRes = await AuthService.sendCode(email, 'email');
 
         if (!sendCodeRes.ok) {
-          apiRes.ok = false;
+          apiRes.code = 'fail';
           apiRes.msg = '인증번호 전송에 실패하였습니다';
           break;
         }
       } catch (error) {
         console.log(error);
-        apiRes.ok = false;
-        apiRes.msg = '알수없는 오류가 발생하였습니다';
+        apiRes.code = 'fail';
+        apiRes.msg = '서버 오류가 발생하였습니다';
         break;
       }
     }
@@ -90,19 +97,19 @@ export default (app: Router) => {
     const code = (req?.body?.code || '') as string;
 
     const apiRes = {
-      ok: true,
+      code: 'success',
       msg: '인증되었습니다',
     };
 
     for await (const process of [1]) {
       if (to === '') {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '이메일 또는 전화번호를 입력해주세요';
         break;
       }
 
       if (code === '') {
-        apiRes.ok = false;
+        apiRes.code = 'fail';
         apiRes.msg = '인증번호를 입력해주세요';
         break;
       }
@@ -115,13 +122,13 @@ export default (app: Router) => {
         });
 
         if (!isVertify) {
-          apiRes.ok = false;
-          apiRes.msg = '인증번호가 틀립니다';
+          apiRes.code = 'fail';
+          apiRes.msg = '인증번호가 다릅니다';
           break;
         }
       } catch (error) {
-        apiRes.ok = false;
-        apiRes.msg = '알수없는 오류가 발생하였습니다';
+        apiRes.code = 'fail';
+        apiRes.msg = '서버 오류가 발생하였습니다';
         console.log(error);
         break;
       }

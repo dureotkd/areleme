@@ -47,6 +47,12 @@ export default (app: Router) => {
 
     try {
       local = await naverService.getLocal(code);
+
+      if (local.length === 0) {
+        result['code'] = 'fail';
+        result['msg'] = `${code}값 오류 `;
+      }
+
       result['data'] = local;
     } catch (error) {
       result['code'] = 'fail';
@@ -72,6 +78,11 @@ export default (app: Router) => {
     try {
       region = await naverService.getRegionsOfLocal(localCode);
       result['data'] = region;
+
+      if (region.length === 0) {
+        result['code'] = 'fail';
+        result['msg'] = `${localCode}값 오류 `;
+      }
     } catch (error) {
       result['code'] = 'fail';
       result['msg'] = '알수없는 오류가 발생하였습니다';
@@ -96,6 +107,11 @@ export default (app: Router) => {
     try {
       dongs = await naverService.getDongsOfRegion(regionCode);
       result['data'] = dongs;
+
+      if (dongs.length === 0) {
+        result['code'] = 'fail';
+        result['msg'] = `${regionCode}값 오류 `;
+      }
     } catch (error) {
       result['code'] = 'fail';
       result['msg'] = '알수없는 오류가 발생하였습니다';

@@ -7,7 +7,7 @@ import Layout from './Layout';
 import FetchLoading from '../../components/FetchLoading';
 import number from '../helpers/number';
 import { useRouter } from 'next/navigation';
-import useRedirectPrevData from '../hooks/useRedirectPrevData';
+import useRedirectPrevData from '../hooks/useRedirectPrevPage';
 import SelectedDisplay from './SelectedDisplay';
 
 const RENT_MIN_COST = 100000;
