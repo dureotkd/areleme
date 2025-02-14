@@ -10,7 +10,8 @@ import routes from '../api/routes';
 export default async ({ app }: { app: express.Application }) => {
   app.use(
     cors({
-      origin: '*',
+      origin: process.env.NODE_ENV === 'production' ? 'https://www.areleme.com' : '*',
+      credentials: true,
     }),
   );
 
