@@ -13,7 +13,7 @@ import NaverInstance from '../services/platform/naver';
 import DabangInstance from '../services/platform/dabang';
 
 export default async () => {
-  cron.schedule('*/5 * * * *', async () => {
+  cron.schedule('*/30 * * * *', async () => {
     // 현재 시간 가져오기
     const currentTime = dayjs();
 

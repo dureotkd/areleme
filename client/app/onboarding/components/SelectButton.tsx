@@ -26,7 +26,7 @@ export default function SelectButton(props: {
   return (
     <button
       onClick={handleOnClick}
-      className="bg-silver pl-md pr-md pt-sm pb-sm mr-md mb-md rounded-md text-sm"
+      className="bg-silver pl-md pr-md pt-sm pb-sm mr-sm mb-md rounded-md text-sm"
     >
       {props.name}
     </button>

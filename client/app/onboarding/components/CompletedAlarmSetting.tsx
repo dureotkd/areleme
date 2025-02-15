@@ -105,6 +105,8 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
         }
       });
 
+      await wait(1500);
+
       const settingSeq = settingApiRes.seq;
       let intervalRes: ReturnType<typeof setInterval>;
 
@@ -123,7 +125,7 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
           }
 
           setComplexes(data);
-        }, 1000);
+        }, 2000);
 
         await wait(2000);
       } else {
@@ -149,6 +151,8 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
         });
 
       if (alarmRes.code === 'success') {
+        await wait(2000);
+
         setLoadingStep('finish');
         // clearData();
       }
