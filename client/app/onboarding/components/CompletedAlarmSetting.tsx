@@ -125,9 +125,7 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
           }
 
           setComplexes(data);
-        }, 2000);
-
-        await wait(2000);
+        }, 3500);
       } else {
         setLoadingStep('platform-search');
 
