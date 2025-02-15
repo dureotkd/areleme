@@ -120,5 +120,9 @@ export default (app: Router) => {
     res.send(result);
   });
 
+  route.get('/block', async (req: Request, res: Response) => {
+    res.send(true);
+  });
+
   route.get('/dong/:code', async (req: Request, res: Response) => {});
 };
