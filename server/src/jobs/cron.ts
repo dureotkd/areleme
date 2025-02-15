@@ -14,6 +14,10 @@ import DabangInstance from '../services/platform/dabang';
 
 export default async () => {
   cron.schedule('*/30 * * * *', async () => {
+    if (process.env.NODE_ENV === 'production') {
+      return;
+    }
+
     // 현재 시간 가져오기
     const currentTime = dayjs();
 
