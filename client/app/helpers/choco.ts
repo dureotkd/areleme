@@ -1,5 +1,5 @@
 const BACKEND_URL =
-  process.env.NODE_ENV === 'development' ? `http://localhost:4000/api` : 'http://211.238.133.10:4000/api';
+  process.env.NODE_ENV === 'development' ? `http://localhost:4000/api` : 'https://api.okpann.com/api';
 
 const choco = async ({ url, options = {}, final }: any) => {
   try {
