@@ -94,7 +94,7 @@ export default function DetailList(props: { page: string }) {
       ) : (
         <>
           <SelectedDisplay className="mb-md" />
-          <div>
+          <div className="w-11/12">
             <div>
               <h3 className="font-semibold">가격</h3>
               <div className="flex justify-between">

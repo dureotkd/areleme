@@ -227,7 +227,7 @@ export default function SendTypes(props: { page: string }) {
       />
 
       {selectCodes.length > 0 && (
-        <>
+        <div className="pr-lg">
           {(selectCodes.includes('talk') || selectCodes.includes('sms')) && (
             <div className="flex flex-col mt-md relative">
               <div>
@@ -359,7 +359,7 @@ export default function SendTypes(props: { page: string }) {
               )}
             </div>
           )}
-        </>
+        </div>
       )}
     </Layout>
   );

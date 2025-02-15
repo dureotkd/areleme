@@ -8,7 +8,7 @@ export default function ViewButton(props: {
   return (
     <button
       type="button"
-      className={`bg-silver rounded-md text-base  ${props.className}`}
+      className={`bg-silver rounded-md md:text-base text-sm  ${props.className}`}
       style={{ padding: '4px 6px' }}
       onClick={props.onClick || (() => {})}
     >

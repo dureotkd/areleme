@@ -27,7 +27,7 @@ const Layout = ({
   const router = useRouter();
 
   return (
-    <div className="flex flex-col w-full h-full overflow-x-visible min-h-screen items-start p-xl relative">
+    <div className="flex flex-col w-full h-full overflow-x-visible min-h-screen items-start pt-lg pb-lg pl-lg relative">
       <h2 className="font-semibold text-3xl text-left">{des}</h2>
       <div className="w-full h-full mt-md text-left justify-start">{children}</div>
       {loading === false &&

@@ -86,16 +86,16 @@ export default (app: Router) => {
         break;
       }
 
-      const sameSettingRow = await SettingService.getCustomQuery({
-        where: [`userSeq = '${userSeq}'`, `params = '${JSON.stringify(params)}'`],
-        type: 'row',
-      });
+      // const sameSettingRow = await SettingService.getCustomQuery({
+      //   where: [`userSeq = '${userSeq}'`, `params = '${JSON.stringify(params)}'`],
+      //   type: 'row',
+      // });
 
-      if (!empty(sameSettingRow)) {
-        apiRes.code = 'fail';
-        apiRes.msg = '동일한 조건으로 설정된 알림이 존재합니다';
-        break;
-      }
+      // if (!empty(sameSettingRow)) {
+      //   apiRes.code = 'fail';
+      //   apiRes.msg = '동일한 조건으로 설정된 알림이 존재합니다';
+      //   break;
+      // }
 
       const settingSeq = await SettingService.makeSetting({
         userSeq: userSeq,
