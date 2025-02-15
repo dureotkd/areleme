@@ -97,7 +97,12 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
           }),
         },
       }).catch((e: Error) => {
-        setError(e.message);
+        if (e.message.includes('동일한 조건')) {
+          alert(e.message);
+          window.location.replace('/onboarding/6');
+        } else {
+          setError(e.message);
+        }
       });
 
       const settingSeq = settingApiRes.seq;
@@ -113,16 +118,18 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
             setError(e.message);
           });
 
+          if (data.length > 0) {
+            setLoadingStep('complex-unit-search');
+          }
+
           setComplexes(data);
         }, 1000);
 
-        await wait(5000);
-
-        setLoadingStep('complex-unit-search');
+        await wait(2000);
       } else {
         setLoadingStep('platform-search');
 
-        await wait(3000);
+        await wait(2000);
       }
 
       const alarmRes = await Choco({
@@ -143,7 +150,7 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
 
       if (alarmRes.code === 'success') {
         setLoadingStep('finish');
-        clearData();
+        // clearData();
       }
     })();
   }, [router, setComplexes, setLoadingStep]);
@@ -216,6 +223,7 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
           </motion.li>
         );
       })}
+      {loadingStep === 'complex-unit-search' && <FetchLoading className="max-w-[180px] !justify-start" />}
     </motion.ul>
   );
 }
