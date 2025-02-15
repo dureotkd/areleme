@@ -15,6 +15,8 @@ export default class requestManagerService {
   public async getRandomProxy() {
     const proxies = await this.getProxies();
 
+    console.log(process.env.NODE_ENV);
+
     const randomIndex = Math.floor(Math.random() * proxies.length);
     const proxy = proxies[randomIndex];
 

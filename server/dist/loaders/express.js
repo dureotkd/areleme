@@ -11,7 +11,8 @@ const config_1 = __importDefault(require("../config"));
 const routes_1 = __importDefault(require("../api/routes"));
 exports.default = async ({ app }) => {
     app.use((0, cors_1.default)({
-        origin: '*',
+        origin: process.env.NODE_ENV === 'production' ? 'https://www.areleme.com' : '*',
+        credentials: true,
     }));
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: true }));

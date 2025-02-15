@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "set NODE_ENV=production npx nodemon ./dist/app.js",
+    "start": "node ./src/app.js",
     "dev": "concurrently \"npx tsc --watch\" \"npx nodemon ./dist/app.js\" ",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
