@@ -1,12 +1,12 @@
-import { empty } from './../../utils/valid';
 import { Router, Request, Response } from 'express';
-
 import Container from 'typedi';
 
 import ComplexInstance from '../../services/core/complex';
-
 import NaverInstance from '../../services/platform/naver';
 import DabangInstance from '../../services/platform/dabang';
+
+import { empty } from './../../utils/valid';
+import { convertLImit } from './../../utils/string';
 
 const route = Router();
 
@@ -49,6 +49,7 @@ export default (app: Router) => {
   route.get('/complex/:settingSeq?', async (req: Request, res: Response) => {
     const ComplexService = Container.get(ComplexInstance);
     const { settingSeq } = req.params;
+    const { page = 0 } = req.query as { page?: number };
 
     const apiRes = {
       code: 'success',
@@ -63,7 +64,13 @@ export default (app: Router) => {
         break;
       }
 
-      apiRes.data = await ComplexService.getComplexes(settingSeq);
+      const limit = page > 0 ? convertLImit(page, 3) : '';
+
+      apiRes.data = await ComplexService.getComplexCustomQuery({
+        where: [`settingSeq = '${settingSeq}'`],
+        type: 'all',
+        limit: limit,
+      });
     }
 
     return res.status(200).json(apiRes);

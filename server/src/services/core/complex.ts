@@ -21,10 +21,18 @@ export default class ComplexService {
     }
   }
 
-  public async getComplexCustomQuery({ where, type }: { where: string[]; type: 'all' | 'row' | 'one' }) {
+  public async getComplexCustomQuery({
+    where,
+    type,
+    limit = '',
+  }: {
+    where: string[];
+    type: 'all' | 'row' | 'one';
+    limit?: string;
+  }) {
     try {
       return await this.modelService.execute({
-        sql: `SELECT * FROM areleme.complex a WHERE %s`.replace('%s', where.join(' AND ')),
+        sql: `SELECT * FROM areleme.complex a WHERE %s ${limit}`.replace('%s', where.join(' AND ')),
         type: type,
       });
     } catch (error) {

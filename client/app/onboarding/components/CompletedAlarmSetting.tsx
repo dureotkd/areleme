@@ -52,10 +52,21 @@ export default function CompletedAlarmSetting() {
   );
 }
 
+type complexType = {
+  dno: null;
+  lat: null;
+  lng: null;
+  name: string;
+  no: string;
+  rDate: Date;
+  seq: number;
+  settingSeq: number;
+};
+
 function CompletedFetcher({ loadingStep, setLoadingStep }) {
   const router = useRouter();
 
-  const [complexes, setComplexes] = React.useState<[]>([]);
+  const [complexes, setComplexes] = React.useState<complexType[]>([]);
   const [error, setError] = React.useState<string>('');
 
   React.useEffect(() => {
@@ -113,9 +124,11 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
       if (estateType === 'apt' || estateType === 'op') {
         setLoadingStep('complex-search');
 
+        let page = 1;
+
         intervalRes = setInterval(async () => {
-          const { data } = await Choco({
-            url: `alarm/complex/${settingSeq}`,
+          const { data }: { data: complexType[] } = await Choco({
+            url: `alarm/complex/${settingSeq}?page=${page}`,
           }).catch((e: Error) => {
             setError(e.message);
           });
@@ -124,8 +137,12 @@ function CompletedFetcher({ loadingStep, setLoadingStep }) {
             setLoadingStep('complex-unit-search');
           }
 
-          setComplexes(data);
-        }, 3500);
+          setComplexes((prev) => {
+            return [...prev, ...data];
+          });
+
+          page++;
+        }, 2000);
       } else {
         setLoadingStep('platform-search');
 
